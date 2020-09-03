@@ -1,2 +1,42 @@
 # CSGOWiki-Plugins
-public some plugins used for www.csgowiki.top
+该仓库包含了一些依赖于www.csgowiki.top的插件，后续可能会添加进更多的插件，现有的插件也会提供更新。
+
+# Download
+
+## Installation
+
+# Features
+
+# Commands
+
+## plugin: utility_helper
+
+### Custom command
+
+- `!wiki` 请求www.csgowiki.top相关api，获取网站内的道具合集并调出用户道具菜单
+- `!last` 将用户传送至上一次`!wiki`选择的道具投掷点上
+- `!report <description>` 举报上一次`!wiki`选择的道具，需要说明举报内容
+
+### Admin command ('b' flag required)
+
+- `!enable [wiki]` 不加参数为开启`utility_helper`和`utility_uploader`两个插件，加参数`wiki`为只开启`utility_helper`插件
+- `!disable [wiki]`不加参数为关闭上述两个插件，加参数`wiki`为只关闭`utility_helper`插件
+
+## plugin: utility_uploader
+
+### Custom command
+
+- `!submit [brief]` 开启道具上传模式，可选参数brief道具简介，可以通过`!list`查看历史上传记录
+- `!list` 查看本次登录服务器后的所有道具上传记录，没有指定的brief显示为`空`
+- `!tp <name>` 将自己传送到名为name的玩家(坐标和视角相同)，name支持正则匹配
+- `!tphere <name>` 将名为name的玩家传送到自己位置(坐标和视角相同)，name支持正则匹配
+
+### Admin command ('b' flag required)
+
+- `!enable [upload]` 不加参数为开启`utility_helper`和`utility_uploader`两个插件，加参数`upload`为只开启`utility_upload`插件
+- `!disable [upload]`不加参数为关闭上述两个插件，加参数`upload`为只关闭`utility_upload`插件
+
+# Thanks
+
+# Contributions
+
