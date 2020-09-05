@@ -1,11 +1,27 @@
 # CSGOWiki-Plugins
 该仓库包含了一些依赖于www.csgowiki.top的插件，后续可能会添加进更多的插件，现有的插件也会提供更新。
 
+# Requirements
+
+- [sourcemod](https://www.sourcemod.net/downloads.php?branch=stable)1.9及以上
+
+- [system2](https://github.com/dordnung/System2): 实现http和ftp等网络协议
+- [sm-json](https://github.com/clugg/sm-json): 提供基于sourcemod的json操作
+
+> 当前库中已整合以上两个插件api，若编译或运行失败可根据提供的插件api链接重新下载或更新环境。sourcemod环境需自行部署
+
 # Download
 
 ## Installation
 
 # Features
+
+- 依赖于[csgowiki](www.csgowiki.top)网站，为该网站的附属功能
+- 定时同步网站内所有当前地图和tick的道具
+- 服务器内实时上传道具
+- 指令控制功能开关
+- 可以传送和被传送，更方便与朋友一起学习道具
+- 服务期内实时对不合理道具进行举报
 
 # Commands
 
@@ -35,13 +51,6 @@
 
 - `!enable [upload]` 不加参数为开启`utility_helper`和`utility_uploader`两个插件，加参数`upload`为只开启`utility_upload`插件
 - `!disable [upload]`不加参数为关闭上述两个插件，加参数`upload`为只关闭`utility_upload`插件
-
-# Thanks
-
-- [system2](https://github.com/dordnung/System2): 实现http和ftp等网络协议
-- [sm-json](https://github.com/clugg/sm-json): 提供基于sourcemod的json操作
-
-> 该插件库中已整合以上两个插件api，若编译或运行失败可根据提供的插件api链接重新下载或更新环境
 
 # Contributions
 
