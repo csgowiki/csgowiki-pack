@@ -38,5 +38,8 @@
 
 # Thanks
 
+- [system2](https://github.com/dordnung/System2):实现http和ftp等网络协议
+- [sm-json](https://github.com/clugg/sm-json): 提供基于sourcemod的json操作
+
 # Contributions
 
