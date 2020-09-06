@@ -21,7 +21,7 @@ JSON_Array g_LastUtilityDetail[MAXPLAYERS + 1];
 bool g_Collection_status = false;
 Handle wiki_timer = INVALID_HANDLE;
 Handle collect_timer = INVALID_HANDLE;
-bool is_on = true;
+bool is_on = true; // !enable/!disable
 
 new Hangle:h_Enable = INVALID_HANDLE;
 
@@ -255,8 +255,8 @@ void show_utility_detail(client) {
     // [status, id:str, ut_type:str, ut_brief:str, ut_author_name:str, 
     //  ut_start_x, y, z, aim_pitch, aim_yaw, action:str, mouse_action:str]
     char ut_id[ID_LENGTH], ut_type[UTILITY_TYPE_LENGTH], ut_brief[BRIEF_LENGTH];
-    char author_name[NAME_LENGTH], action[CLASS_LENGTH], mouse_action[CLASS_LENGTH];
-    char ut_name[UTILITY_TYPE_LENGTH];
+    char author_name[NAME_LENGTH], ut_name[UTILITY_TYPE_LENGTH];
+    char bodyaction[CLASS_LENGTH], mouseaction[CLASS_LENGTH];
     float originPosition[DIM], originAngle[DIM];
     g_LastUtilityDetail[client].GetString(1, ut_id, ID_LENGTH);
     g_LastUtilityDetail[client].GetString(2, ut_type, UTILITY_TYPE_LENGTH);
@@ -267,8 +267,8 @@ void show_utility_detail(client) {
     originPosition[2] = g_LastUtilityDetail[client].GetFloat(7);
     originAngle[0] = g_LastUtilityDetail[client].GetFloat(8);
     originAngle[1] = g_LastUtilityDetail[client].GetFloat(9);
-    g_LastUtilityDetail[client].GetString(10, action, CLASS_LENGTH);
-    g_LastUtilityDetail[client].GetString(11, mouse_action, CLASS_LENGTH);
+    g_LastUtilityDetail[client].GetString(10, bodyaction, CLASS_LENGTH);
+    g_LastUtilityDetail[client].GetString(11, mouseaction, CLASS_LENGTH);
     // decoding
     strcopy(ut_name, UTILITY_TYPE_LENGTH, ut_type);
     decode_utility_type(ut_type, 1);  // flg = 1
@@ -282,16 +282,16 @@ void show_utility_detail(client) {
     FakeClientCommand(client, clientcommand);
     //
 
+    
     // print detail to client
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 道具ID: \x10%s", ut_id);
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 道具名称: \x10%s", ut_brief);
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 道具种类: \x10%s", ut_type);
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 提交人: \x10%s", author_name);
-    PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 身体动作: \x10%s", action);
-    PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 鼠标动作: \x10%s", mouse_action);
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
+    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", bodyaction, mouseaction);
 }
 
 void get_collection_from_server() {
