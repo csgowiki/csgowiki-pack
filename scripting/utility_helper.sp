@@ -233,6 +233,8 @@ void show_utility_detail(client) {
 
     // tp client to aim point and give client utility
     TeleportEntity(client, originPosition, originAngle, NULL_VECTOR);
+    GivePlayerItem(client, "weapon_hegrenade");
+    SetEntProp(client, Prop_Send, "m_iAmmo", 1);
     //
 
     // print detail to client
