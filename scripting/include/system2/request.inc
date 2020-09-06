@@ -6,7 +6,7 @@
  * Web         http://dordnung.de
  * -----------------------------------------------------
  * 
- * Copyright (C) 2013-2020 David Ordnung
+ * Copyright (C) 2013-2018 David Ordnung
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -280,7 +280,7 @@ methodmap System2Request < Handle {
      * @noreturn
      * @error           Invalid request.
      */
-    public native void SetProxyAuthentication(const char[] username, const char[] password);
+    public native void SetProxyAuthentication(const char[] username, const char[] password)
 
 
     property int Timeout {
