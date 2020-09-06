@@ -291,7 +291,7 @@ void show_utility_detail(client) {
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 提交人: \x10%s", author_name);
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
-    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", bodyaction, mouseaction);
+    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s", bodyaction, mouseaction);
 }
 
 void get_collection_from_server() {

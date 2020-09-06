@@ -201,9 +201,15 @@ public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dont
 
 public Action:Event_GrenadeBounce(Handle:event, const String:name[], bool:dontBroadcast) {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
+    new utid = GetEventInt(event, "entityid");
+    PrintToChatAll("ent:%d", utid);
     if (g_PlayerStatus[client] == s_AlreadyThrown) {
         
     }
+}
+
+public OnEntityCreated(int entityid, char[] classname) {
+    PrintToChatAll("entx:%d, classname:%s", entityid, classname);
 }
 
 public Action:Command_SubmitOn(client, args) {
