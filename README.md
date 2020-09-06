@@ -1,6 +1,5 @@
 # CSGOWiki-Plugins
 该仓库包含了一些依赖于www.csgowiki.top的插件，后续可能会添加进更多的插件，现有的插件也会提供更新。
-
 # Requirements
 
 - [sourcemod](https://www.sourcemod.net/downloads.php?branch=stable)1.9及以上
@@ -11,9 +10,9 @@
 > 当前库中已整合以上两个插件api，若编译或运行失败可根据提供的插件api链接重新下载或更新环境。sourcemod环境需自行部署
 
 # Download
-
+[TODO]
 ## Installation
-
+[TODO]
 # Features
 
 - 依赖于[csgowiki](www.csgowiki.top)网站，为该网站的附属功能
