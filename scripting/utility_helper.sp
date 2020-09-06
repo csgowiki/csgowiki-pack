@@ -11,6 +11,7 @@
 #define UTILITY_TYPE_LENGTH 36
 #define CLASS_LENGTH 16
 #define NAME_LENGTH 32
+#define COMMAND_LENGTH 64
 #define DIM 3
 
 char g_CurrentMap[MAPNAME_MAXLENGTH];
@@ -145,39 +146,51 @@ public Action:UpdateCollectionTimerCallback(Handle timer) {
     return Plugin_Continue;
 }
 
-void decode_utility_type(char[] ut_type, bool flg = true, int client = 0) {
+void decode_utility_type(char[] ut_type, int flg = 0, int client = 0) {
     if (StrEqual(ut_type, "smoke")) {
-        if (flg) {
+        if (flg == 0) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "[烟雾弹] ");
         }
-        else {
+        else if (flg == 1) {
+            strcopy(ut_type, UTILITY_TYPE_LENGTH, "烟雾弹");
+        }
+        else if (flg == 2) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_smokegrenade");
         }
         return;
     }
     else if (StrEqual(ut_type, "grenade")) {
-        if (flg) {
+        if (flg == 0) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "[手雷] ");
         }
-        else {
+        else if (flg == 1) {
+            strcopy(ut_type, UTILITY_TYPE_LENGTH, "手雷");
+        }
+        else if (flg == 2) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_hegrenade");
         }
         return;
     }
     else if (StrEqual(ut_type, "flash")) {
-        if (flg) {
+        if (flg == 0) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "[闪光弹] ");
         }
-        else {
+        else if (flg == 1) {
+            strcopy(ut_type, UTILITY_TYPE_LENGTH, "闪光弹");
+        }
+        else if (flg == 2) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_flashbang");
         }
         return;
     }
     else if (StrEqual(ut_type, "molotov")) {
-        if (flg) {
+        if (flg == 0) {
             strcopy(ut_type, UTILITY_TYPE_LENGTH, "[燃烧弹] ");
         }
-        else {
+        else if (flg == 1) {
+            strcopy(ut_type, UTILITY_TYPE_LENGTH, "燃烧弹/燃烧瓶");
+        }
+        else if (flg == 2) {
             int teamid = GetClientTeam(client);
             if (CS_TEAM_T == teamid) {
                 strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_molotov");
@@ -256,14 +269,17 @@ void show_utility_detail(client) {
     originAngle[1] = g_LastUtilityDetail[client].GetFloat(9);
     g_LastUtilityDetail[client].GetString(10, action, CLASS_LENGTH);
     g_LastUtilityDetail[client].GetString(11, mouse_action, CLASS_LENGTH);
-    //
+    // decoding
     strcopy(ut_name, UTILITY_TYPE_LENGTH, ut_type);
-    decode_utility_type(ut_type);
-    decode_utility_type(ut_name, false, client);
-    // tp client to aim point and give client utility
+    decode_utility_type(ut_type, 1);  // flg = 1
+    decode_utility_type(ut_name, 2, client); // flg = 2
+    // tp client to aim point and give&force use client utility
     TeleportEntity(client, originPosition, originAngle, NULL_VECTOR);
     GivePlayerItem(client, ut_name);
     SetEntProp(client, Prop_Send, "m_iAmmo", 1);
+    char clientcommand[COMMAND_LENGTH] = "use ";
+    StrCat(clientcommand, COMMAND_LENGTH, ut_name);
+    FakeClientCommand(client, clientcommand);
     //
 
     // print detail to client
