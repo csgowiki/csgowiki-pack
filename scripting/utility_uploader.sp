@@ -78,6 +78,8 @@ public OnPluginStart() {
     HookEvent("flashbang_detonate", Event_FlashbangDetonate);
     HookEvent("smokegrenade_detonate", Event_SmokeDetonate);
     HookEvent("molotov_detonate", Event_MolotovDetonate);
+    // 捕捉道具路径
+    HookEvent("grenade_bounce", Event_GrenadeBounce);
 
     RegConsoleCmd("sm_submit", Command_SubmitOn);
     RegConsoleCmd("sm_list", Command_ShowList);
@@ -195,6 +197,13 @@ public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dont
         send_to_server(client);
     }
 	return Plugin_Continue;
+}
+
+public Action:Event_GrenadeBounce(Handle:event, const String:name[], bool:dontBroadcast) {
+    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (g_PlayerStatus[client] == s_AlreadyThrown) {
+        
+    }
 }
 
 public Action:Command_SubmitOn(client, args) {
