@@ -179,11 +179,10 @@ void decode_utility_type(char[] ut_type, bool flg = true, int client = 0) {
         }
         else {
             int teamid = GetClientTeam(client);
-            PrintToChatAll("teamid: %d", teamid);
             if (CS_TEAM_T == teamid) {
                 strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_molotov");
             }
-            else if (CS_TEAM_T == teamid) {
+            else if (CS_TEAM_CT == teamid) {
                 strcopy(ut_type, UTILITY_TYPE_LENGTH, "weapon_incgrenade");
             }
         }
@@ -261,7 +260,6 @@ void show_utility_detail(client) {
     strcopy(ut_name, UTILITY_TYPE_LENGTH, ut_type);
     decode_utility_type(ut_type);
     decode_utility_type(ut_name, false, client);
-    PrintToChatAll("ut_name: %s", ut_name);
     // tp client to aim point and give client utility
     TeleportEntity(client, originPosition, originAngle, NULL_VECTOR);
     GivePlayerItem(client, ut_name);

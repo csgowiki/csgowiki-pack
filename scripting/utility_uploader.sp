@@ -517,7 +517,6 @@ UtilityEncode encode_utility(const char[] utilityName) {
         return u_Smoke;
     }
     else {
-        PrintToChatAll("%s", utilityName);
         return u_Molotov;
     }
 }  
