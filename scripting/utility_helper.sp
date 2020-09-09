@@ -23,7 +23,7 @@ Handle wiki_timer = INVALID_HANDLE;
 Handle collect_timer = INVALID_HANDLE;
 bool is_on = true; // !enable/!disable
 
-new Hangle:h_Enable = INVALID_HANDLE;
+new Handle:h_Enable = INVALID_HANDLE;
 
 public Plugin:myinfo = {
     name = "Utility Helper",
