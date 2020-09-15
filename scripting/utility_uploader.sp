@@ -22,6 +22,7 @@ enum ClientStatus {
     s_ThrowReady = 1,
     s_ThrowEnd = 2,
     s_AlreadyThrown = 5,
+    s_ButtonOn = 6
 };
 
 enum UtilityEncode {
@@ -60,6 +61,7 @@ float g_UtilityAirtime[MAXPLAYERS + 1];
 char g_HistoryCode[MAXPLAYERS + 1][CLASS_LENGTH][ID_LENGTH];
 char g_HistoryBrief[MAXPLAYERS + 1][CLASS_LENGTH][BRIEFLENGTH];
 int g_PointerOfHistoryCode[MAXPLAYERS + 1];
+bool g_InUse[MAXPLAYERS + 1];
 Handle upload_timer = INVALID_HANDLE;
 bool is_on = true;
 
@@ -110,17 +112,37 @@ public OnClientDisconnect(client) {
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[UTILITY_DIM], Float:angles[UTILITY_DIM], &weapon) {
     if (is_on == false)
         return Plugin_Continue;
-    if (g_PlayerStatus[client] != s_ThrowReady) {
-        return Plugin_Continue;
+
+    if (g_PlayerStatus[client] == s_Default || g_PlayerStatus[client] == s_ButtonOn) {
+        if (!g_InUse[client] && buttons & IN_USE) {
+            g_InUse[client] = true;
+            if (g_PlayerStatus[client] == s_Default) {
+                g_PlayerStatus[client] = s_ButtonOn;
+                CreateTimer(0.8, USETimerCallBack, client);
+            }
+            else if (g_PlayerStatus[client] == s_ButtonOn) {
+                ClientCommand(client, "sm_submit");
+            }
+        }
+        else if (g_InUse[client] && !(buttons & IN_USE)) {
+            g_InUse[client] = false;
+        }
     }
-    for (new idx = 0; idx < ACTION_NUM; idx++) {
-        if ((g_ActionList[idx] & buttons) && !(g_ActionRecord[client] & (1 << idx))) {
-            g_ActionRecord[client] |= 1 << idx;
+    if (g_PlayerStatus[client] == s_ThrowReady) {
+        for (new idx = 0; idx < ACTION_NUM; idx++) {
+            if ((g_ActionList[idx] & buttons) && !(g_ActionRecord[client] & (1 << idx))) {
+                g_ActionRecord[client] |= 1 << idx;
+            }
         }
     }
     return Plugin_Continue;
 }
 
+public Action:USETimerCallBack(Handle timer, client) {
+    if (g_PlayerStatus[client] == s_ButtonOn) {
+        g_PlayerStatus[client]  = s_Default;
+    }
+}
 
 public Action:Event_GrenadeThrown(Handle:event, const String:name[], bool:dontBroadcast) {
     if (is_on == false)
@@ -201,15 +223,9 @@ public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dont
 
 public Action:Event_GrenadeBounce(Handle:event, const String:name[], bool:dontBroadcast) {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
-    new utid = GetEventInt(event, "entityid");
-    PrintToChatAll("ent:%d", utid);
     if (g_PlayerStatus[client] == s_AlreadyThrown) {
         
     }
-}
-
-public OnEntityCreated(int entityid, char[] classname) {
-    PrintToChatAll("entx:%d, classname:%s", entityid, classname);
 }
 
 public Action:Command_SubmitOn(client, args) {
@@ -217,7 +233,7 @@ public Action:Command_SubmitOn(client, args) {
         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x02插件已关闭，请输入!enbale uploader 或只输入!enable (开启上传道具和学习道具两个插件)")
         return Plugin_Continue;
     }
-    if (g_PlayerStatus[client] != s_Default) {
+    if (g_PlayerStatus[client] != s_Default && g_PlayerStatus[client] != s_ButtonOn) {
         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x02操作无效：尚未获取道具信息");
     } 
     else {
