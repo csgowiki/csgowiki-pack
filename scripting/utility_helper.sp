@@ -18,6 +18,7 @@ char g_CurrentMap[MAPNAME_MAXLENGTH];
 int g_ServerTickRate;
 JSON_Array g_utilityCollection;
 JSON_Array g_LastUtilityDetail[MAXPLAYERS + 1];
+JSON_Array g_utSearchResult[MAXPLAYERS + 1];
 bool g_Collection_status = false;
 Handle wiki_timer = INVALID_HANDLE;
 Handle collect_timer = INVALID_HANDLE;
@@ -46,6 +47,8 @@ public OnPluginStart() {
 
 public OnMapStart() {
     GetCurrentMap(g_CurrentMap, sizeof(g_CurrentMap));
+    for (int idx = 0; idx <= MAXPLAYERS; idx ++)
+        g_utSearchResult[idx].Cleanup();
     get_collection_from_server();
 }
 
@@ -218,6 +221,8 @@ void show_menu_v1(client) {
     AddMenuItem(menuhandle, "grenade", "手雷");
     AddMenuItem(menuhandle, "molotov", "燃烧弹/燃烧瓶");
 
+    AddMenuItem(menuhandle, "search_around_endspot", ">>查询附近落点道具<<");
+    AddMenuItem(menuhandle, "search_around_startspot", ">>查询附近起点道具<<");
 
     SetMenuPagination(menuhandle, 7);
     SetMenuExitButton(menuhandle, true);
@@ -246,8 +251,29 @@ void show_menu_v2(client, char[] c_ut_type) {
     }
 
     SetMenuPagination(menuhandle, 7);
+    // SetMenuExitBackButton(menuhandle, true);
     SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
+}
+
+void show_menu_v3(client) {
+    new Handle:menuhandle = CreateMenu(MenuCallBack_v3);
+    SetMenuTitle(menuhandle, "查询到的道具");
+
+    for (int idx = 1; idx < g_utSearchResult[client].Length; idx ++) {
+        if (g_utSearchResult[client].GetKeyType(idx) == JSON_Type_Object) {
+            JSON_Array arrval = view_as<JSON_Array>(g_utSearchResult[client].GetObject(idx));
+            char ut_id[ID_LENGTH], ut_brief[BRIEF_LENGTH], ut_type[UTILITY_TYPE_LENGTH];
+            arrval.GetString(0, ut_id, ID_LENGTH);
+            arrval.GetString(1, ut_brief, BRIEF_LENGTH);
+            arrval.GetString(2, ut_type, UTILITY_TYPE_LENGTH);
+            decode_utility_type(ut_type);
+            char msg[BRIEF_LENGTH + UTILITY_TYPE_LENGTH] = "";
+            StrCat(msg, sizeof(msg), ut_type);
+            StrCat(msg, sizeof(msg), ut_brief);
+            AddMenuItem(menuhandle, ut_id, msg);
+        }
+    }
 }
 
 void show_utility_detail(client) {
@@ -282,7 +308,6 @@ void show_utility_detail(client) {
     FakeClientCommand(client, clientcommand);
     //
 
-    
     // print detail to client
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 道具ID: \x10%s", ut_id);
@@ -307,6 +332,19 @@ void get_detail_from_server(client, char[] ut_id) {
     httpRequest.POST();
 }
 
+void get_search_result(client, char[] flag) {
+    // get pos
+    float playerPos[3];
+    GetClientAbsOrigin(client, playerPos);
+    System2HTTPRequest httpRequest = new System2HTTPRequest(
+        SearchResultCallback, 
+        "https://www.csgowiki.top/api/utility/search_near/?map=%s&tickrate=%d&flag=%s&posx=%f&posy=%f&posz=%f",
+        g_CurrentMap, g_ServerTickRate, flag, playerPos[0], playerPos[1], playerPos[2]
+    );
+    httpRequest.Any = client;
+    httpRequest.GET();
+}
+
 void send_report_to_server(client, char[] report, char[] ut_id) {
     System2HTTPRequest httpRequest = new System2HTTPRequest(ReportCallback, "https://www.csgowiki.top/api/utility/report/");
     char steamid[NAME_LENGTH];
@@ -320,7 +358,19 @@ public MenuCallBack_v1(Handle:menuhandle, MenuAction:action, client, Position) {
     if (action == MenuAction_Select) {
         decl String:Item[BRIEF_LENGTH];
         GetMenuItem(menuhandle, Position, Item, sizeof(Item));
-        show_menu_v2(client, Item);
+        if (StrEqual(Item, "search_around_endspot")) {
+            get_search_result(client, "END");
+            ServerCommand("sm_beacon CarOL");
+            ServerCommand("sm_beacon CarOL");
+        }
+        else if (StrEqual(Item, "search_around_startspot")) {
+            get_search_result(client, "START");
+            ServerCommand("sm_beacon CarOL");
+            ServerCommand("sm_beacon CarOL");
+        }
+        else {
+            show_menu_v2(client, Item);
+        }        
     }
 }
 
@@ -332,7 +382,25 @@ public MenuCallBack_v2(Handle:menuhandle, MenuAction:action, client, Position) {
         for (int idx = 1; idx < g_utilityCollection.Length; idx ++) {
             if (g_utilityCollection.GetKeyType(idx) == JSON_Type_Object) {
                 JSON_Array arrval = view_as<JSON_Array>(g_utilityCollection.GetObject(idx));
-                char ut_id[ID_LENGTH]
+                char ut_id[ID_LENGTH];
+                arrval.GetString(0, ut_id, ID_LENGTH);
+                if (StrEqual(ut_id, Item)) {
+                    get_detail_from_server(client, ut_id);
+                }
+            }
+        }
+    }
+}
+
+public MenuCallBack_v3(Handle:menuhandle, MenuAction:action, client, Position) {
+    if (action == MenuAction_Select) {
+        decl String:Item[BRIEF_LENGTH];
+        GetMenuItem(menuhandle, Position, Item, sizeof(Item));
+
+        for (int idx = 1; idx < g_utSearchResult[client].Length; idx ++) {
+            if (g_utSearchResult[client].GetKeyType(idx) == JSON_Type_Object) {
+                JSON_Array arrval = view_as<JSON_Array>(g_utSearchResult[client].GetObject(idx));
+                char ut_id[ID_LENGTH];
                 arrval.GetString(0, ut_id, ID_LENGTH);
                 if (StrEqual(ut_id, Item)) {
                     get_detail_from_server(client, ut_id);
@@ -392,6 +460,28 @@ public void CollectionCallback(bool success, const char[] error, System2HTTPRequ
             PrintToChatAll("\x01[\x05CSGO Wiki\x01] \x02同步道具合集失败");
             g_utilityCollection.Cleanup();
             g_Collection_status = false;
+        }
+    }
+    else {
+        PrintToChatAll("\x01[\x05CSGO Wiki\x01] \x02连接至www.csgowiki.top失败，无法同步道具集");
+    }
+} 
+
+public void SearchResultCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    if (success) {
+        int client = request.Any;
+        char[] content = new char[response.ContentLength + 1];
+        char[] status = new char[STATUS_LENGTH];
+        response.GetContent(content, response.ContentLength + 1);
+        g_utSearchResult[client] = view_as<JSON_Array>(json_decode(content));
+        g_utSearchResult[client].GetString(0, status, STATUS_LENGTH);
+        if (StrEqual(status, "ok")) {
+            PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x03道具查询已完成");
+            show_menu_v3(client);
+        }
+        else {
+            PrintToChatAll("\x01[\x05CSGO Wiki\x01] \x02道具查询失败，请联系csgowiki管理员");
+            g_utSearchResult[client].Cleanup();
         }
     }
     else {
