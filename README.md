@@ -52,5 +52,10 @@
 - `!enable [upload]` 不加参数为开启`utility_helper`和`utility_uploader`两个插件，加参数`upload`为只开启`utility_upload`插件
 - `!disable [upload]`不加参数为关闭上述两个插件，加参数`upload`为只关闭`utility_upload`插件
 
+## plugin: mycity
+> 接口文档：https://www.nowapi.com/api/weather.today
+### Custom command
+- `!tabhud` 开启或关闭按Tab显示当前城市天气等信息，默认开启
+
 # Contributions
 
