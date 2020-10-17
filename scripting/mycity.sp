@@ -6,8 +6,8 @@
 #define CLASSLENGTH 64
 #define RGBA 0, 255, 0, 255
 // https://www.nowapi.com/api/weather.today 在这里拿APPKEY和SIGN
-#define APPKEY "NEED ADD"
-#define SIGN "NEED ADD"
+#define APPKEY "EMPTY"
+#define SIGN "EMPTY"
 
 Handle g_HTM;
 Handle g_hCookie_TabHud;
@@ -72,7 +72,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
             char timeNow[CLASSLENGTH];
             char showInfo[4 * CLASSLENGTH];
             FormatTime(timeNow, sizeof(timeNow), "%H:%M:%S", GetTime());
-            Format(showInfo, sizeof(showInfo), "城市：%s                  \n天气：%s               \t\t\n气温：%s(实时%s)\n时间：%s(%s)   ", 
+            Format(showInfo, sizeof(showInfo), "城市：%s                             \n天气：%s                             \n气温：%s(实时%s)\n时间：%s(%s)       ", 
                 g_sCity[client], g_sWeather[client], g_sTemp[client], g_sTempNow[client], timeNow, g_sWeek[client]);
             SetHudTextParams(0.9, 0, 0.1, RGBA, 0, 0.1, 0.0, 10);
             ShowSyncHudText(client, g_HTM, showInfo);
