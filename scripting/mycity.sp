@@ -31,11 +31,10 @@ public OnPluginStart() {
         g_bChecked[idx] = false;
     }
     g_hCookie_TabHud = RegClientCookie("toggle_tabhud", "TabHud", CookieAccess_Protected);
-    CreateTimer(1200.0, UpdateWeatherCallBack, _, TIMER_REPEAT);
     RegConsoleCmd("sm_tabhud", Command_ToggleTabHud);
 }
 
-public void OnClientPutInServer(int client){
+public OnClientPutInServer(int client){
 	g_bEnableTabHud[client] = true;
 	char buffer[CLASSLENGTH];
 	GetClientCookie(client, g_hCookie_TabHud, buffer, sizeof(buffer));
@@ -46,6 +45,10 @@ public void OnClientPutInServer(int client){
         queryWeatherApi(client);
         g_bChecked[client] = true;
     }
+}
+
+public OnClientDisconnect(client) {
+    g_bEnableTabHud[client] = false;
 }
 
 public Action:Command_ToggleTabHud(client, args) {
@@ -69,7 +72,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
             char timeNow[CLASSLENGTH];
             char showInfo[4 * CLASSLENGTH];
             FormatTime(timeNow, sizeof(timeNow), "%H:%M:%S", GetTime());
-            Format(showInfo, sizeof(showInfo), "城市：%s        \n天气：%s        \n气温：%s(实时%s)\n时间：%s(%s)   ", 
+            Format(showInfo, sizeof(showInfo), "城市：%s                  \n天气：%s               \t\t\n气温：%s(实时%s)\n时间：%s(%s)   ", 
                 g_sCity[client], g_sWeather[client], g_sTemp[client], g_sTempNow[client], timeNow, g_sWeek[client]);
             SetHudTextParams(0.9, 0, 0.1, RGBA, 0, 0.1, 0.0, 10);
             ShowSyncHudText(client, g_HTM, showInfo);
@@ -115,16 +118,6 @@ public void WeatherApiCallBack(bool success, const char[] error, System2HTTPRequ
     else {
         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x02api访问失败，请及时联系服务器管理员");
     }
-}
-
-public Action:UpdateWeatherCallBack(Handle timer) {
-    for (int idx = 0; idx <= MAXPLAYERS; idx++) {
-        if (IsValidClient(idx)) {
-            queryWeatherApi(idx);
-            g_bChecked[idx] = true;
-        }
-    }
-    return Plugin_Continue;
 }
 
 stock bool IsValidClient(int client) {
