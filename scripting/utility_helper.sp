@@ -4,6 +4,8 @@
 #include <system2>
 #include <json>
 
+#pragma dynamic 50000
+
 #define MAPNAME_MAXLENGTH 16
 #define STATUS_LENGTH 32
 #define ID_LENGTH 7
@@ -40,6 +42,7 @@ public OnPluginStart() {
 
     RegAdminCmd("sm_disable", Command_Disable_Wiki, ADMFLAG_GENERIC);
     RegAdminCmd("sm_enable", Command_Enable_Wiki, ADMFLAG_GENERIC);
+    // RegAdminCmd("sm_modify", Command_Modify);
 
     // wiki_timer = CreateTimer(120.0, HelperTimerCallback, _, TIMER_REPEAT);    
     g_ServerTickRate = RoundToZero(1.0 / GetTickInterval());
@@ -52,11 +55,13 @@ public OnMapStart() {
     get_collection_from_server();
 }
 
-
 public Action:Command_Wiki(client, args) {
     if (is_on == false) {
         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x02插件已关闭，请输入!enbale wiki 或只输入!enable (开启上传道具和学习道具两个插件)")
         return Plugin_Continue;
+    }
+    if (!g_Collection_status) {
+        get_collection_from_server();
     }
     if (g_Collection_status) {
         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 输入\x06!last\x01查看上一次wiki学习的道具");
@@ -138,6 +143,26 @@ public Action:Command_Enable_Wiki(client, args) {
     }
     return Plugin_Continue;
 }
+
+// public Action:Command_Modify(client, args) {
+//     if (args < 1) {
+//         PrintToChat(client, "\x01[\x05CSGO Wiki\x01] 使用方法 \x04/modify <token>");
+//     }
+//     else {
+//         if (g_LastUtilityDetail[client].Length > 1) {
+//             char token[NAME_LENGTH + 1], ut_id[ID_LENGTH];
+//             GetCmdArgString(token, sizeof(token));
+//             TrimString(token);
+//             g_LastUtilityDetail[client].GetString(1, ut_id, ID_LENGTH);
+//             send_modify_to_server(client, token, ut_id);
+//             // PrintToChat
+//         }
+//         else {
+//             PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x02没有找到缓存的道具记录");
+//         }
+//     }
+//     return Plugin_Continue;
+// }
 
 public Action:HelperTimerCallback(Handle timer) {
     show_help_info();
@@ -221,8 +246,8 @@ void show_menu_v1(client) {
     AddMenuItem(menuhandle, "grenade", "手雷");
     AddMenuItem(menuhandle, "molotov", "燃烧弹/燃烧瓶");
 
-    AddMenuItem(menuhandle, "search_around_endspot", ">>查询附近落点道具<<");
     AddMenuItem(menuhandle, "search_around_startspot", ">>查询附近起点道具<<");
+    AddMenuItem(menuhandle, "search_around_endspot", ">>查询附近落点道具<<");
 
     SetMenuPagination(menuhandle, 7);
     SetMenuExitButton(menuhandle, true);
@@ -232,7 +257,7 @@ void show_menu_v1(client) {
 void show_menu_v2(client, char[] c_ut_type) {
     new Handle:menuhandle = CreateMenu(MenuCallBack_v2);
     SetMenuTitle(menuhandle, "CSGO Wiki道具合集(当前地图&Tick)");
-
+    int type_count = 0;
     for (int idx = 1; idx < g_utilityCollection.Length; idx ++) {
         if (g_utilityCollection.GetKeyType(idx) == JSON_Type_Object) {
             JSON_Array arrval = view_as<JSON_Array>(g_utilityCollection.GetObject(idx));
@@ -246,17 +271,28 @@ void show_menu_v2(client, char[] c_ut_type) {
                 StrCat(msg, sizeof(msg), ut_type);
                 StrCat(msg, sizeof(msg), ut_brief);
                 AddMenuItem(menuhandle, ut_id, msg);
+                type_count ++;
             }
         }
     }
+    if (type_count == 0) {
+        PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x09未找到该种类道具");
+        show_menu_v1(client);
+        return;
+    }
 
     SetMenuPagination(menuhandle, 7);
-    // SetMenuExitBackButton(menuhandle, true);
+    SetMenuExitBackButton(menuhandle, true);
     SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
 void show_menu_v3(client) {
+    if (g_utSearchResult[client].Length == 1) {
+        PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x10你所在区域没有找到道具记录");
+        show_menu_v1(client);
+        return;
+    }
     new Handle:menuhandle = CreateMenu(MenuCallBack_v3);
     SetMenuTitle(menuhandle, "查询到的道具");
 
@@ -274,6 +310,10 @@ void show_menu_v3(client) {
             AddMenuItem(menuhandle, ut_id, msg);
         }
     }
+    SetMenuPagination(menuhandle, 7);
+    SetMenuExitBackButton(menuhandle, true);
+    SetMenuExitButton(menuhandle, true);
+    DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
 void show_utility_detail(client) {
@@ -338,8 +378,8 @@ void get_search_result(client, char[] flag) {
     GetClientAbsOrigin(client, playerPos);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         SearchResultCallback, 
-        "https://www.csgowiki.top/api/utility/search_near/?map=%s&tickrate=%d&flag=%s&posx=%f&posy=%f&posz=%f",
-        g_CurrentMap, g_ServerTickRate, flag, playerPos[0], playerPos[1], playerPos[2]
+        "https://www.csgowiki.top/api/utility/spot_filter/?map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        g_CurrentMap, g_ServerTickRate, flag, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
     httpRequest.GET();
@@ -359,14 +399,10 @@ public MenuCallBack_v1(Handle:menuhandle, MenuAction:action, client, Position) {
         decl String:Item[BRIEF_LENGTH];
         GetMenuItem(menuhandle, Position, Item, sizeof(Item));
         if (StrEqual(Item, "search_around_endspot")) {
-            get_search_result(client, "END");
-            ServerCommand("sm_beacon CarOL");
-            ServerCommand("sm_beacon CarOL");
+            get_search_result(client, "end");
         }
         else if (StrEqual(Item, "search_around_startspot")) {
-            get_search_result(client, "START");
-            ServerCommand("sm_beacon CarOL");
-            ServerCommand("sm_beacon CarOL");
+            get_search_result(client, "start");
         }
         else {
             show_menu_v2(client, Item);
@@ -386,9 +422,13 @@ public MenuCallBack_v2(Handle:menuhandle, MenuAction:action, client, Position) {
                 arrval.GetString(0, ut_id, ID_LENGTH);
                 if (StrEqual(ut_id, Item)) {
                     get_detail_from_server(client, ut_id);
+                    DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
                 }
             }
         }
+    }
+    if (Position == -6) {
+        show_menu_v1(client);
     }
 }
 
@@ -404,9 +444,13 @@ public MenuCallBack_v3(Handle:menuhandle, MenuAction:action, client, Position) {
                 arrval.GetString(0, ut_id, ID_LENGTH);
                 if (StrEqual(ut_id, Item)) {
                     get_detail_from_server(client, ut_id);
+                    DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
                 }
             }
         }
+    }
+    if (Position == -6) {
+        show_menu_v1(client);
     }
 }
 
