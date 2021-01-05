@@ -7,13 +7,13 @@
 #define LENGTH_STEAMID64 20 // 17 for usuall
 #define LENGTH_STATUS 5
 #define LENGTH_NAME 33
-
+#define LENGTH_IP 17
 
 // 功能开关  steambind 不能关闭
-new Handle: g_hCSGOWikiEnable;
-new Handle: g_hOnUtilitySubmit;
-new Handle: g_hOnUtilityWiki;
-new Handle: g_hOnServerMonitor;
+Handle g_hCSGOWikiEnable = INVALID_HANDLE;
+Handle g_hOnUtilitySubmit = INVALID_HANDLE;
+Handle g_hOnUtilityWiki = INVALID_HANDLE;
+Handle g_hOnServerMonitor = INVALID_HANDLE;
 // wiki token
 new Handle: g_hCSGOWikiToken;
 
