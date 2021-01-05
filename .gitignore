@@ -1,1 +1,6 @@
 .vscode
+include/
+spcomp
+spcomp64
+compile.sh
+compiled/
