@@ -8,6 +8,7 @@
 #define LENGTH_STATUS 5
 #define LENGTH_NAME 33
 #define LENGTH_IP 17
+#define LENGTH_SERVER_MONITOR 512
 
 // 功能开关  steambind 不能关闭
 Handle g_hCSGOWikiEnable = INVALID_HANDLE;

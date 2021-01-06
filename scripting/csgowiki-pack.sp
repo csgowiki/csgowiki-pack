@@ -1,5 +1,6 @@
 // 
 #include "global_define.inc"
+
 #include "csgowiki/utils.sp"
 
 #include "csgowiki/steam_bind.sp"

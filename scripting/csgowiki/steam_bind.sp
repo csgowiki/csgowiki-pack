@@ -32,8 +32,11 @@ public SteamBindResponseCallback(bool success, const char[] error, System2HTTPRe
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             json_obj.GetString("aliasname", aliasname, LENGTH_NAME);
+            char[] message = new char[LENGTH_NAME];
+            json_obj.GetString("message", message, LENGTH_NAME);
             client_level = json_obj.GetInt("level");
             PrintToChat(client, "%s \x09账号绑定成功: \x04%s\x01(\x05Lv%d\x01)", PREFIX, aliasname, client_level);
+            PrintToChat(client, "%s ip: %s", PREFIX, message);
             g_aPlayerStateBind[client] = e_bBinded;
         }
         else {
