@@ -39,7 +39,8 @@ public OnPluginStart() {
     // command define
     RegConsoleCmd("sm_bsteam", Command_BindSteam);
 
-    RegConsoleCmd("sm_serverip", Command_Test);
+
+    CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
     AutoExecConfig(true, "csgowiki-pack");
 }
@@ -50,10 +51,20 @@ public OnClientPutInServer(client) {
     if (IsPlayer(client)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
     }
+    updateServerMonitor();
 }
 
 public OnClientDisconnect(client) {
 
+    updateServerMonitor(-1);
     // reset bind_flag
     resetSteamBindFlag(client);
+}
+
+public OnPluginUnload() {
+
+}
+
+public OnPluginEnd() {
+    updateServerMonitor(-1);
 }

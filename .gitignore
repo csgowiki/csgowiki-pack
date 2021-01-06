@@ -1,6 +1,5 @@
 .vscode
 include/
-include__/
 spcomp
 spcomp64
 compile.sh
