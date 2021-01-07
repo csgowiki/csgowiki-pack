@@ -89,6 +89,6 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
     }
 }
 
-void resetSteamBindFlag(client) {
+void ResetSteamBindFlag(client) {
     g_aPlayerStateBind[client] = e_bUnkown;
 }

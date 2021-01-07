@@ -5,6 +5,7 @@
 
 #include "csgowiki/steam_bind.sp"
 #include "csgowiki/server_monitor.sp"
+#include "csgowiki/utility_submit.sp"
 
 public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
@@ -15,34 +16,41 @@ public Plugin:myinfo = {
 };
 
 public OnPluginStart() {
-    // convar
-    g_hCSGOWikiEnable = FindConVar("sm_csgowiki_enable");
-    g_hOnUtilitySubmit = FindConVar("sm_utility_submit_on");   
-    g_hOnUtilityWiki = FindConVar("sm_utility_wiki_on");   
-    g_hOnServerMonitor = FindConVar("sm_server_monitor_on"); 
-    g_hCSGOWikiToken = FindConVar("sm_csgowiki_token");
-    if (g_hCSGOWikiEnable == INVALID_HANDLE) {
-        g_hCSGOWikiEnable = CreateConVar("sm_csgowiki_enable", "1", "set wether enable csgowiki plugin or not. set 0 will disable all functions belong to CSGOWiki.");
-    } 
-    if (g_hOnUtilitySubmit == INVALID_HANDLE) {
-        g_hOnUtilitySubmit = CreateConVar("sm_utility_submit_on", "1", "set function: <utility_submit> on/off");
-    }
-    if (g_hOnUtilityWiki == INVALID_HANDLE) {
-        g_hOnUtilityWiki = CreateConVar("sm_utility_wiki_on", "1", "set function: <utility_wiki> on/off");
-    }
-    if (g_hOnServerMonitor == INVALID_HANDLE) {
-        g_hOnServerMonitor = CreateConVar("sm_server_monitor_on", "1", "set function: <server_monitor> on/off");
-    }
-    if (g_hCSGOWikiToken == INVALID_HANDLE) {
-        g_hCSGOWikiToken = CreateConVar("sm_csgowiki_token", "", "set csgowiki token. csgowiki functions will disabled if not set.");
-    }
+    // event
+    HookEvent("grenade_thrown", Event_GrenadeThrown);
+    HookEvent("hegrenade_detonate", Event_HegrenadeDetonate);
+    HookEvent("flashbang_detonate", Event_FlashbangDetonate);
+    HookEvent("smokegrenade_detonate", Event_SmokegrenadeDetonate);
+    HookEvent("molotov_detonate", Event_MolotovDetonate);
+
     // command define
     RegConsoleCmd("sm_bsteam", Command_BindSteam);
+    RegConsoleCmd("sm_submit", Command_Submit);
 
-
+    // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
+
+    // post fix
+    g_iServerTickrate = GetServerTickrate();
+
+
+    // convar
+    g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "1", "set wether enable csgowiki plugins or not. set 0 will disable all modules belong to CSGOWiki.");
+    g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "set module: <utility_submit> on/off.");
+    g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "set module: <utility_wiki> on/off.");
+    g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "1", "set module: <server_monitor> on/off");
+    g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "make sure csgowiki token valid. some modules will be disabled if csgowiki token invalid");
+
     AutoExecConfig(true, "csgowiki-pack");
+}
+
+public OnMapStart() {
+    g_iServerTickrate = GetServerTickrate();
+    GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
+
+    // reset for map start
+    ResetUtilitySubmitState();
 }
 
 public OnClientPutInServer(client) {
@@ -50,21 +58,64 @@ public OnClientPutInServer(client) {
     // timer define
     if (IsPlayer(client)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
+
     }
+    ResetUtilitySubmitState(client);
     updateServerMonitor();
 }
 
 public OnClientDisconnect(client) {
 
+    ResetUtilitySubmitState(client);
     updateServerMonitor(-1);
     // reset bind_flag
-    resetSteamBindFlag(client);
-}
-
-public OnPluginUnload() {
-
+    ResetSteamBindFlag(client);
 }
 
 public OnPluginEnd() {
     updateServerMonitor(-1);
+}
+
+
+public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
+    // for utility submit
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        OnPlayerRunCmdForUtilitySubmit(client, buttons);
+    }
+
+}
+
+public Action:Event_GrenadeThrown(Handle:event, const String:name[], bool:dontBroadcast) { 
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        Event_GrenadeThrownForUtilitySubmit(event);
+    }
+}
+
+
+public Action:Event_HegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        Event_HegrenadeDetonateForUtilitySubmit(event);
+    }
+}
+
+
+public Action:Event_FlashbangDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        Event_FlashbangDetonateForUtilitySubmit(event);
+    }
+}
+
+
+public Action:Event_SmokegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        Event_SmokegrenadeDetonateForUtilitySubmit(event);
+    }
+}
+
+
+
+public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dontBroadcast) { 
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        Event_MolotovDetonateForUtilitySubmit(event);
+    }
 }
