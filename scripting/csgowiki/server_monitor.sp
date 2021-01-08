@@ -12,7 +12,7 @@ void updateServerMonitor(int exclient = MAXPLAYERS + 1) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         ServerMonitorResponseCallback,
-        "https://api.csgowiki.top/api/server/server_monitor/"
+        "https://test.csgowiki.top/api/server/server_monitor/"
     )
     httpRequest.SetData("monitor_json=%s", str_monitor);
     httpRequest.POST();

@@ -102,3 +102,39 @@ void TicktagGenerate(char[] tickTag, const bool[] wikiAction) {
         IntToString(g_iServerTickrate, tickTag, LENGTH_STATUS);
     }
 }
+
+void Utility_TinyName2Zh(char[] utTinyName, char[] format, char[] zh) {
+    if (StrEqual(utTinyName, "smoke")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "烟雾弹");
+    }
+    else if (StrEqual(utTinyName, "grenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "手雷");
+    }
+    else if (StrEqual(utTinyName, "flash")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "闪光弹");
+    }
+    else if (StrEqual(utTinyName, "molotov")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "燃烧弹");
+    }
+}
+
+void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
+    if (StrEqual(utTinyName, "smoke")) {
+        strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_smokegrenade");
+    }
+    else if (StrEqual(utTinyName, "grenade")) {
+        strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_hegrenade");
+    }
+    else if (StrEqual(utTinyName, "flash")) {
+        strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_flashbang");
+    }
+    else if (StrEqual(utTinyName, "molotov")) {
+        new teamFlag = GetClientTeam(client);
+        if (CS_TEAM_T == teamFlag) {
+            strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_molotov");
+        }
+        else if (CS_TEAM_CT == teamFlag){  // [TODO]  spec
+            strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_incgrenade");
+        }
+    }
+}

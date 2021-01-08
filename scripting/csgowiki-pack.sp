@@ -2,10 +2,12 @@
 #include "global_define.inc"
 
 #include "csgowiki/utils.sp"
+#include "csgowiki/menus.sp"
 
 #include "csgowiki/steam_bind.sp"
 #include "csgowiki/server_monitor.sp"
 #include "csgowiki/utility_submit.sp"
+#include "csgowiki/utility_wiki.sp"
 
 public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
@@ -26,7 +28,7 @@ public OnPluginStart() {
     // command define
     RegConsoleCmd("sm_bsteam", Command_BindSteam);
     RegConsoleCmd("sm_submit", Command_Submit);
-
+    RegConsoleCmd("sm_wiki", Command_Wiki);
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
@@ -51,6 +53,7 @@ public OnMapStart() {
 
     // reset for map start
     ResetUtilitySubmitState();
+    ResetUtilityWikiState();
 }
 
 public OnClientPutInServer(client) {
@@ -60,13 +63,15 @@ public OnClientPutInServer(client) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
 
     }
-    ResetUtilitySubmitState(client);
+    ResetSingleClientWikiState(client);
+    ResetSingleClientSubmitState(client);
     updateServerMonitor();
 }
 
 public OnClientDisconnect(client) {
 
-    ResetUtilitySubmitState(client);
+    // ResetSingleClientWikiState(client);
+    ResetSingleClientSubmitState(client);
     updateServerMonitor(-1);
     // reset bind_flag
     ResetSteamBindFlag(client);

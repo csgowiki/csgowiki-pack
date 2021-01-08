@@ -78,11 +78,8 @@ void ResetSingleClientSubmitState(client) {
     g_aActionRecord[client] = 0;
 }
 
-void ResetUtilitySubmitState(client = -1) {
-    if (client != -1) {
-        ResetSingleClientSubmitState(client);
-    }
-    else for (client = 0; client <= MAXPLAYERS; client++) {
+void ResetUtilitySubmitState() {
+    for (new client = 0; client <= MAXPLAYERS; client++) {
         ResetSingleClientSubmitState(client);
     }
 }
@@ -118,7 +115,7 @@ void TriggerWikiPost(client) {
     TicktagGenerate(tickTag, wikiAction);
     // request
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiPostResponseCallback, "https://api.csgowiki.top/api/utility/submit/"
+        WikiPostResponseCallback, "https://test.csgowiki.top/api/utility/submit/"
     );
     httpRequest.SetData(
         "token=%s&steamid=%s&start_x=%f&start_y=%f&start_z=%f\
@@ -170,11 +167,11 @@ void ShowResult(client, char[] utId) {
     Action_Int2Str(client, strAction);
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "%s 已将道具记录上传至\x09www.csgowiki.top\x01", PREFIX);
-    PrintToChat(client, "%s \x06起点\x01 %f,%f,%f", PREFIX, g_aStartPositions[client][0], g_aStartPositions[client][1], g_aStartPositions[client][2]);
-    PrintToChat(client, "%s \x06角度\x01 %f,%f, 0.0", PREFIX, g_aStartAngles[client][0], g_aStartAngles[client][1]);
-    PrintToChat(client, "%s \x06出手点\x01 %f,%f,%f", PREFIX, g_aThrowPositions[client][0], g_aThrowPositions[client][1], g_aThrowPositions[client][2]);
-    PrintToChat(client, "%s \x06落点\x01 %f,%f,%f", PREFIX, g_aEndspotPositions[client][0], g_aEndspotPositions[client][1], g_aEndspotPositions[client][2]);
-    PrintToChat(client, "%s \x0B动作列表\x01: %s", PREFIX, strAction);
+    PrintToChat(client, "%s [\x0F起点\x01] \x0D%f,%f,%f", PREFIX, g_aStartPositions[client][0], g_aStartPositions[client][1], g_aStartPositions[client][2]);
+    PrintToChat(client, "%s [\x0F角度\x01] \x0D%f,%f, 0.0", PREFIX, g_aStartAngles[client][0], g_aStartAngles[client][1]);
+    PrintToChat(client, "%s [\x0F出手点\x01] \x0D%f,%f,%f", PREFIX, g_aThrowPositions[client][0], g_aThrowPositions[client][1], g_aThrowPositions[client][2]);
+    PrintToChat(client, "%s [\x0F落点\x01] \x0D%f,%f,%f", PREFIX, g_aEndspotPositions[client][0], g_aEndspotPositions[client][1], g_aEndspotPositions[client][2]);
+    PrintToChat(client, "%s [\x0F动作列表\x01] \x0D%s", PREFIX, strAction);
     PrintToChat(client, "%s 该道具记录的唯一标识为<\x04%s\x01>", PREFIX, utId);
     PrintToChat(client, "%s 请在\x02尽快\x01登陆网站补全道具信息(图片和文字描述)", PREFIX);
     PrintToChat(client, "\x09 ------------------------------------- ");

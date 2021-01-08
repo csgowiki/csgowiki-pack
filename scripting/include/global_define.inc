@@ -1,5 +1,6 @@
 #include <sourcemod>
 #include <sdktools>
+#include <cstrike>
 #include <system2>
 #include <json>
 
@@ -14,9 +15,10 @@
 #define LENGTH_MAPNAME 12
 #define LENGTH_UTILITY_FULL 13
 #define LENGTH_UTILITY_TINY 8
+#define LENGTH_UTILITY_ZH 24
 #define LENGTH_UTILITY_ID 7
+#define LENGTH_UTILITY_BRIEF 41
 #define LENGTH_MESSAGE 48
-
 #define DATA_DIM 3
 
 #define CSGO_ACTION_NUM 9
@@ -86,3 +88,9 @@ float g_aEndspotPositions[MAXPLAYERS + 1][DATA_DIM];
 
 float g_aUtilityAirtime[MAXPLAYERS + 1];
 int g_aActionRecord[MAXPLAYERS + 1];    // encoded
+
+
+// ------------- utility_wiki.sp define -----------
+JSON_Array g_jaUtilityCollection;
+char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
+JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];

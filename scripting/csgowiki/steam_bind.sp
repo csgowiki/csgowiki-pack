@@ -12,7 +12,7 @@ public Action:Command_BindSteam(client, args) {
         GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
         System2HTTPRequest httpRequest = new System2HTTPRequest(
             SteamBindResponseCallback,
-            "https://api.csgowiki.top/api/server/steambind/"
+            "https://test.csgowiki.top/api/server/steambind/"
         )
         httpRequest.SetData("steamid=%s&token=%s", steamid, token);
         httpRequest.Any = client;
@@ -57,7 +57,7 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     // GET
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         QuerySteamResponseCallback, 
-        "https://www.csgowiki.top/api/server/steambind/?steamid=%s",
+        "https://test.csgowiki.top/api/server/steambind/?steamid=%s",
         steamid
     );
     httpRequest.Any = client;
