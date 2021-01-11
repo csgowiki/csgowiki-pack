@@ -15,7 +15,7 @@ public Action:Command_Submit(client, args) {
 
 void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
     // record action => encoded
-    if (e_cThrowReady == g_aPlayerStatus[client]) {
+    if (e_cThrowReady == g_aPlayerStatus[client] || e_cM_ThrowReady == g_aPlayerStatus[client]) {
         for (new idx = 0; idx < CSGO_ACTION_NUM; idx++) {
             if ((g_aCsgoActionMap[idx] & buttons) && 
                 !(g_aActionRecord[client] & (1 << idx))) {
@@ -39,13 +39,17 @@ void Event_GrenadeThrownForUtilitySubmit(Handle:event) {
     char nadeName[LENGTH_UTILITY_FULL];
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     GetEventString(event, "weapon", nadeName, LENGTH_UTILITY_FULL);
-    if (e_cThrowReady == g_aPlayerStatus[client] && 
+    if ((e_cThrowReady == g_aPlayerStatus[client] 
+        || e_cM_ThrowReady == g_aPlayerStatus[client]) && 
         !StrEqual(nadeName, "decoy") && IsPlayer(client)) {
         GetClientAbsOrigin(client, g_aThrowPositions[client]);
         g_aUtilityAirtime[client] = GetEngineTime();
         g_aUtilityType[client] = Utility_FullName2Code(nadeName);
         // set next state
-        g_aPlayerStatus[client] = e_cAlreadyThrown;
+        if (e_cM_ThrowReady == g_aPlayerStatus[client]) 
+            g_aPlayerStatus[client] = e_cM_AlreadyThrown;
+        else
+            g_aPlayerStatus[client] = e_cAlreadyThrown;
         PrintToChat(client, "%s \x03已经记录你的动作，等待道具生效...", PREFIX);
     }
 }
@@ -86,14 +90,22 @@ void ResetUtilitySubmitState() {
 
 void UtilityDetonateStat(Handle:event, UtilityCode utCode) {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
-    if (e_cAlreadyThrown == g_aPlayerStatus[client] && utCode == g_aUtilityType[client]) {
+    if ((e_cAlreadyThrown == g_aPlayerStatus[client]
+        || e_cM_AlreadyThrown == g_aPlayerStatus[client])
+        && utCode == g_aUtilityType[client]) {
         // next state
-        g_aPlayerStatus[client] = e_cThrowEnd;
         g_aUtilityAirtime[client] = GetEngineTime() - g_aUtilityAirtime[client];
         g_aEndspotPositions[client][0] = GetEventFloat(event, "x");
         g_aEndspotPositions[client][1] = GetEventFloat(event, "y");
         g_aEndspotPositions[client][2] = GetEventFloat(event, "z");
-        TriggerWikiPost(client);
+        if (e_cM_AlreadyThrown == g_aPlayerStatus[client]) {
+            g_aPlayerStatus[client] = e_cM_ThrowEnd;
+            TriggerWikiModify(client);
+        }
+        else {
+            g_aPlayerStatus[client] = e_cThrowEnd;
+            TriggerWikiPost(client);
+        }
     }
 }
 
@@ -115,7 +127,7 @@ void TriggerWikiPost(client) {
     TicktagGenerate(tickTag, wikiAction);
     // request
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiPostResponseCallback, "https://test.csgowiki.top/api/utility/submit/"
+        WikiPostResponseCallback, "https://api.csgowiki.top/api/utility/submit/"
     );
     httpRequest.SetData(
         "token=%s&steamid=%s&start_x=%f&start_y=%f&start_z=%f\
@@ -162,7 +174,7 @@ public WikiPostResponseCallback(bool success, const char[] error, System2HTTPReq
     ResetSingleClientSubmitState(client);
 }
 
-void ShowResult(client, char[] utId) {
+void ShowResult(client, char[] utId) { 
     char strAction[LENGTH_MESSAGE] = "";
     Action_Int2Str(client, strAction);
     PrintToChat(client, "\x09 ------------------------------------- ");

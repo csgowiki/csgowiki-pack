@@ -8,6 +8,7 @@
 #include "csgowiki/server_monitor.sp"
 #include "csgowiki/utility_submit.sp"
 #include "csgowiki/utility_wiki.sp"
+#include "csgowiki/utility_modify.sp"
 
 public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
@@ -29,6 +30,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_bsteam", Command_BindSteam);
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
+    RegConsoleCmd("sm_modify", Command_Modify);
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
@@ -67,6 +69,7 @@ public OnClientPutInServer(client) {
     }
     ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
+    ClearPlayerToken(client);
     updateServerMonitor();
 }
 
@@ -75,6 +78,7 @@ public OnClientDisconnect(client) {
     // ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
     updateServerMonitor(-1);
+    ClearPlayerToken(client);
     // reset bind_flag
     ResetSteamBindFlag(client);
 }

@@ -24,7 +24,7 @@ void GetAllCollection(client=-1) {
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         AllCollectionResponseCallback, 
-        "https://test.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d",
+        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d",
         token, g_sCurrentMap, g_iServerTickrate
     );
     httpRequest.Any = client;
@@ -39,7 +39,7 @@ void GetFilterCollection(client, char[] method) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
-        "https://test.csgowiki.top/api/utility/spot_filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        "https://api.csgowiki.top/api/utility/spot_filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
@@ -51,7 +51,7 @@ void GetUtilityDetail(client, char[] utId) {
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
-        "https://test.csgowiki.top/api/utility/detail_info/?token=%s&id=%s",
+        "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s",
         token, utId
     );
     httpRequest.Any = client;

@@ -51,7 +51,10 @@ enum StateClient {
     e_cThrowReady = 1,
     e_cThrowEnd = 2,
     e_cAlreadyThrown = 3,
-    e_cButtonOn = 4
+    e_cButtonOn = 4,
+    e_cM_ThrowReady = 5,
+    e_cM_ThrowEnd = 6,
+    e_cM_AlreadyThrown = 7
 }
 
 enum UtilityCode {   
@@ -95,3 +98,5 @@ JSON_Array g_jaUtilityCollection;
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
 JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];
 
+// ------------- utility_modify.sp define ------------
+char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];

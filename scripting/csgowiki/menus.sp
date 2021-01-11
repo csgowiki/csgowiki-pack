@@ -79,6 +79,12 @@ public Menu_UtilityWiki_v2_CallBack(Handle:menuhandle, MenuAction:action, client
     if (MenuAction_Select == action) {
         decl String:utId[LENGTH_UTILITY_ID];
         GetMenuItem(menuhandle, Position, utId, LENGTH_UTILITY_ID);
+
+        if (e_cDefault != g_aPlayerStatus[client]) {
+            PrintToChat(client, "%s \x02道具上传过程中，无法使用wiki功能", PREFIX);
+            return;
+        }
+
         GetUtilityDetail(client, utId);
         DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
     }
