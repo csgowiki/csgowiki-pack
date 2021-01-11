@@ -42,7 +42,7 @@ public OnPluginStart() {
     HintColorMessageFixStart();
 
     // convar
-    g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "1", "set wether enable csgowiki plugins or not. set 0 will disable all modules belong to CSGOWiki.");
+    g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "set wether enable csgowiki plugins or not. set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "set module: <utility_submit> on/off.");
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "set module: <utility_wiki> on/off.");
     g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "1", "set module: <server_monitor> on/off");
