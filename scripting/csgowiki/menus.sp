@@ -97,7 +97,7 @@ void Menu_UtilityWiki_v3(client) {
     }
 
     new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_v3_CallBack);
-    SetMenuTitle(menuhandle, "==== 查询到的道具 ====");
+    SetMenuTitle(menuhandle, "=== 查询到的道具 ===");
 
     for (new idx = 0; idx < g_aUtFilterCollection[client].Length; idx ++) {
         if (g_aUtFilterCollection[client].GetKeyType(idx) == JSON_Type_Object) {

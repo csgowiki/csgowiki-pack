@@ -8,15 +8,18 @@ public Action:Command_Wiki(client, args) {
         char utId[LENGTH_TOKEN];
         GetCmdArgString(utId, LENGTH_TOKEN);
         TrimString(utId);
-        PrintToChat(client, "%s 正在请求道具<ID:\x0E%s\x01>", PREFIX, utId);
-        // TODO
-        //
+        PrintToChat(client, "%s 正在请求道具<\x0E%s\x01>", PREFIX, utId);
+        GetUtilityDetail(client, utId);
     }
-    PrintToChat(client, "%s \x0B正在获取道具合集", PREFIX);
     GetAllCollection(client);
 }
 
-void GetAllCollection(client) {
+public Action:GetUtilityCollectionTimerCallback(Handle:timer) {
+    GetAllCollection(-1);
+    return Plugin_Continue;
+}
+
+void GetAllCollection(client=-1) {
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
@@ -144,7 +147,6 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
             JSON_Object json_obj = resp_json.GetObject("utility_detail");
             ShowUtilityDetail(client, json_obj)       
         }
-        // show menu for Command_Wiki
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -189,9 +191,11 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "%s ID: \x10%s", PREFIX, utId);
     PrintToChat(client, "%s 名称: \x10%s", PREFIX, utTitle);
-    PrintToChat(client, "%s 简介: \x10%s", PREFIX, utTitle);
-    PrintToChat(client, "%s 种类: \x10%s", PREFIX, utBrief);
-    PrintToChat(client, "%s 作者: \x10%s", PREFIX, author);
+    if (strlen(utBrief) != 0 && !StrEqual(utTitle, utBrief))
+        PrintToChat(client, "%s 简介: \x10%s", PREFIX, utBrief);
+    PrintToChat(client, "%s 种类: \x10%s", PREFIX, utNameZh);
+    if (strlen(author) != 0)
+        PrintToChat(client, "%s 作者: \x10%s", PREFIX, author);
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);

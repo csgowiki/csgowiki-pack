@@ -51,6 +51,7 @@ public OnMapStart() {
     g_iServerTickrate = GetServerTickrate();
     GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
 
+    CreateTimer(10.0, GetUtilityCollectionTimerCallback, _, TIMER_REPEAT);
     // reset for map start
     ResetUtilitySubmitState();
     ResetUtilityWikiState();
@@ -61,7 +62,6 @@ public OnClientPutInServer(client) {
     // timer define
     if (IsPlayer(client)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
-
     }
     ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
@@ -84,6 +84,7 @@ public OnPluginEnd() {
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
     // for utility submit
+    if (!buttons) return;
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }
