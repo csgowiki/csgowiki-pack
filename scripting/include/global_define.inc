@@ -94,3 +94,4 @@ int g_aActionRecord[MAXPLAYERS + 1];    // encoded
 JSON_Array g_jaUtilityCollection;
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
 JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];
+

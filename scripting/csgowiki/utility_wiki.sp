@@ -126,7 +126,6 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
     }
 }
 
-
 public UtilityDetailResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     new client = request.Any;
     if (success) {

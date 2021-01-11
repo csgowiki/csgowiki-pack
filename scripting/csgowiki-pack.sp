@@ -37,6 +37,8 @@ public OnPluginStart() {
     g_iServerTickrate = GetServerTickrate();
 
 
+    HintColorMessageFixStart();
+
     // convar
     g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "1", "set wether enable csgowiki plugins or not. set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "set module: <utility_submit> on/off.");
