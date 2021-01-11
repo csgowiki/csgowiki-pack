@@ -54,7 +54,7 @@
 | `sm_csgowiki_enable`   | 0/1    | 插件功能总开关                                               | 无                                                      |
 | `sm_csgowiki_token`    | 字符串 | csgowiki用户token，不要泄露，前往[csgowiki](https://www.csgowiki.top/profile/revise/)获取 | 无                                                      |
 | `sm_server_monitor_on` | 0/1    | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项 | 无                                                      |
-| `sm_utility_submit_on` | 0/1    | 道具上传功能开关                                             | $\ge$Lv3                                                |
+| `sm_utility_submit_on` | 0/1    | 道具上传功能开关                                             | >=Lv3                                                |
 | `sm_utility_wiki_on`   | 0/1    | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
 
 ## Command | 命令
@@ -73,7 +73,7 @@
 
 - `/modify <token>` 修改某一道具的数据
 
-    > 修改通过`!wiki`传送到的上一个道具记录，要求等级$\ge$Lv4，修改流程与上传道具相同
+    > 修改通过`!wiki`传送到的上一个道具记录，要求等级>=Lv4，修改流程与上传道具相同
 
 # Contributions | 贡献
 
