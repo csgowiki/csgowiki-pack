@@ -14,7 +14,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v0.9",
+    version = "v1.0",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
