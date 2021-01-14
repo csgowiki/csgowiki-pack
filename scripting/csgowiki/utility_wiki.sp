@@ -29,6 +29,7 @@ void GetAllCollection(client=-1) {
     );
     httpRequest.Any = client;
     httpRequest.GET();
+    delete httpRequest;
 }
 
 void GetFilterCollection(client, char[] method) {
@@ -44,6 +45,7 @@ void GetFilterCollection(client, char[] method) {
     );
     httpRequest.Any = client;
     httpRequest.GET();
+    delete httpRequest;
 }
 
 void GetUtilityDetail(client, char[] utId) {
@@ -56,6 +58,7 @@ void GetUtilityDetail(client, char[] utId) {
     );
     httpRequest.Any = client;
     httpRequest.GET();
+    delete httpRequest;
 }
 
 void ResetSingleClientWikiState(client) {

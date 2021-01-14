@@ -63,6 +63,7 @@ void TriggerWikiModify(client) {
     httpRequest.POST();
 
     strcopy(g_aPlayerToken[client], LENGTH_TOKEN, "");
+    delete httpRequest;
 }
 
 

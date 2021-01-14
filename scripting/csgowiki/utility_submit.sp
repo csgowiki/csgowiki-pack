@@ -146,6 +146,7 @@ void TriggerWikiPost(client) {
     );
     httpRequest.Any = client;
     httpRequest.POST();
+    delete httpRequest;
 }
 
 

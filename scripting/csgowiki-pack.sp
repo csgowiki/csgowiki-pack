@@ -34,6 +34,7 @@ public OnPluginStart() {
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
+    
 
     // post fix
     g_iServerTickrate = GetServerTickrate();

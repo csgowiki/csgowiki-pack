@@ -17,6 +17,7 @@ public Action:Command_BindSteam(client, args) {
         httpRequest.SetData("steamid=%s&token=%s", steamid, token);
         httpRequest.Any = client;
         httpRequest.POST();
+        delete httpRequest;
     }
 }
 
@@ -62,6 +63,7 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     );
     httpRequest.Any = client;
     httpRequest.GET();
+    delete httpRequest;
 }
 
 public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {

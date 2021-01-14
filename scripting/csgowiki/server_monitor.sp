@@ -16,6 +16,7 @@ void updateServerMonitor(int exclient = MAXPLAYERS + 1) {
     )
     httpRequest.SetData("monitor_json=%s", str_monitor);
     httpRequest.POST();
+    delete httpRequest;
 }
 
 JSON_Array encode_json_server_monitor(int exclient) {
