@@ -49,13 +49,14 @@
 
 文件：`cfg/sourcemod/csgowiki-pack.cfg`
 
-| 指令                   | 取值   | 备注                                                         | 等级限制                                                |
-| ---------------------- | ------ | ------------------------------------------------------------ | ------------------------------------------------------- |
-| `sm_csgowiki_enable`   | 0/1    | 插件功能总开关                                               | 无                                                      |
-| `sm_csgowiki_token`    | 字符串 | csgowiki用户token，不要泄露，前往[csgowiki](https://www.csgowiki.top/profile/revise/)获取 | 无                                                      |
-| `sm_server_monitor_on` | 0/1    | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项，非csgowiki网站部署的服务器请关闭这个功能 | 无                                                      |
-| `sm_utility_submit_on` | 0/1    | 道具上传功能开关                                             | >=Lv3                                                |
-| `sm_utility_wiki_on`   | 0/1    | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
+| 指令                    | 取值     | 备注                                                         | 等级限制                                                |
+| ----------------------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `sm_csgowiki_enable`    | 0/1      | 插件功能总开关                                               | 无                                                      |
+| `sm_csgowiki_token`     | 字符串   | csgowiki用户token，不要泄露，前往[csgowiki](https://www.csgowiki.top/profile/revise/)获取 | 无                                                      |
+| `sm_server_monitor_on`  | 0/1      | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项，非csgowiki网站部署的服务器请关闭这个功能 | 无                                                      |
+| `sm_utility_submit_on`  | 0/1      | 道具上传功能开关                                             | >=Lv3                                                   |
+| `sm_utility_wiki_on`    | 0/1      | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
+| `sm_wiki_request_limit` | 0.0~10.0 | `!wiki`请求冷却时间(秒)，默认1.0s，设置0为不限制冷却时间     | 无                                                      |
 
 ## Command | 命令
 
