@@ -22,10 +22,14 @@ int GetServerTickrate() {
 }
 
 // convar handle function
-Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription) {
+Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription, float fMin=-1.0, float fMax=-1.0) {
     Handle cvHandle = FindConVar(cvName);
     if (cvHandle == INVALID_HANDLE) {
-        cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
+        if (fMin == -1.0 && fMax == -1.0)
+            cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
+        else if (fMin != -1.0 && fMax != -1.0)
+            cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
+        else return INVALID_HANDLE;
     }
     return cvHandle;
 }
@@ -139,15 +143,24 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
     }
 }
 
+void ResetReqLock(pclient = -1) {
+    if (pclient != -1) {
+        g_aReqLock[pclient] = false;
+        return;
+    }
+    for (new client = 0; client <= MAXPLAYERS; client++) {
+        g_aReqLock[client] = false;
+    }
+}
+
 // ----------------- hint color message fix --------------
 UserMsg g_TextMsg, g_HintText, g_KeyHintText;
 static char g_sSpace[1024];
 
 void HintColorMessageFixStart() {
-    
     for(int i = 0; i < sizeof g_sSpace - 1; i++) {
-		g_sSpace[i] = ' ';
-	}
+        g_sSpace[i] = ' ';
+    }
 
     g_TextMsg = GetUserMessageId("TextMsg");
     g_HintText = GetUserMessageId("HintText");
@@ -159,88 +172,74 @@ void HintColorMessageFixStart() {
 }
 
 Action TextMsgHintTextHook(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init) {
-	static char sBuf[sizeof g_sSpace];
-	
-	if(msg_id == g_HintText) {
-		msg.ReadString("text", sBuf, sizeof sBuf);
-	}
-	else if(msg_id == g_KeyHintText) {
-		msg.ReadString("hints", sBuf, sizeof sBuf, 0);
-	}
-	else if(msg.ReadInt("msg_dst") == 4) {
-		msg.ReadString("params", sBuf, sizeof sBuf, 0);
-	}
-	else {
-		return Plugin_Continue;
-	}
-		
-	if(StrContains(sBuf, "<font") != -1 || StrContains(sBuf, "<span") != -1) {
-		DataPack hPack = new DataPack();
-		
-		hPack.WriteCell(playersNum);
-		
-		for(int i = 0; i < playersNum; i++) {
-			hPack.WriteCell(players[i]);
-		}
-		
-		hPack.WriteString(sBuf);
-		
-		hPack.Reset();
-		
-		RequestFrame(TextMsgFix, hPack);
-		
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Continue;
+    static char sBuf[sizeof g_sSpace];
+    if(msg_id == g_HintText) {
+        msg.ReadString("text", sBuf, sizeof sBuf);
+  	}
+    else if(msg_id == g_KeyHintText) {
+        msg.ReadString("hints", sBuf, sizeof sBuf, 0);
+    }
+    else if(msg.ReadInt("msg_dst") == 4) {
+        msg.ReadString("params", sBuf, sizeof sBuf, 0);
+    }
+    else {
+        return Plugin_Continue;
+    }
+
+    if(StrContains(sBuf, "<font") != -1 || StrContains(sBuf, "<span") != -1) {
+        DataPack hPack = new DataPack();
+        hPack.WriteCell(playersNum);
+        for(int i = 0; i < playersNum; i++) {
+            hPack.WriteCell(players[i]);
+        }
+        hPack.WriteString(sBuf);
+        hPack.Reset();
+        RequestFrame(TextMsgFix, hPack);
+        return Plugin_Handled;
+    }	
+    return Plugin_Continue;
 }
 
 void TextMsgFix(DataPack hPack) {
-	int iCount = hPack.ReadCell();
-	
-	static int iPlayers[MAXPLAYERS + 1];
-	
-	for(int i = 0; i < iCount; i++) {
-		iPlayers[i] = hPack.ReadCell();
-	}
-	
-	int[] newClients = new int[MaxClients];
-	int newTotal = 0;
-	
-	for (int i = 0; i < iCount; i++) {
-		int client = iPlayers[i];
-	
-		if (IsClientInGame(client)) {
-			newClients[newTotal] = client;
-			newTotal++;
-		}
-	}
-	  
-	if (newTotal == 0) {
-		delete hPack;
-		return;
-	}
-	
-	static char sBuf[sizeof g_sSpace];
-	
-	hPack.ReadString(sBuf, sizeof sBuf);
-	
-	delete hPack;
-	
-	Protobuf hMessage = view_as<Protobuf>(StartMessageEx(g_TextMsg, newClients, newTotal, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-	
-	if(hMessage) {
-		hMessage.SetInt("msg_dst", 4);
-		hMessage.AddString("params", "#SFUI_ContractKillStart");
-		
-		Format(sBuf, sizeof sBuf, "</font>%s%s", sBuf, g_sSpace);
-		hMessage.AddString("params", sBuf);
-		
-		hMessage.AddString("params", NULL_STRING);
-		hMessage.AddString("params", NULL_STRING);
-		hMessage.AddString("params", NULL_STRING);
-		hMessage.AddString("params", NULL_STRING);
-		
-		EndMessage();
-	}
+    int iCount = hPack.ReadCell();
+    static int iPlayers[MAXPLAYERS + 1];
+
+    for(int i = 0; i < iCount; i++) {
+        iPlayers[i] = hPack.ReadCell();
+    }
+
+    int[] newClients = new int[MaxClients];
+    int newTotal = 0;
+
+    for (int i = 0; i < iCount; i++) {
+        int client = iPlayers[i];
+        if (IsClientInGame(client)) {
+            newClients[newTotal] = client;
+            newTotal++;
+        }
+    }
+    if (newTotal == 0) {
+        delete hPack;
+        return;
+    }
+    static char sBuf[sizeof g_sSpace];
+    hPack.ReadString(sBuf, sizeof sBuf);
+    delete hPack;
+
+    Protobuf hMessage = view_as<Protobuf>(StartMessageEx(g_TextMsg, newClients, newTotal, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+
+    if(hMessage) {
+        hMessage.SetInt("msg_dst", 4);
+        hMessage.AddString("params", "#SFUI_ContractKillStart");
+
+        Format(sBuf, sizeof sBuf, "</font>%s%s", sBuf, g_sSpace);
+        hMessage.AddString("params", sBuf);
+
+        hMessage.AddString("params", NULL_STRING);
+        hMessage.AddString("params", NULL_STRING);
+        hMessage.AddString("params", NULL_STRING);
+        hMessage.AddString("params", NULL_STRING);
+
+        EndMessage();
+    }
 }

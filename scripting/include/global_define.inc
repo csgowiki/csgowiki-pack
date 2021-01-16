@@ -29,6 +29,7 @@ Handle g_hCSGOWikiEnable = INVALID_HANDLE;
 Handle g_hOnUtilitySubmit = INVALID_HANDLE;
 Handle g_hOnUtilityWiki = INVALID_HANDLE;
 Handle g_hOnServerMonitor = INVALID_HANDLE;
+Handle g_hWikiReqLimit = INVALID_HANDLE;
 // wiki token
 new Handle: g_hCSGOWikiToken;
 
@@ -97,6 +98,7 @@ int g_aActionRecord[MAXPLAYERS + 1];    // encoded
 JSON_Array g_jaUtilityCollection;
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
 JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];
+bool g_aReqLock[MAXPLAYERS + 1];
 
 // ------------- utility_modify.sp define ------------
 char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];

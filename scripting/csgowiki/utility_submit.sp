@@ -70,7 +70,7 @@ void Event_MolotovDetonateForUtilitySubmit(Handle:event) {
     UtilityDetonateStat(event, e_uMolotov);
 }
 
-public Action:ButtonInUseTimerCallback(Handle timer, client) {
+public Action:ButtonInUseTimerCallback(Handle:timer, client) {
     if (e_cButtonOn == g_aPlayerStatus[client]) {
         g_aPlayerStatus[client] = e_cDefault;
     }

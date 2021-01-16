@@ -1,6 +1,10 @@
 // implement steam_bind function
 
 public Action:Command_BindSteam(client, args) {
+    if (!GetConVarBool(g_hCSGOWikiEnable)) {
+        PrintToChat(client, "%s \x02CSGOWiki插件关闭，请联系服务器管理员", PREFIX);
+        return;
+    }
     if (!args) {
         PrintToChat(client, "%s \x02请前往www.csgowiki.top个人主页获取steam绑定指令", PREFIX);
     }
