@@ -85,7 +85,6 @@ public Menu_UtilityWiki_v2_CallBack(Handle:menuhandle, MenuAction:action, client
             PrintToChat(client, "%s \x02道具上传过程中，无法使用wiki功能", PREFIX);
             return;
         }
-
         GetUtilityDetail(client, utId);
         DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
     }
@@ -94,6 +93,9 @@ public Menu_UtilityWiki_v2_CallBack(Handle:menuhandle, MenuAction:action, client
     }
 }
 
+public Action:ReqLockTimerCallback(Handle:timer, client) {
+    g_aReqLock[client] = false;
+}
 
 // 用户搜索结果菜单
 void Menu_UtilityWiki_v3(client) {

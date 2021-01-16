@@ -1,7 +1,7 @@
 // implement wiki
 
 public Action:Command_Wiki(client, args) {
-    if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件已关闭，请联系服务器管理员", client)) {
+    if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
     if (args >= 1) {
@@ -20,6 +20,7 @@ public Action:GetUtilityCollectionTimerCallback(Handle:timer) {
 }
 
 void GetAllCollection(client=-1) {
+    if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     System2HTTPRequest httpRequest = new System2HTTPRequest (
@@ -49,6 +50,19 @@ void GetFilterCollection(client, char[] method) {
 }
 
 void GetUtilityDetail(client, char[] utId) {
+    // lock
+    float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
+    if (g_aReqLock[client]) {
+        PrintToChat(client, "%s \x07请求过快！\x01冷却时间：\x09%.2f\x01秒", PREFIX, fWikiLimit);
+        return;
+    }
+    else {
+        if (fWikiLimit != 0.0) {
+            g_aReqLock[client] = true;
+            CreateTimer(fWikiLimit, ReqLockTimerCallback, client);
+        }
+    }
+
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
@@ -63,13 +77,13 @@ void GetUtilityDetail(client, char[] utId) {
 
 void ResetSingleClientWikiState(client) {
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, "");
-    if (g_aUtFilterCollection[client] != INVALID_HANDLE)
-        g_aUtFilterCollection[client].Cleanup();
+    // if (g_aUtFilterCollection[client] != INVALID_HANDLE)
+    //     g_aUtFilterCollection[client].Cleanup();
 }
 
 void ResetUtilityWikiState() {
-    if (g_jaUtilityCollection != INVALID_HANDLE)
-        g_jaUtilityCollection.Cleanup();
+    // if (g_jaUtilityCollection != INVALID_HANDLE)
+    //     g_jaUtilityCollection.Cleanup();
     for (new client = 0; client <= MAXPLAYERS; client++) {
         ResetSingleClientWikiState(client);
     }
@@ -90,11 +104,12 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
             return;
         }
         g_jaUtilityCollection = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
-        json_cleanup_and_delete(resp_json);
         // show menu for Command_Wiki
         if (client != -1) {
             Menu_UtilityWiki_v1(client);
         }
+        delete resp_json;
+        // json_cleanup_and_delete(resp_json);
     }
     else {
         if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -122,7 +137,7 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
             // show menu for Command_Wiki
             Menu_UtilityWiki_v3(client);
         }
-        json_cleanup_and_delete(resp_json);
+        delete resp_json;
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -146,7 +161,7 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         else if (StrEqual(status, "ok")) {
             JSON_Object json_obj = resp_json.GetObject("utility_detail");
             ShowUtilityDetail(client, json_obj);
-            json_cleanup_and_delete(json_obj);
+            // json_cleanup_and_delete(json_obj);
         }
         json_cleanup_and_delete(resp_json);
     }

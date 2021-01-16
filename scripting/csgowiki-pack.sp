@@ -43,11 +43,12 @@ public OnPluginStart() {
     HintColorMessageFixStart();
 
     // convar
-    g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "set wether enable csgowiki plugins or not. set 0 will disable all modules belong to CSGOWiki.");
-    g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "set module: <utility_submit> on/off.");
-    g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "set module: <utility_wiki> on/off.");
-    g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "1", "set module: <server_monitor> on/off");
-    g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "make sure csgowiki token valid. some modules will be disabled if csgowiki token invalid");
+    g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "Set wether enable csgowiki plugins or not. Set 0 will disable all modules belong to CSGOWiki.");
+    g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "Set module: <utility_submit> on/off.");
+    g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
+    g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "0", "Set module: <server_monitor> on/off");
+    g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid");
+    g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
 
     AutoExecConfig(true, "csgowiki-pack");
 }
@@ -60,26 +61,28 @@ public OnMapStart() {
     // reset for map start
     ResetUtilitySubmitState();
     ResetUtilityWikiState();
+    ResetReqLock();
 }
 
 public OnClientPutInServer(client) {
 
     // timer define
-    if (IsPlayer(client)) {
+    if (IsPlayer(client) && GetConVarBool(g_hCSGOWikiEnable)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
     }
     ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
+    ResetReqLock(client);
     updateServerMonitor();
 }
 
 public OnClientDisconnect(client) {
 
-    // ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
     updateServerMonitor(-1);
     ClearPlayerToken(client);
+    ResetReqLock(client);
     // reset bind_flag
     ResetSteamBindFlag(client);
 }
