@@ -83,6 +83,7 @@ public WikiModifyResponseCallback(bool success, const char[] error, System2HTTPR
             json_obj.GetString("message", message, LENGTH_NAME);
             PrintToChat(client, "%s \x02%s", PREFIX, message);
         }
+        delete json_obj;
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);

@@ -61,6 +61,7 @@ void Menu_UtilityWiki_v2(client, char[] utTinyName) {
             AddMenuItem(menuhandle, utId, msg);
             typeCount ++;
         }
+        delete arrval;
     }
     if (typeCount == 0) {
         PrintToChat(client, "%s CSGOWiki目前未收录该种类道具", PREFIX);
@@ -121,6 +122,7 @@ void Menu_UtilityWiki_v3(client) {
             if (specFlag == 1) Format(msg, sizeof(msg), "%s *走投*", msg);
             else if (specFlag == 2) Format(msg, sizeof(msg), "%s *跑投*", msg);
             AddMenuItem(menuhandle, utId, msg);
+            delete arrval;
         }
     }
     SetMenuPagination(menuhandle, 7);
