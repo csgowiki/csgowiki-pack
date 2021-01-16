@@ -41,7 +41,7 @@
 - [x] 搜索玩家附近的网站道具记录
 - [x] Lv4玩家在服务器内修改道具数据
 - [x] `Hint Text`颜色乱码修复
-- [x] 没有编译warning和errors_log，更合理的插件结构
+- [x] 只有一项编译文件，更合理的插件结构
 
 # Setup | 配置与指令
 
@@ -53,7 +53,7 @@
 | ---------------------- | ------ | ------------------------------------------------------------ | ------------------------------------------------------- |
 | `sm_csgowiki_enable`   | 0/1    | 插件功能总开关                                               | 无                                                      |
 | `sm_csgowiki_token`    | 字符串 | csgowiki用户token，不要泄露，前往[csgowiki](https://www.csgowiki.top/profile/revise/)获取 | 无                                                      |
-| `sm_server_monitor_on` | 0/1    | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项 | 无                                                      |
+| `sm_server_monitor_on` | 0/1    | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项，非csgowiki网站部署的服务器请关闭这个功能 | 无                                                      |
 | `sm_utility_submit_on` | 0/1    | 道具上传功能开关                                             | >=Lv3                                                |
 | `sm_utility_wiki_on`   | 0/1    | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
 
