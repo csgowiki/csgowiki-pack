@@ -22,7 +22,7 @@ public Action:GetUtilityCollectionTimerCallback(Handle:timer) {
 void GetAllCollection(client=-1) {
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
+    System2HTTPRequest httpRequest = new System2HTTPRequest (
         AllCollectionResponseCallback, 
         "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d",
         token, g_sCurrentMap, g_iServerTickrate
@@ -90,6 +90,7 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
             return;
         }
         g_jaUtilityCollection = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
+        json_cleanup_and_delete(resp_json);
         // show menu for Command_Wiki
         if (client != -1) {
             Menu_UtilityWiki_v1(client);
@@ -112,17 +113,16 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
-            return;
         }
         else if (StrEqual(status, "warning")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，等级限制2级及以上", PREFIX);
-            return;
         }
         else if (StrEqual(status, "ok")) {
             g_aUtFilterCollection[client] = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
             // show menu for Command_Wiki
             Menu_UtilityWiki_v3(client);
         }
+        json_cleanup_and_delete(resp_json);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -139,16 +139,16 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
-            return;
         }
         else if (StrEqual(status, "warning")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，已超过当日请求次数限制", PREFIX);
-            return;
         }
         else if (StrEqual(status, "ok")) {
             JSON_Object json_obj = resp_json.GetObject("utility_detail");
-            ShowUtilityDetail(client, json_obj)       
+            ShowUtilityDetail(client, json_obj);
+            json_cleanup_and_delete(json_obj);
         }
+        json_cleanup_and_delete(resp_json);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);

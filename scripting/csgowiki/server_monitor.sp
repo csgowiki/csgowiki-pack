@@ -16,6 +16,7 @@ void updateServerMonitor(int exclient = MAXPLAYERS + 1) {
     )
     httpRequest.SetData("monitor_json=%s", str_monitor);
     httpRequest.POST();
+    json_cleanup_and_delete(monitor_json);
     delete httpRequest;
 }
 
@@ -57,6 +58,7 @@ public ServerMonitorResponseCallback(bool success, const char[] error, System2HT
             json_obj.GetString("message", message, LENGTH_NAME);
             PrintToChatAll("%s \x02%s", PREFIX, message);
         }
+        json_cleanup_and_delete(json_obj);
     }
     else {
         PrintToChatAll("%s \x02连接至www.csgowiki.top失败", PREFIX);
