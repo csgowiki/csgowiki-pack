@@ -46,7 +46,7 @@ public SteamBindResponseCallback(bool success, const char[] error, System2HTTPRe
             PrintToChat(client, "%s \x02%s", PREFIX, message);
             g_aPlayerStateBind[client] = e_bUnbind;
         }
-        delete json_obj;
+        json_cleanup_and_delete(json_obj);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -86,7 +86,7 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
             PrintToChat(client, "%s \x02您还没有在csgowiki绑定steam账号~", PREFIX);
             g_aPlayerStateBind[client] = e_bUnbind;
         }
-        delete json_obj;
+        json_cleanup_and_delete(json_obj);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);

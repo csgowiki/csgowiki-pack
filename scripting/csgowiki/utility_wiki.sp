@@ -90,7 +90,7 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
             return;
         }
         g_jaUtilityCollection = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
-        delete resp_json;
+        json_cleanup_and_delete(resp_json);
         // show menu for Command_Wiki
         if (client != -1) {
             Menu_UtilityWiki_v1(client);
@@ -122,7 +122,7 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
             // show menu for Command_Wiki
             Menu_UtilityWiki_v3(client);
         }
-        delete resp_json;
+        json_cleanup_and_delete(resp_json);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
@@ -146,9 +146,9 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         else if (StrEqual(status, "ok")) {
             JSON_Object json_obj = resp_json.GetObject("utility_detail");
             ShowUtilityDetail(client, json_obj);
-            delete json_obj;
+            json_cleanup_and_delete(json_obj);
         }
-        delete resp_json;
+        json_cleanup_and_delete(resp_json);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
