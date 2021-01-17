@@ -128,9 +128,11 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+            Menu_UtilityWiki_v1(client);
         }
         else if (StrEqual(status, "warning")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，等级限制2级及以上", PREFIX);
+            Menu_UtilityWiki_v1(client);
         }
         else if (StrEqual(status, "ok")) {
             g_aUtFilterCollection[client] = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
