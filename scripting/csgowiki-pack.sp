@@ -57,7 +57,7 @@ public OnMapStart() {
     g_iServerTickrate = GetServerTickrate();
     GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
 
-    CreateTimer(10.0, GetUtilityCollectionTimerCallback, _, TIMER_REPEAT);
+    // CreateTimer(10.0, GetUtilityCollectionTimerCallback, _, TIMER_REPEAT);
     // reset for map start
     ResetUtilitySubmitState();
     ResetUtilityWikiState();
