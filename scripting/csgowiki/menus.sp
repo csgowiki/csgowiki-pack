@@ -61,7 +61,7 @@ void Menu_UtilityWiki_v2(client, char[] utTinyName) {
             AddMenuItem(menuhandle, utId, msg);
             typeCount ++;
         }
-        json_cleanup_and_delete(arrval);
+        // delete arrval;
     }
     if (typeCount == 0) {
         PrintToChat(client, "%s CSGOWiki目前未收录该种类道具", PREFIX);

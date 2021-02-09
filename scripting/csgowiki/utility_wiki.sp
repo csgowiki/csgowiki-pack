@@ -110,7 +110,7 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
         if (client != -1) {
             Menu_UtilityWiki_v1(client);
         }
-        delete resp_json;
+        // delete resp_json;
         // json_cleanup_and_delete(resp_json);
     }
     else {
