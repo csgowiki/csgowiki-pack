@@ -14,7 +14,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.1.1",
+    version = "v1.1.2",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -31,6 +31,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
     RegConsoleCmd("sm_modify", Command_Modify);
+    RegConsoleCmd("sm_abort", Command_SubmitAbort);
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
@@ -57,11 +58,13 @@ public OnMapStart() {
     g_iServerTickrate = GetServerTickrate();
     GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
 
-    // CreateTimer(10.0, GetUtilityCollectionTimerCallback, _, TIMER_REPEAT);
     // reset for map start
     ResetUtilitySubmitState();
     ResetUtilityWikiState();
     ResetReqLock();
+
+    // init collection
+    GetAllCollection();
 }
 
 public OnClientPutInServer(client) {

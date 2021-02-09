@@ -19,6 +19,7 @@ public Action:Command_Modify(client, args) {
     TrimString(g_aPlayerToken[client]);
     PrintToChat(client, "%s \x06道具修改功能开启", PREFIX);
     PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastUtilityId[client]);
+    PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cM_ThrowReady;

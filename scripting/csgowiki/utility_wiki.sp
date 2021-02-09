@@ -11,12 +11,14 @@ public Action:Command_Wiki(client, args) {
         PrintToChat(client, "%s 正在请求道具<\x0E%s\x01>", PREFIX, utId);
         GetUtilityDetail(client, utId);
     }
-    GetAllCollection(client);
-}
 
-public Action:GetUtilityCollectionTimerCallback(Handle:timer) {
-    GetAllCollection(-1);
-    return Plugin_Continue;
+    if (g_jaUtilityCollection.Length < 3) {
+        PrintToChat(client, "%s 道具合集初始化失败，正在重新请求数据...", PREFIX);
+        GetAllCollection(client);
+    }
+    else {
+        Menu_UtilityWiki_v1(client);
+    }
 }
 
 void GetAllCollection(client=-1) {

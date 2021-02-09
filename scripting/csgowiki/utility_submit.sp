@@ -8,9 +8,17 @@ public Action:Command_Submit(client, args) {
     }
     PrintToChat(client, "%s \x06道具上传功能开启", PREFIX);
     PrintToChat(client, "%s 你接下来的道具投掷记录将会被自动上传至\x09www.csgowiki.top", PREFIX);
+    PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cThrowReady;
+}
+
+public Action:Command_SubmitAbort(client, args) {
+    if (e_cDefault != g_aPlayerStatus[client]) {
+        g_aPlayerStatus[client] = e_cDefault
+        PrintToChat(client, "%s 已终止上传流程", PREFIX);
+    }
 }
 
 void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
