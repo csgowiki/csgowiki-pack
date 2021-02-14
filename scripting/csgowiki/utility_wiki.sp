@@ -114,8 +114,8 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
         // json_cleanup_and_delete(resp_json);
     }
     else {
-        if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败", PREFIX);
-        else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
+        if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
     }
 }
 
@@ -144,7 +144,7 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
+        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
     }
 }
 
@@ -170,7 +170,7 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         json_cleanup_and_delete(resp_json);
     }
     else {
-        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
+        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
     }
 }
 

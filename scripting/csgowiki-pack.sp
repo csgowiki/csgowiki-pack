@@ -32,6 +32,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_wiki", Command_Wiki);
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
+
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
