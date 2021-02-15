@@ -336,8 +336,8 @@ void ShowProUtilityDetail(client, JSON_Object detail_json) {
     // printout
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
-    PrintToChat(client, "%s \x0B%s", PREFIX, result);
-    PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷的", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
+    PrintToChat(client, "%s %s", PREFIX, result);
+    PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
 
     if (related_utility.Length > 0) {
         PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
@@ -350,5 +350,5 @@ void ShowProUtilityDetail(client, JSON_Object detail_json) {
 
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
-    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);
+    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n以上信息不一定准确", actionBody, actionMouse);
 }
