@@ -25,14 +25,24 @@ void GetAllCollection(client=-1) {
     if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    System2HTTPRequest httpRequest = new System2HTTPRequest (
+    System2HTTPRequest AllCollectionRequest = new System2HTTPRequest (
         AllCollectionResponseCallback, 
-        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d",
-        token, g_sCurrentMap, g_iServerTickrate
+        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
+        token, g_sCurrentMap, g_iServerTickrate, "common"
     );
-    httpRequest.Any = client;
-    httpRequest.GET();
-    delete httpRequest;
+    AllCollectionRequest.Any = client;
+    AllCollectionRequest.GET();
+
+    System2HTTPRequest ProCollectionRequest = new System2HTTPRequest (
+        ProCollectionResponseCallback, 
+        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s",
+        token, g_sCurrentMap, "pro"
+    );
+    ProCollectionRequest.Any = client;
+    ProCollectionRequest.GET();
+
+    delete AllCollectionRequest;
+    delete ProCollectionRequest;
 }
 
 void GetFilterCollection(client, char[] method) {
@@ -51,7 +61,7 @@ void GetFilterCollection(client, char[] method) {
     delete httpRequest;
 }
 
-void GetUtilityDetail(client, char[] utId) {
+void GetUtilityDetail(client, char[] utId, char[] type="common") {
     // lock
     float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
     if (g_aReqLock[client]) {
@@ -67,14 +77,28 @@ void GetUtilityDetail(client, char[] utId) {
 
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        UtilityDetailResponseCallback, 
-        "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s",
-        token, utId
-    );
-    httpRequest.Any = client;
-    httpRequest.GET();
-    delete httpRequest;
+
+    if (StrEqual(type, "common")) {
+        System2HTTPRequest httpRequest = new System2HTTPRequest(
+            UtilityDetailResponseCallback, 
+            "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=common",
+            token, utId
+        );
+        httpRequest.Any = client;
+        httpRequest.GET();
+        delete httpRequest;
+    }
+    else if (StrEqual(type, "pro")) {
+        System2HTTPRequest httpRequest = new System2HTTPRequest(
+            ProUtilityDetailResponseCallback, 
+            "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=pro",
+            token, utId
+        );
+        httpRequest.Any = client;
+        httpRequest.GET();
+        delete httpRequest;
+    }
+
 }
 
 void ResetSingleClientWikiState(client) {
@@ -90,7 +114,6 @@ void ResetUtilityWikiState() {
         ResetSingleClientWikiState(client);
     }
 }
-
 
 public AllCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     new client = request.Any;
@@ -119,6 +142,34 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
     }
 }
 
+public ProCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    new client = request.Any;
+    if (success) {
+        char[] content = new char[response.ContentLength + 1];
+        char[] status = new char[LENGTH_STATUS];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object resp_json = json_decode(content);
+        resp_json.GetString("status", status, LENGTH_STATUS);
+        if (!StrEqual(status, "ok")) {
+            if (client == -1) PrintToChatAll("%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+            else PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+            return;
+        }
+        JSON_Object tmp_ = resp_json.GetObject("utility_collection");
+        g_joProMatchInfo = tmp_.GetObject("match_info");
+        g_jaProUtilityInfo = view_as<JSON_Array>(tmp_.GetObject("utility_info"));
+        // show menu for Command_Wiki
+        if (client != -1) {
+            Menu_UtilityWiki_v1(client);
+        }
+        // delete resp_json;
+        // json_cleanup_and_delete(resp_json);
+    }
+    else {
+        if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+    }
+}
 
 public FilterCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     new client = request.Any;
@@ -165,7 +216,31 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         else if (StrEqual(status, "ok")) {
             JSON_Object json_obj = resp_json.GetObject("utility_detail");
             ShowUtilityDetail(client, json_obj);
-            // json_cleanup_and_delete(json_obj);
+        }
+        json_cleanup_and_delete(resp_json);
+    }
+    else {
+        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+    }
+}
+
+public ProUtilityDetailResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    new client = request.Any;
+    if (success) {
+        char[] content = new char[response.ContentLength + 1];
+        char[] status = new char[LENGTH_STATUS];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object resp_json = json_decode(content);
+        resp_json.GetString("status", status, LENGTH_STATUS);
+        if (StrEqual(status, "error")) {
+            PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+        }
+        else if (StrEqual(status, "warning")) {
+            PrintToChat(client, "%s \x02服务器数据请求失败，已超过当日请求次数限制", PREFIX);
+        }
+        else if (StrEqual(status, "ok")) {
+            JSON_Object json_obj = resp_json.GetObject("utility_detail");
+            ShowProUtilityDetail(client, json_obj);
         }
         json_cleanup_and_delete(resp_json);
     }
@@ -217,6 +292,48 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     PrintToChat(client, "%s 种类: \x10%s", PREFIX, utNameZh);
     if (strlen(author) != 0)
         PrintToChat(client, "%s 作者: \x10%s", PREFIX, author);
+    PrintToChat(client, "\x09 ------------------------------------- ");
+    //
+    PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);
+}
+
+void ShowProUtilityDetail(client, JSON_Object detail_json) {
+    char utType[LENGTH_UTILITY_TINY], playerName[LENGTH_NAME], teamName[LENGTH_NAME];
+    char eventName[LENGTH_MESSAGE], result[LENGTH_MESSAGE];
+    char actionBody[LENGTH_UTILITY_ZH], actionMouse[LENGTH_UTILITY_ZH];
+    float throwPos[DATA_DIM], startAngle[DATA_DIM];
+
+    detail_json.GetString("type", utType, sizeof(utType));
+    detail_json.GetString("player_name", playerName, sizeof(playerName));
+    detail_json.GetString("player_team", teamName, sizeof(teamName));
+    int round = detail_json.GetInt("round");
+    int round_time = detail_json.GetInt("round_time");
+    detail_json.GetString("event", eventName, sizeof(eventName));
+    detail_json.GetString("result", result, sizeof(result));
+    throwPos[0] = detail_json.GetFloat("throw_x");
+    throwPos[1] = detail_json.GetFloat("throw_y");
+    throwPos[2] = detail_json.GetFloat("throw_z");
+    startAngle[0] = detail_json.GetFloat("aim_pitch");
+    startAngle[1] = detail_json.GetFloat("aim_yaw");
+    startAngle[2] = 0.0;
+    detail_json.GetString("action_body", actionBody, sizeof(actionBody));
+    detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
+
+    char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
+    Utility_TinyName2Zh(utType, "%s", utNameZh);
+    Utility_TinyName2Weapon(utType, utWeaponCmd, client);
+    // tp player and get utility
+    TeleportEntity(client, throwPos, startAngle, NULL_VECTOR);
+    GivePlayerItem(client, utWeaponCmd);
+    Format(utWeaponCmd, sizeof(utWeaponCmd), "use %s", utWeaponCmd);
+    SetEntProp(client, Prop_Send, "m_iAmmo", 1);
+    FakeClientCommand(client, utWeaponCmd);
+
+    // printout
+    PrintToChat(client, "\x09 ------------------------------------- ");
+    PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
+    PrintToChat(client, "%s \x0B%s", PREFIX, result);
+    PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x02%d\x01回合开局\x02%d\x01秒投掷的", PREFIX, utNameZh, playerName, round, round_time);
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);
