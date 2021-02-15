@@ -14,7 +14,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.1.2",
+    version = "v1.1.4",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -33,14 +33,13 @@ public OnPluginStart() {
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
+    RegConsoleCmd("sm_proround", Command_ProRound);
+
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
-    
-
     // post fix
     g_iServerTickrate = GetServerTickrate();
-
 
     HintColorMessageFixStart();
 
