@@ -318,10 +318,14 @@ void ShowProUtilityDetail(client, JSON_Object detail_json) {
     startAngle[2] = 0.0;
     detail_json.GetString("action_body", actionBody, sizeof(actionBody));
     detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
+    JSON_Array related_utility = view_as<JSON_Array>(detail_json.GetObject("related_utility"));
 
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
     Utility_TinyName2Zh(utType, "%s", utNameZh);
     Utility_TinyName2Weapon(utType, utWeaponCmd, client);
+    int round_remain_secs = 55 + 60 - round_time;
+    int round_remain_min = round_remain_secs / 60;
+    round_remain_secs %= 60;
     // tp player and get utility
     TeleportEntity(client, throwPos, startAngle, NULL_VECTOR);
     GivePlayerItem(client, utWeaponCmd);
@@ -333,7 +337,17 @@ void ShowProUtilityDetail(client, JSON_Object detail_json) {
     PrintToChat(client, "\x09 ------------------------------------- ");
     PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
     PrintToChat(client, "%s \x0B%s", PREFIX, result);
-    PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x02%d\x01回合开局\x02%d\x01秒投掷的", PREFIX, utNameZh, playerName, round, round_time);
+    PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷的", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
+
+    if (related_utility.Length > 0) {
+        PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
+        for (new idx = 0; idx < related_utility.Length; idx ++) {
+            char utId[LENGTH_UTILITY_ID];
+            related_utility.GetString(idx, utId, sizeof(utId));
+            PrintToChat(client, "%s \x09!wiki %s", PREFIX, utId);
+        }
+    }
+
     PrintToChat(client, "\x09 ------------------------------------- ");
     //
     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);
