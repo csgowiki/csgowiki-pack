@@ -10,12 +10,13 @@
 #include "csgowiki/utility_wiki.sp"
 #include "csgowiki/utility_modify.sp"
 #include "csgowiki/kicker.sp"
+#include "csgowiki/qqchat.sp"
 
 public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.1.4",
+    version = "v1.2.0",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -36,6 +37,8 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_proround", Command_ProRound);
 
+    RegConsoleCmd("sm_qq", Command_QQchat);
+
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
@@ -52,6 +55,9 @@ public OnPluginStart() {
     g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "0", "Set module: <server_monitor> on/off");
     g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid");
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
+    g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
+    g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
+    g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
 
     AutoExecConfig(true, "csgowiki-pack");
 }
@@ -67,6 +73,11 @@ public OnMapStart() {
 
     // init collection
     GetAllCollection();
+
+    // channel chat timer
+    if (GetConVarBool(g_hChannelEnable)) {
+        CreateTimer(1.0, ChannelPullTimerCallback, _, TIMER_REPEAT);
+    }
 }
 
 public OnClientPutInServer(client) {

@@ -31,6 +31,9 @@ Handle g_hOnUtilityWiki = INVALID_HANDLE;
 Handle g_hOnServerMonitor = INVALID_HANDLE;
 Handle g_hWikiReqLimit = INVALID_HANDLE;
 Handle g_hWikiAutoKicker = INVALID_HANDLE;
+Handle g_hChannelEnable = INVALID_HANDLE;
+Handle g_hChannelServerRemark = INVALID_HANDLE;
+Handle g_hChannelQQgroup = INVALID_HANDLE;
 // wiki token
 new Handle: g_hCSGOWikiToken;
 
