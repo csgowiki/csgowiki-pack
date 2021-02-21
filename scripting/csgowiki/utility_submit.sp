@@ -34,7 +34,7 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
     // double click <E> to start submit function
     else if (e_cDefault == g_aPlayerStatus[client] && (buttons & IN_USE)) {
         g_aPlayerStatus[client] = e_cButtonOn;
-        CreateTimer(0.5, ButtonInUseTimerCallback, client);
+        CreateTimer(0.1, ButtonInUseTimerCallback, client);
     }
     else if (e_cButtonOn == g_aPlayerStatus[client] && (buttons & IN_USE)) {
         ClientCommand(client, "sm_submit");

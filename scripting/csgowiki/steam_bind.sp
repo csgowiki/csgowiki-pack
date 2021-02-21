@@ -37,11 +37,8 @@ public SteamBindResponseCallback(bool success, const char[] error, System2HTTPRe
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             json_obj.GetString("aliasname", aliasname, LENGTH_NAME);
-            char[] message = new char[LENGTH_NAME];
-            json_obj.GetString("message", message, LENGTH_NAME);
             client_level = json_obj.GetInt("level");
             PrintToChat(client, "%s \x09账号绑定成功: \x04%s\x01(\x05Lv%d\x01)", PREFIX, aliasname, client_level);
-            PrintToChat(client, "%s ip: %s", PREFIX, message);
             g_aPlayerStateBind[client] = e_bBinded;
         }
         else {
@@ -89,6 +86,13 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
         else {
             PrintToChat(client, "%s \x02您还没有在csgowiki绑定steam账号~", PREFIX);
             g_aPlayerStateBind[client] = e_bUnbind;
+            // set kicker
+            float kicker_timer = GetConVarFloat(g_hWikiAutoKicker);
+            if (kicker_timer > 0.0) {
+                CreateTimer(kicker_timer * 60, AutoKickerCallback, client);
+                PrintToChat(client, "%s \x0f由于你未绑定csgowiki账号，根据设置，将在\x04%.2f\x0f分钟内将您踢出服务器", PREFIX, kicker_timer);
+                PrintToChat(client, "%s \x05绑定账号请前往\x09www.csgowiki.top", PREFIX);
+            }
         }
         json_cleanup_and_delete(json_obj);
     }
@@ -98,5 +102,5 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
 }
 
 void ResetSteamBindFlag(client) {
-    g_aPlayerStateBind[client] = e_bUnkown;
+    g_aPlayerStateBind[client] = e_bUnknown;
 }

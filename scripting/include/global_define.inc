@@ -30,6 +30,7 @@ Handle g_hOnUtilitySubmit = INVALID_HANDLE;
 Handle g_hOnUtilityWiki = INVALID_HANDLE;
 Handle g_hOnServerMonitor = INVALID_HANDLE;
 Handle g_hWikiReqLimit = INVALID_HANDLE;
+Handle g_hWikiAutoKicker = INVALID_HANDLE;
 // wiki token
 new Handle: g_hCSGOWikiToken;
 
@@ -39,7 +40,7 @@ int g_iServerTickrate;
 
 // --------- steam_bind.sp define -----------
 enum StateBind {
-    e_bUnkown = 0,
+    e_bUnknown = 0,
     e_bUnbind = 1,
     e_bBinded = 2
 };

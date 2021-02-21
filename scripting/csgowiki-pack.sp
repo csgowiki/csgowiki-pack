@@ -9,6 +9,7 @@
 #include "csgowiki/utility_submit.sp"
 #include "csgowiki/utility_wiki.sp"
 #include "csgowiki/utility_modify.sp"
+#include "csgowiki/kicker.sp"
 
 public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
@@ -44,6 +45,7 @@ public OnPluginStart() {
     HintColorMessageFixStart();
 
     // convar
+    g_hWikiAutoKicker = FindOrCreateConvar("sm_wiki_auto_kick", "0", "Set how long(min) can the player stay in server without binding csgowiki account. Set 0 to disable this kicker", 0.0, 10.0);
     g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "Set wether enable csgowiki plugins or not. Set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "Set module: <utility_submit> on/off.");
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
@@ -101,7 +103,6 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Fl
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }
-
 }
 
 public Action:Event_GrenadeThrown(Handle:event, const String:name[], bool:dontBroadcast) { 
