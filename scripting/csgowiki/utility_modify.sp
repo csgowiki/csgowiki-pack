@@ -25,9 +25,40 @@ public Action:Command_Modify(client, args) {
     g_aPlayerStatus[client] = e_cM_ThrowReady;
 }
 
+public Action:Command_Velocity(client, args) {
+    if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
+        return;
+    }
+    if (e_cDefault != g_aPlayerStatus[client]) {
+        PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
+        return;
+    }
+    if (strlen(g_aLastUtilityId[client]) == 0) {
+        PrintToChat(client, "%s \x02没有缓存的道具可以修改", PREFIX);
+        return;
+    }
+    PrintToChat(client, "%s \x06道具速度添加功能开启", PREFIX);
+    PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastUtilityId[client]);
+    PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
+    g_aPlayerStatus[client] = e_cV_ThrowReady;
+}
 
 void ClearPlayerToken(client) {
     strcopy(g_aPlayerToken[client], LENGTH_TOKEN, "");
+}
+
+void TriggerVelocity(client) {
+    System2HTTPRequest httpRequest = new System2HTTPRequest(
+        VelocityResponseCallback, "https://api.csgowiki.top/api/utility/velocity/"
+    );
+    httpRequest.SetData(
+        "id=%s&velocity_x=%f&velocity_y=%f&velocity_z=%f&throw_x=%f&throw_y=%f&throw_z=%f",
+        g_aLastUtilityId[client], g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2],
+        g_aThrowPositions[client][0], g_aThrowPositions[client][1], g_aThrowPositions[client][2]
+    );
+    httpRequest.Any = client;
+    httpRequest.POST();
+    delete httpRequest;
 }
 
 void TriggerWikiModify(client) {
@@ -38,7 +69,7 @@ void TriggerWikiModify(client) {
     char tickTag[LENGTH_STATUS] = "";
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    Utility_Code2TinyName(g_aUtilityType[client], utTinyName);
+    GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
     // request
@@ -50,7 +81,8 @@ void TriggerWikiModify(client) {
         &end_x=%f&end_y=%f&end_z=%f&aim_pitch=%f&aim_yaw=%f\
         &is_run=%d&is_walk=%d&is_jump=%d&is_duck=%d&is_left=%d&is_right=%d\
         &map_belong=%s&tickrate=%s&utility_type=%s\
-        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f",
+        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f\
+        &velocity_x=%f&velocity_y=%f&velocity_z=%f",
         g_aPlayerToken[client], token, g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
@@ -58,7 +90,8 @@ void TriggerWikiModify(client) {
         wikiAction[e_wRun], wikiAction[e_wWalk], wikiAction[e_wJump],
         wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
-        g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client]
+        g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
+        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[2]
     );
     httpRequest.Any = client;
     httpRequest.POST();
@@ -67,6 +100,28 @@ void TriggerWikiModify(client) {
     delete httpRequest;
 }
 
+public VelocityResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    new client = request.Any;
+    if (success) {
+        char[] status = new char[LENGTH_STATUS];
+        char[] content = new char[response.ContentLength + 1];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object json_obj = json_decode(content);
+        json_obj.GetString("status", status, LENGTH_STATUS);
+        if (StrEqual(status, "ok")) {
+            PrintToChat(client, "%s \x04已修改道具初始速度", PREFIX);
+        }
+        else {
+            char[] message = new char[LENGTH_NAME];
+            json_obj.GetString("message", message, LENGTH_NAME);
+            PrintToChat(client, "%s \x02%s", PREFIX, message);
+        }
+        json_cleanup_and_delete(json_obj);
+    }
+    else {
+        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
+    }
+}
 
 public WikiModifyResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     new client = request.Any;

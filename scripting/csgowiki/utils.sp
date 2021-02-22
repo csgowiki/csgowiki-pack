@@ -35,22 +35,17 @@ Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription,
 }
 
 // utils for utility submit
-UtilityCode Utility_FullName2Code(const char[] utilityName) {
-    if (StrEqual(utilityName, "hegrenade")) return e_uHegrenade;
-    else if (StrEqual(utilityName, "flashbang")) return e_uFlasbang;
-    else if (StrEqual(utilityName, "smokegrenade")) return e_uSomkegrenade;
-    else return e_uMolotov;
-}
-
-void Utility_Code2TinyName(UtilityCode utCode, char[] utTinyName) {
+void GrenadeType_2_Tinyname(GrenadeType utCode, char[] utTinyName) {
     switch (utCode) {
-    case e_uHegrenade:
+    case GrenadeType_HE:
         strcopy(utTinyName, LENGTH_UTILITY_TINY, "grenade");
-    case e_uFlasbang:
+    case GrenadeType_Flash:
         strcopy(utTinyName, LENGTH_UTILITY_TINY, "flash");
-    case e_uSomkegrenade:
+    case GrenadeType_Smoke:
         strcopy(utTinyName, LENGTH_UTILITY_TINY, "smoke");
-    case e_uMolotov:
+    case GrenadeType_Molotov:
+        strcopy(utTinyName, LENGTH_UTILITY_TINY, "molotov");
+    case GrenadeType_Incendiary:
         strcopy(utTinyName, LENGTH_UTILITY_TINY, "molotov");
     }
 }
@@ -142,6 +137,29 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
         }
     }
 }
+
+GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
+    if (StrEqual(utTinyName, "smoke")) {
+        return GrenadeType_Smoke;
+    }
+    else if (StrEqual(utTinyName, "grenade")) {
+        return GrenadeType_HE;
+    }
+    else if (StrEqual(utTinyName, "flash")) {
+        return GrenadeType_Flash;
+    }
+    else if (StrEqual(utTinyName, "molotov")) {
+        new teamFlag = GetClientTeam(client);
+        if (CS_TEAM_T == teamFlag) {
+            return GrenadeType_Molotov;
+        }
+        else if (CS_TEAM_CT == teamFlag){  // [TODO]  spec
+            return GrenadeType_Incendiary;
+        }
+    }
+    return GrenadeType_None;
+}
+
 
 void ResetReqLock(pclient = -1) {
     if (pclient != -1) {

@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <csutils>
 #include <sdktools>
 #include <cstrike>
 #include <system2>
@@ -34,6 +35,7 @@ Handle g_hWikiAutoKicker = INVALID_HANDLE;
 Handle g_hChannelEnable = INVALID_HANDLE;
 Handle g_hChannelServerRemark = INVALID_HANDLE;
 Handle g_hChannelQQgroup = INVALID_HANDLE;
+Handle g_hWikiAutoThrow = INVALID_HANDLE;
 // wiki token
 new Handle: g_hCSGOWikiToken;
 
@@ -56,19 +58,12 @@ enum StateClient {
     e_cThrowReady = 1,
     e_cThrowEnd = 2,
     e_cAlreadyThrown = 3,
-    e_cButtonOn = 4,
-    e_cM_ThrowReady = 5,
-    e_cM_ThrowEnd = 6,
-    e_cM_AlreadyThrown = 7
+    e_cM_ThrowReady = 4,
+    e_cM_ThrowEnd = 5,
+    e_cM_AlreadyThrown = 6,
+    e_cV_ThrowReady = 7
 }
 
-enum UtilityCode {   
-//   Code                     |   Fullname        |   Tinyname
-    e_uHegrenade = 0,       //|   hegrenade       |   grenade
-    e_uFlasbang = 1,        //|   flashbang       |   flash
-    e_uSomkegrenade = 2,    //|   smokegrenade    |   smoke
-    e_uMolotov = 3          //|   molotov/incgrenade | molotov
-}
 
 enum WikiAction {
     e_wJump = 0,
@@ -88,11 +83,12 @@ new g_aCsgoActionMap[CSGO_ACTION_NUM] = {
 
 StateClient g_aPlayerStatus[MAXPLAYERS + 1];
 // data for utility record
-UtilityCode g_aUtilityType[MAXPLAYERS + 1];
+GrenadeType g_aUtilityType[MAXPLAYERS + 1];
 float g_aStartPositions[MAXPLAYERS + 1][DATA_DIM];
 float g_aStartAngles[MAXPLAYERS + 1][DATA_DIM];
 float g_aThrowPositions[MAXPLAYERS + 1][DATA_DIM];
 float g_aEndspotPositions[MAXPLAYERS + 1][DATA_DIM];
+float g_aUtilityVelocity[MAXPLAYERS + 1][DATA_DIM];
 
 float g_aUtilityAirtime[MAXPLAYERS + 1];
 int g_aActionRecord[MAXPLAYERS + 1];    // encoded

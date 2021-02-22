@@ -254,7 +254,8 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     char utId[LENGTH_UTILITY_ID], utType[LENGTH_UTILITY_TINY], utTitle[LENGTH_NAME];
     char utBrief[LENGTH_UTILITY_BRIEF], author[LENGTH_NAME];
     char actionBody[LENGTH_UTILITY_ZH], actionMouse[LENGTH_UTILITY_ZH];
-    float startPos[DATA_DIM], startAngle[DATA_DIM];
+    float startPos[DATA_DIM], startAngle[DATA_DIM], velocity[DATA_DIM];
+    float throwPos[DATA_DIM];
 
     detail_json.GetString("id", utId, sizeof(utId));
     detail_json.GetString("type", utType, sizeof(utType));
@@ -269,6 +270,12 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     startAngle[0] = detail_json.GetFloat("aim_pitch");
     startAngle[1] = detail_json.GetFloat("aim_yaw");
     startAngle[2] = 0.0;
+    velocity[0] = detail_json.GetFloat("velocity_x");
+    velocity[1] = detail_json.GetFloat("velocity_y");
+    velocity[2] = detail_json.GetFloat("velocity_z");
+    throwPos[0] = detail_json.GetFloat("throw_x");
+    throwPos[1] = detail_json.GetFloat("throw_y");
+    throwPos[2] = detail_json.GetFloat("throw_z");
 
     // set last ut record
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
@@ -282,6 +289,17 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     Format(utWeaponCmd, sizeof(utWeaponCmd), "use %s", utWeaponCmd);
     SetEntProp(client, Prop_Send, "m_iAmmo", 1);
     FakeClientCommand(client, utWeaponCmd);
+    // auto throw
+    if (GetConVarBool(g_hWikiAutoThrow)) {
+        if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
+            PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
+        }
+        else {
+            GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
+            CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
+            PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
+        }
+    }
 
     // printout
     PrintToChat(client, "\x09 ------------------------------------- ");

@@ -22,7 +22,6 @@ public Plugin:myinfo = {
 
 public OnPluginStart() {
     // event
-    HookEvent("grenade_thrown", Event_GrenadeThrown);
     HookEvent("hegrenade_detonate", Event_HegrenadeDetonate);
     HookEvent("flashbang_detonate", Event_FlashbangDetonate);
     HookEvent("smokegrenade_detonate", Event_SmokegrenadeDetonate);
@@ -39,6 +38,8 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_qq", Command_QQchat);
 
+    RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
+
     // global timer
     CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
 
@@ -48,6 +49,7 @@ public OnPluginStart() {
     HintColorMessageFixStart();
 
     // convar
+    g_hWikiAutoThrow = FindOrCreateConvar("sm_wiki_auto_throw", "1", "Set whether auto throw grenade when `!wiki` triggered");
     g_hWikiAutoKicker = FindOrCreateConvar("sm_wiki_auto_kick", "0", "Set how long(min) can the player stay in server without binding csgowiki account. Set 0 to disable this kicker", 0.0, 10.0);
     g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "Set wether enable csgowiki plugins or not. Set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "Set module: <utility_submit> on/off.");
@@ -107,7 +109,6 @@ public OnPluginEnd() {
     updateServerMonitor(-1);
 }
 
-
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
     // for utility submit
     if (!buttons) return;
@@ -116,18 +117,12 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Fl
     }
 }
 
-public Action:Event_GrenadeThrown(Handle:event, const String:name[], bool:dontBroadcast) { 
-    if (GetConVarBool(g_hOnUtilitySubmit)) {
-        Event_GrenadeThrownForUtilitySubmit(event);
-    }
-}
-
-
 public Action:Event_HegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_HegrenadeDetonateForUtilitySubmit(event);
     }
 }
+
 
 
 public Action:Event_FlashbangDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
