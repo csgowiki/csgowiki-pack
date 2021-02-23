@@ -3,7 +3,7 @@ public Action:Command_Submit(client, args) {
     if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
         return;
     }
-    if (e_cDefault != g_aPlayerStatus[client] && e_cButtonOn != g_aPlayerStatus[client]) {
+    if (e_cDefault != g_aPlayerStatus[client]) {
         return;
     }
     PrintToChat(client, "%s \x06道具上传功能开启", PREFIX);
@@ -31,57 +31,43 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
             }
         }
     }
-    // double click <E> to start submit function
-    else if (e_cDefault == g_aPlayerStatus[client] && (buttons & IN_USE)) {
-        g_aPlayerStatus[client] = e_cButtonOn;
-        CreateTimer(0.1, ButtonInUseTimerCallback, client);
-    }
-    else if (e_cButtonOn == g_aPlayerStatus[client] && (buttons & IN_USE)) {
-        ClientCommand(client, "sm_submit");
-    }
-
 }
 
-
-void Event_GrenadeThrownForUtilitySubmit(Handle:event) {
-    char nadeName[LENGTH_UTILITY_FULL];
-    new client = GetClientOfUserId(GetEventInt(event, "userid"));
-    GetEventString(event, "weapon", nadeName, LENGTH_UTILITY_FULL);
-    if ((e_cThrowReady == g_aPlayerStatus[client] 
-        || e_cM_ThrowReady == g_aPlayerStatus[client]) && 
-        !StrEqual(nadeName, "decoy") && IsPlayer(client)) {
-        GetClientAbsOrigin(client, g_aThrowPositions[client]);
+public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
+        const float origin[3], const float velocity[3]) {
+        if (g_aPlayerStatus[client] != e_cThrowReady && g_aPlayerStatus[client] != e_cM_ThrowReady && g_aPlayerStatus[client] != e_cV_ThrowReady)
+            return;
+        if (grenadeType == GrenadeType_None || grenadeType == GrenadeType_Decoy) 
+            return;
+        g_aThrowPositions[client] = origin;
+        g_aUtilityVelocity[client] = velocity;
         g_aUtilityAirtime[client] = GetEngineTime();
-        g_aUtilityType[client] = Utility_FullName2Code(nadeName);
-        // set next state
+        g_aUtilityType[client] = grenadeType;
         if (e_cM_ThrowReady == g_aPlayerStatus[client]) 
             g_aPlayerStatus[client] = e_cM_AlreadyThrown;
-        else
+        else if (e_cThrowReady == g_aPlayerStatus[client])
             g_aPlayerStatus[client] = e_cAlreadyThrown;
+        else {
+            g_aPlayerStatus[client] = e_cDefault;
+            TriggerVelocity(client);
+        }
         PrintToChat(client, "%s \x03已经记录你的动作，等待道具生效...", PREFIX);
-    }
 }
 
 void Event_HegrenadeDetonateForUtilitySubmit(Handle:event) {
-    UtilityDetonateStat(event, e_uHegrenade);
+    UtilityDetonateStat(event, GrenadeType_HE);
 }
 
 void Event_FlashbangDetonateForUtilitySubmit(Handle:event) {
-    UtilityDetonateStat(event, e_uFlasbang);
+    UtilityDetonateStat(event, GrenadeType_Flash);
 }
 
 void Event_SmokegrenadeDetonateForUtilitySubmit(Handle:event) {
-    UtilityDetonateStat(event, e_uSomkegrenade);
+    UtilityDetonateStat(event, GrenadeType_Smoke);
 }
 
 void Event_MolotovDetonateForUtilitySubmit(Handle:event) {
-    UtilityDetonateStat(event, e_uMolotov);
-}
-
-public Action:ButtonInUseTimerCallback(Handle:timer, client) {
-    if (e_cButtonOn == g_aPlayerStatus[client]) {
-        g_aPlayerStatus[client] = e_cDefault;
-    }
+    UtilityDetonateStat(event, GrenadeType_Molotov);
 }
 
 // implement utility submit function
@@ -96,7 +82,7 @@ void ResetUtilitySubmitState() {
     }
 }
 
-void UtilityDetonateStat(Handle:event, UtilityCode utCode) {
+void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     if ((e_cAlreadyThrown == g_aPlayerStatus[client]
         || e_cM_AlreadyThrown == g_aPlayerStatus[client])
@@ -130,9 +116,11 @@ void TriggerWikiPost(client) {
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
-    Utility_Code2TinyName(g_aUtilityType[client], utTinyName);
+    GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
+
+
     // request
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         WikiPostResponseCallback, "https://api.csgowiki.top/api/utility/submit/"
@@ -142,7 +130,8 @@ void TriggerWikiPost(client) {
         &end_x=%f&end_y=%f&end_z=%f&aim_pitch=%f&aim_yaw=%f\
         &is_run=%d&is_walk=%d&is_jump=%d&is_duck=%d&is_left=%d&is_right=%d\
         &map_belong=%s&tickrate=%s&utility_type=%s\
-        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f",
+        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f\
+        &velocity_x=%f&velocity_y=%f&velocity_z=%f",
         token, steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
@@ -150,7 +139,8 @@ void TriggerWikiPost(client) {
         wikiAction[e_wRun], wikiAction[e_wWalk], wikiAction[e_wJump],
         wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
-        g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client]
+        g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
+        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2]
     );
     httpRequest.Any = client;
     httpRequest.POST();

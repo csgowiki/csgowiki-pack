@@ -20,11 +20,13 @@ void updateServerMonitor(int exclient = MAXPLAYERS + 1) {
     delete httpRequest;
 }
 
-JSON_Array encode_json_server_monitor(int exclient) {
+JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true) {
     JSON_Array monitor_json = new JSON_Array();
-    char token[LENGTH_TOKEN];
-    GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    monitor_json.PushString(token);
+    if (inctoken) {
+        char token[LENGTH_TOKEN];
+        GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+        monitor_json.PushString(token);
+    }
     if (exclient == -1) {
         monitor_json.PushObject(new JSON_Array());
         return monitor_json;
@@ -33,7 +35,11 @@ JSON_Array encode_json_server_monitor(int exclient) {
         if(!IsPlayer(client_id) || client_id == exclient) continue;
         char client_name[LENGTH_NAME], steamid[LENGTH_STEAMID64], str_ping[4];
         GetClientName(client_id, client_name, LENGTH_NAME);
-        GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
+        if (authType) {
+            GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
+        } else {
+            GetClientAuthId(client_id, AuthId_Steam2, steamid, LENGTH_STEAMID64)
+        }
         float latency = GetClientAvgLatency(client_id, NetFlow_Both);
         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
         // json encode
