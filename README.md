@@ -42,6 +42,8 @@
 - [x] Lv4玩家在服务器内修改道具数据
 - [x] `Hint Text`颜色乱码修复
 - [x] 只有一项编译文件，更合理的插件结构
+- [x] 实现游戏服务器与qq群之间信息互通
+- [x] 自动投掷记录的道具
 
 # Setup | 配置与指令
 
@@ -57,6 +59,11 @@
 | `sm_utility_submit_on`  | 0/1      | 道具上传功能开关                                             | >=Lv3                                                   |
 | `sm_utility_wiki_on`    | 0/1      | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
 | `sm_wiki_request_limit` | 0.0~10.0 | `!wiki`请求冷却时间(秒)，默认1.0s，设置0为不限制冷却时间     | 无                                                      |
+| `sm_qqchat_enable`      | 0/1      | qqchat功能开关，详情见                                       | 无                                                      |
+| `sm_qqchat_remark`      | 字符串   | 服务器的备注，显示在qq群里消息的前缀                         | 无                                                      |
+| `sm_qqchat_qqgroup`     | 字符串   | 指定的qq群号，一个服务器只能指定一个                         | 无                                                      |
+| `sm_wiki_auto_kick`     | 0.0~10.0 | 未绑定csgowiki的账号在服务器的时间(分钟)，超出改时间会将玩家踢出服务器。设置为0为不开启(不建议开启) | 无                                                      |
+| `sm_wiki_auto_throw`    | 0/1      | 是否在`!wiki`时自动投掷道具(测试阶段)                        | 无                                                      |
 
 ## Command | 命令
 
@@ -77,6 +84,22 @@
 - `/modify <token>` 修改某一道具的数据
 
     > 修改通过`!wiki`传送到的上一个道具记录，要求等级>=Lv4，修改流程与上传道具相同
+    
+- `!qq <内容>` 可以向`sm_qqchat_qqgroup`指定的qq群里发送消息
+
+## qqchat | qq群聊功能
+
+1. 申请添加csgowiki官方的qq机器人：`qq2823195212`，验证消息输入：`8802`
+2. 将机器人邀请进入群聊
+3. 开启`sm_qqchat_enable 1`，设置qq群号`sm_qqchat_qqgroup xxx`和服务器备注`sm_qqchat_remark xxx`
+4. 在服务器内使用`!qq <内容>`向qq群发消息，在qq群内at机器人向服务器发消息
+
+**注意**
+
+1. qq机器人为csgowiki提供，不会在你的群里收集信息，如果出现问题练习csgowiki站长，解释权归csgowiki所有
+2. 目前支持的额外功能还有：
+    - `@bot 状态` 查看服务器内在线人数
+    - 开发中...
 
 # Contributions | 贡献
 
