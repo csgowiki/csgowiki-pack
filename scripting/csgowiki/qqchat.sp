@@ -45,10 +45,11 @@ public ChannelPullCallback(bool success, const char[] error, System2HTTPRequest 
             json_obj.GetString("words", words, sizeof(words));
             if (StrEqual(words, "状态")) {
                 char str_monitor[LENGTH_SERVER_MONITOR];
-                JSON_Array monitor_json = encode_json_server_monitor(-2, false, false);
+                JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true);
                 monitor_json.Encode(str_monitor, LENGTH_SERVER_MONITOR);
                 ChannelPush("CSGOWiki-Bot", str_monitor);
-            } else {
+            }
+            else {
                 PrintToChatAll("[\x09QQ\x01] \x04%s\x01：%s", name, words);
             }
         }

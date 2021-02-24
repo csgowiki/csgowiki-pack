@@ -20,7 +20,7 @@ void updateServerMonitor(int exclient = MAXPLAYERS + 1) {
     delete httpRequest;
 }
 
-JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true) {
+JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false) {
     JSON_Array monitor_json = new JSON_Array();
     if (inctoken) {
         char token[LENGTH_TOKEN];
@@ -30,6 +30,9 @@ JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool aut
     if (exclient == -1) {
         monitor_json.PushObject(new JSON_Array());
         return monitor_json;
+    }
+    if (incmap) {
+        monitor_json.PushString(g_sCurrentMap);
     }
     for (int client_id = 0; client_id <= MaxClients; client_id++) {
         if(!IsPlayer(client_id) || client_id == exclient) continue;
