@@ -9,7 +9,7 @@
 
 #define LENGTH_TOKEN 33
 #define LENGTH_STEAMID64 20 // 17 for usuall
-#define LENGTH_STATUS 7
+#define LENGTH_STATUS 16
 #define LENGTH_NAME 33
 #define LENGTH_IP 17
 #define LENGTH_SERVER_MONITOR 512
