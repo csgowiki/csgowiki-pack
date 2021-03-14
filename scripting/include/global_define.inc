@@ -29,7 +29,6 @@
 Handle g_hCSGOWikiEnable = INVALID_HANDLE;
 Handle g_hOnUtilitySubmit = INVALID_HANDLE;
 Handle g_hOnUtilityWiki = INVALID_HANDLE;
-Handle g_hOnServerMonitor = INVALID_HANDLE;
 Handle g_hWikiReqLimit = INVALID_HANDLE;
 Handle g_hWikiAutoKicker = INVALID_HANDLE;
 Handle g_hChannelEnable = INVALID_HANDLE;

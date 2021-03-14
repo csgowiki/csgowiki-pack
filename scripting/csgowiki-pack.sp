@@ -5,7 +5,6 @@
 #include "csgowiki/menus.sp"
 
 #include "csgowiki/steam_bind.sp"
-#include "csgowiki/server_monitor.sp"
 #include "csgowiki/utility_submit.sp"
 #include "csgowiki/utility_wiki.sp"
 #include "csgowiki/utility_modify.sp"
@@ -40,9 +39,6 @@ public OnPluginStart() {
 
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
 
-    // global timer
-    CreateTimer(10.0, ServerMonitorTimerCallback, _, TIMER_REPEAT);
-
     // post fix
     g_iServerTickrate = GetServerTickrate();
 
@@ -54,7 +50,6 @@ public OnPluginStart() {
     g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "Set wether enable csgowiki plugins or not. Set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "Set module: <utility_submit> on/off.");
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
-    g_hOnServerMonitor = FindOrCreateConvar("sm_server_monitor_on", "0", "Set module: <server_monitor> on/off");
     g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid");
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
@@ -92,21 +87,15 @@ public OnClientPutInServer(client) {
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);
-    updateServerMonitor();
 }
 
 public OnClientDisconnect(client) {
 
     ResetSingleClientSubmitState(client);
-    updateServerMonitor(-1);
     ClearPlayerToken(client);
     ResetReqLock(client);
     // reset bind_flag
     ResetSteamBindFlag(client);
-}
-
-public OnPluginEnd() {
-    updateServerMonitor(-1);
 }
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
