@@ -7,6 +7,7 @@
 
 #define PREFIX "\x01[\x05CSGO Wiki\x01]"
 
+#define LENGTH_VERSION 10
 #define LENGTH_TOKEN 33
 #define LENGTH_STEAMID64 20 // 17 for usuall
 #define LENGTH_STATUS 16
@@ -41,6 +42,11 @@ new Handle: g_hCSGOWikiToken;
 // 地图 tick信息
 char g_sCurrentMap[LENGTH_MAPNAME];
 int g_iServerTickrate;
+
+// 插件版本信息
+char g_sCurrentVersion[LENGTH_VERSION];
+char g_sLatestVersion[LENGTH_VERSION];
+char g_sLatestInfo[LENGTH_MESSAGE];
 
 // --------- steam_bind.sp define -----------
 enum StateBind {

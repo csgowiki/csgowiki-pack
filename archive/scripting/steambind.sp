@@ -77,6 +77,8 @@ void postBindInfo(client, char[] token) {
 }
 
 public void QuerySteamIdCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    PluginVersionHint(client);
+
     int client = request.Any;
     if (success) {
         char[] content = new char[response.ContentLength + 1];

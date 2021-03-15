@@ -15,7 +15,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.2.0",
+    version = "v1.2.1",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -75,6 +75,7 @@ public OnMapStart() {
     if (GetConVarBool(g_hChannelEnable)) {
         CreateTimer(1.0, ChannelPullTimerCallback, _, TIMER_REPEAT);
     }
+    PluginVersionCheck();
 }
 
 public OnClientPutInServer(client) {

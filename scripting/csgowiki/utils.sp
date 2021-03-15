@@ -208,6 +208,56 @@ JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool aut
     return monitor_json;
 }
 
+// ----------------- check version ----------------------
+void PluginVersionHint(client) {
+    if (StrEqual(g_sLatestVersion, "")) {
+        PrintToChat(client, "%s 获取版本信息失败：[\x02%s\x01]", PREFIX, g_sLatestInfo);
+    }
+    else if (StrEqual(g_sCurrentVersion, g_sLatestVersion)) {
+        PrintToChat(client, "%s 当前csgowiki插件已为最新版本<\x09%s\x01>", PREFIX, g_sCurrentVersion);
+    }
+    else {
+        PrintToChat(client, "%s 当前服务器csgowiki插件版本<\x0F%s\x01>，最新版本为<\x09%s\x01>", PREFIX, g_sCurrentVersion, g_sLatestVersion);
+        PrintToChat(client, "%s 最新插件内容简介：[\x06%s\x01]", PREFIX, g_sLatestInfo);
+        PrintToChat(client, "%s 请及时更新插件避免已有功能失效", PREFIX);
+    }
+}
+
+void PluginVersionCheck(client = -1) {
+    GetPluginInfo(INVALID_HANDLE, PlInfo_Version, g_sCurrentVersion, LENGTH_VERSION);
+    System2HTTPRequest PluginVersionCheckRequest = new System2HTTPRequest (
+        PluginVersionCheckCallback, 
+        "https://api.github.com/repos/hx-w/CSGOWiki-Plugins/releases/latest"
+    );
+    PluginVersionCheckRequest.Any = client;
+    PluginVersionCheckRequest.GET();
+    delete PluginVersionCheckRequest;
+}
+
+public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    if (success) {
+        char[] content = new char[response.ContentLength + 1];
+        int statusCode = response.StatusCode;
+        if (statusCode != 200) {
+            Format(g_sLatestInfo, sizeof(g_sLatestInfo), "github-api访问失败：状态码<%d>", statusCode);
+        }
+        else {
+            response.GetContent(content, response.ContentLength + 1);
+            JSON_Object resp_json = json_decode(content);
+            resp_json.GetString("tagname", g_sLatestVersion, sizeof(g_sLatestVersion));
+            resp_json.GetString("name", g_sLatestInfo, sizeof(g_sLatestInfo));
+            json_cleanup_and_delete(resp_json);
+        }
+    }
+    else {
+        g_sLatestInfo = "github-api访问失败";
+    }
+    new client = request.Any;
+    if (client != -1) {
+        PluginVersionHint(client);
+    }
+}
+
 
 // ----------------- hint color message fix --------------
 UserMsg g_TextMsg, g_HintText, g_KeyHintText;

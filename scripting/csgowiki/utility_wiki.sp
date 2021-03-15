@@ -1,6 +1,8 @@
 // implement wiki
 
 public Action:Command_Wiki(client, args) {
+    PluginVersionCheck(client);
+
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
