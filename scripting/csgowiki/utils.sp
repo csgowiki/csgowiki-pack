@@ -218,7 +218,7 @@ void PluginVersionHint(client) {
     }
     else {
         PrintToChat(client, "%s 当前服务器csgowiki插件版本<\x0F%s\x01>，最新版本为<\x09%s\x01>", PREFIX, g_sCurrentVersion, g_sLatestVersion);
-        PrintToChat(client, "%s 最新插件内容简介：[\x06%s\x01]", PREFIX, g_sLatestInfo);
+        PrintToChat(client, "%s \x06%s\x01", PREFIX, g_sLatestInfo);
         PrintToChat(client, "%s 请及时更新插件避免已有功能失效", PREFIX);
     }
 }
@@ -229,6 +229,7 @@ void PluginVersionCheck(client = -1) {
         PluginVersionCheckCallback, 
         "https://api.github.com/repos/hx-w/CSGOWiki-Plugins/releases/latest"
     );
+    PluginVersionCheckRequest.SetHeader("User-Agent", "request");
     PluginVersionCheckRequest.Any = client;
     PluginVersionCheckRequest.GET();
     delete PluginVersionCheckRequest;
@@ -244,7 +245,7 @@ public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPR
         else {
             response.GetContent(content, response.ContentLength + 1);
             JSON_Object resp_json = json_decode(content);
-            resp_json.GetString("tagname", g_sLatestVersion, sizeof(g_sLatestVersion));
+            resp_json.GetString("tag_name", g_sLatestVersion, sizeof(g_sLatestVersion));
             resp_json.GetString("name", g_sLatestInfo, sizeof(g_sLatestInfo));
             json_cleanup_and_delete(resp_json);
         }
