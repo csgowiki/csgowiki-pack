@@ -2,7 +2,7 @@
 #include "global_define.inc"
 
 #include "csgowiki/utils.sp"
-#include "csgowiki/menus.sp"
+#include "csgowiki/panel.sp"
 
 #include "csgowiki/steam_bind.sp"
 #include "csgowiki/utility_submit.sp"
@@ -33,11 +33,14 @@ public OnPluginStart() {
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
+    RegConsoleCmd("sm_panel", Command_Panel);
+
     RegConsoleCmd("sm_proround", Command_ProRound);
 
     RegConsoleCmd("sm_qq", Command_QQchat);
 
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
+
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
