@@ -15,7 +15,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.2.3",
+    version = "v1.3.0",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -39,6 +39,7 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_qq", Command_QQchat);
 
+    RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
 
 
@@ -58,6 +59,8 @@ public OnPluginStart() {
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
+
+    HookOpConVarChange();
 
     AutoExecConfig(true, "csgowiki-pack");
 }

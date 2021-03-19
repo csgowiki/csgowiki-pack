@@ -26,12 +26,55 @@ Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription,
     Handle cvHandle = FindConVar(cvName);
     if (cvHandle == INVALID_HANDLE) {
         if (fMin == -1.0 && fMax == -1.0)
-            cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
+            cvHandle = CreateConVar(cvName, cvDefault, cvDescription, FCVAR_NOTIFY|FCVAR_REPLICATED);
         else if (fMin != -1.0 && fMax != -1.0)
             cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
         else return INVALID_HANDLE;
     }
     return cvHandle;
+}
+
+void HookOpConVarChange() {
+    HookConVarChange(g_hCSGOWikiEnable, ConVar_CSGOWikiEnableChange);
+    HookConVarChange(g_hOnUtilitySubmit, ConVar_OnUtilitySubmitChange);
+    HookConVarChange(g_hOnUtilityWiki, ConVar_OnUtilityWikiChange);
+    HookConVarChange(g_hChannelEnable, ConVar_ChannelEnableChange);
+}
+
+public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hCSGOWikiEnable)) {
+        PrintToChatAll("%s \x09CSGOWiki插件总功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09CSGOWiki插件总功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_OnUtilitySubmitChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        PrintToChatAll("%s \x09道具上传功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09道具上传功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_OnUtilityWikiChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hOnUtilityWiki)) {
+        PrintToChatAll("%s \x09道具学习功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09道具学习功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hChannelEnable)) {
+        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x02已关闭", PREFIX);
+    }
 }
 
 // utils for utility submit

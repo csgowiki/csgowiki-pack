@@ -13,9 +13,7 @@ void Menu_UtilityWiki_v1(client) {
     AddMenuItem(menuhandle, "startspot", ">>附近起点道具<<");
     AddMenuItem(menuhandle, "endspot", ">>附近落点道具<<");
 
-    AddMenuItem(menuhandle, "pro", "职业比赛道具记录")
-
-    // SetMenuPagination(menuhandle, 7);
+    SetMenuExitBackButton(menuhandle, true);
     SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
@@ -31,15 +29,18 @@ public Menu_UtilityWiki_v1_CallBack(Handle:menuhandle, MenuAction:action, client
         else if (StrEqual(Item, "startspot")) {
             GetFilterCollection(client, "start");
         }
-        else if (StrEqual(Item, "pro")) {
-            Menu_UtilityWiki_pro_round_list(client);
-            if (g_iServerTickrate != 128) {
-                PrintToChat(client, "%s 当前服务器为\x02%d\x01tick，与职业比赛服务器tick不相符，可能会出现道具不准确的情况。", PREFIX, g_iServerTickrate)
-            }
-        }
+        // else if (StrEqual(Item, "pro")) {
+        //     Menu_UtilityWiki_pro_round_list(client);
+        //     if (g_iServerTickrate != 128) {
+        //         PrintToChat(client, "%s 当前服务器为\x02%d\x01tick，与职业比赛服务器tick不相符，可能会出现道具不准确的情况。", PREFIX, g_iServerTickrate)
+        //     }
+        // }
         else {
             Menu_UtilityWiki_v2(client, Item);
         }        
+    }
+    else if (MenuAction_Cancel == action) {
+        ClientCommand(client, "sm_panel");
     }
 }
 

@@ -1,7 +1,8 @@
 // menu collect
 
 #include "csgowiki/menus/menu_wiki.sp"
-
+// #include "csgowiki/menus/menu_wikipro.sp"
+#include "csgowiki/menus/menu_wikiop.sp"
 
 public Action:Command_Panel(client, args) {
     Panel panel = new Panel();
@@ -15,20 +16,30 @@ public Action:Command_Panel(client, args) {
     panel.DrawItem("道具上传[!submit]");
     panel.DrawItem("道具反馈[!feedback]", ITEMDRAW_DISABLED);
     panel.DrawText("   ");
-    panel.DrawItem("第三方插件面板", ITEMDRAW_DISABLED);
+    panel.DrawItem("第三方插件面板[!wikidiy]", ITEMDRAW_DISABLED);
     panel.DrawItem("个人偏好设置[!option]", ITEMDRAW_DISABLED);
-    panel.DrawItem("管理员工具[!wikiop]", ITEMDRAW_DISABLED);
+    panel.DrawItem("管理员工具[!wikiop]");
+    panel.DrawText("   ");
+    panel.DrawItem("退出", ITEMDRAW_CONTROL);
+    
     panel.Send(client, PanelHandler, MENU_TIME_FOREVER);
 
     delete panel;
     return Plugin_Handled;
 }
 
-public PanelHandler(Menu menu, MenuAction action, client, Position) {
+public PanelHandler(Handle:menu, MenuAction:action, client, Position) {
     if (action == MenuAction_Select) {
-        PrintToChat(client, "select pos: %d", Position);
-    }
-    else if (action == MenuAction_Cancel) {
-
+        switch(Position) {
+            case 1: ClientCommand(client, "sm_wiki");
+            case 2: ClientCommand(client, "sm_wikipro");
+            case 3: ClientCommand(client, "sm_wikitest");
+            case 4: ClientCommand(client, "sm_submit");
+            case 5: ClientCommand(client, "sm_feedback");
+            case 6: ClientCommand(client, "sm_wikidiy");
+            case 7: ClientCommand(client, "sm_option");
+            case 8: ClientCommand(client, "sm_wikiop");
+            case 9: CloseHandle(menu);
+        }
     }
 }
