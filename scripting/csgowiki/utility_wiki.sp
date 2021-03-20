@@ -16,35 +16,50 @@ public Action:Command_Wiki(client, args) {
 
     if (g_jaUtilityCollection.Length < 3) {
         PrintToChat(client, "%s 道具合集初始化失败，正在重新请求数据...", PREFIX);
-        GetAllCollection(client);
+        GetAllCollection("common", client);
     }
     else {
         Menu_UtilityWiki_v1(client);
     }
 }
 
-void GetAllCollection(client=-1) {
+void GetAllCollection(char[] type="common", client=-1, char[] match_id="default") {
     if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    System2HTTPRequest AllCollectionRequest = new System2HTTPRequest (
-        AllCollectionResponseCallback, 
-        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
-        token, g_sCurrentMap, g_iServerTickrate, "common"
-    );
-    AllCollectionRequest.Any = client;
-    AllCollectionRequest.GET();
 
-    System2HTTPRequest ProCollectionRequest = new System2HTTPRequest (
-        ProCollectionResponseCallback, 
-        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s",
-        token, g_sCurrentMap, "pro"
-    );
-    ProCollectionRequest.Any = client;
-    ProCollectionRequest.GET();
+    if (StrEqual(type, "common")) {
+        System2HTTPRequest AllCollectionRequest = new System2HTTPRequest (
+            AllCollectionResponseCallback, 
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
+            token, g_sCurrentMap, g_iServerTickrate, "common"
+        );
+        AllCollectionRequest.Any = client;
+        AllCollectionRequest.GET();
+        delete AllCollectionRequest;
+    }
 
-    delete AllCollectionRequest;
-    delete ProCollectionRequest;
+    if (StrEqual(type, "pro")) {
+        System2HTTPRequest ProCollectionRequest = new System2HTTPRequest (
+            ProCollectionResponseCallback, 
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s",
+            token, g_sCurrentMap, "pro"
+        );
+        ProCollectionRequest.Any = client;
+        ProCollectionRequest.GET();
+        delete ProCollectionRequest;
+    }
+
+    if (StrEqual(type, "all_pro_match")) {
+        System2HTTPRequest AllProMatchRequest = new System2HTTPRequest (
+            AllProMatchResponseCallback, 
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s&pro_match_id=%s",
+            token, g_sCurrentMap, "pro", match_id
+        );
+        AllProMatchRequest.Any = client;
+        AllProMatchRequest.GET();
+        delete AllProMatchRequest;
+    }
 }
 
 void GetFilterCollection(client, char[] method) {
@@ -157,21 +172,39 @@ public ProCollectionResponseCallback(bool success, const char[] error, System2HT
             else PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
             return;
         }
-        JSON_Object tmp_ = resp_json.GetObject("utility_collection");
-        g_joProMatchInfo = tmp_.GetObject("match_info");
-        g_jaProUtilityInfo = view_as<JSON_Array>(tmp_.GetObject("utility_info"));
-        // show menu for Command_Wiki
         if (client != -1) {
-            Menu_UtilityWiki_v1(client);
+            g_aProMatchIndex[client] = resp_json.GetObject("utility_collection");
         }
-        // delete resp_json;
-        // json_cleanup_and_delete(resp_json);
+        delete resp_json;
     }
     else {
         if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
         else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
     }
 }
+
+public AllProMatchResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    new client = request.Any;
+    if (success) {
+        char[] content = new char[response.ContentLength + 1];
+        char[] status = new char[LENGTH_STATUS];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object resp_json = json_decode(content);
+        resp_json.GetString("status", status, LENGTH_STATUS);
+        if (!StrEqual(status, "ok")) {
+            if (client == -1) PrintToChatAll("%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+            else PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
+            return;
+        }
+        g_jAllProMatchStat = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
+        delete resp_json;
+    }
+    else {
+        if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+    }
+}
+
 
 public FilterCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     new client = request.Any;

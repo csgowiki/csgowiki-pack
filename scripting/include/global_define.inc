@@ -99,10 +99,13 @@ float g_aUtilityAirtime[MAXPLAYERS + 1];
 int g_aActionRecord[MAXPLAYERS + 1];    // encoded
 
 
+// ------------- wikipro.sp define ----------------
+JSON_Array g_jAllProMatchStat;
+JSON_Object g_aProMatchIndex[MAXPLAYERS + 1];
+
 // ------------- utility_wiki.sp define -----------
 JSON_Array g_jaUtilityCollection;
-JSON_Object g_joProMatchInfo;
-JSON_Array g_jaProUtilityInfo;
+
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
 JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];
 bool g_aReqLock[MAXPLAYERS + 1];

@@ -94,6 +94,7 @@ public OnClientPutInServer(client) {
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);
+    ClearPlayerProMatchInfo(client);
 }
 
 public OnClientDisconnect(client) {
@@ -103,6 +104,7 @@ public OnClientDisconnect(client) {
     ResetReqLock(client);
     // reset bind_flag
     ResetSteamBindFlag(client);
+    ClearPlayerProMatchInfo(client);
 }
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
