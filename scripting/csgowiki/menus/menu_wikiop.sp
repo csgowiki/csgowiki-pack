@@ -50,6 +50,7 @@ public WikiopPanelHandler(Handle:menu, MenuAction:action, client, Position) {
             case 2: SetConVarBool(g_hOnUtilitySubmit, !GetConVarBool(g_hOnUtilitySubmit), true, true), ClientCommand(client, "sm_wikiop");
             case 3: SetConVarBool(g_hOnUtilityWiki, !GetConVarBool(g_hOnUtilityWiki), true, true), ClientCommand(client, "sm_wikiop");
             case 4: SetConVarBool(g_hChannelEnable, !GetConVarBool(g_hChannelEnable), true, true), ClientCommand(client, "sm_wikiop");
+            case 5: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_wikiop");
             case 7: ClientCommand(client, "sm_panel");
             case 8: CloseHandle(menu);
         }
