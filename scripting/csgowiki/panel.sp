@@ -3,6 +3,7 @@
 #include "csgowiki/menus/menu_wiki.sp"
 // #include "csgowiki/menus/menu_wikipro.sp"
 #include "csgowiki/menus/menu_wikiop.sp"
+#include "csgowiki/menus/menu_option.sp"
 
 public Action:Command_Panel(client, args) {
     Panel panel = new Panel();

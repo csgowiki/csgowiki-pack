@@ -49,7 +49,7 @@ void ClearPlayerToken(client) {
 
 void TriggerVelocity(client) {
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        VelocityResponseCallback, "https://api.csgowiki.top/api/utility/velocity/"
+        VelocityResponseCallback, "https://test.csgowiki.top/api/utility/velocity/"
     );
     httpRequest.SetData(
         "id=%s&velocity_x=%f&velocity_y=%f&velocity_z=%f&throw_x=%f&throw_y=%f&throw_z=%f",
@@ -74,7 +74,7 @@ void TriggerWikiModify(client) {
     TicktagGenerate(tickTag, wikiAction);
     // request
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiModifyResponseCallback, "https://api.csgowiki.top/api/utility/modify/"
+        WikiModifyResponseCallback, "https://test.csgowiki.top/api/utility/modify/"
     );
     httpRequest.SetData(
         "user_token=%s&token=%s&id=%s&start_x=%f&start_y=%f&start_z=%f\

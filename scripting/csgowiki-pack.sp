@@ -35,9 +35,11 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_panel", Command_Panel);
 
-    RegConsoleCmd("sm_proround", Command_ProRound);
+    // RegConsoleCmd("sm_proround", Command_ProRound);
 
     RegConsoleCmd("sm_qq", Command_QQchat);
+    RegConsoleCmd("sm_option", Command_Option);
+
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
