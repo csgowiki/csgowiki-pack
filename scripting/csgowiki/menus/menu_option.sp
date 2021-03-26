@@ -6,16 +6,20 @@ void GetAllProMatchStat(client) {
     for (new idx = 0; idx < g_jAllProMatchStat.Length; idx++) {
         char team1[LENGTH_NAME], team2[LENGTH_NAME], time[LENGTH_NAME];
         char index[LENGTH_NAME];
-        g_jAllProMatchStat.GetString(0, index, sizeof(index));
-        g_jAllProMatchStat.GetString(1, team1, sizeof(team1));
-        g_jAllProMatchStat.GetString(2, team2, sizeof(team2));
-        int score1 = g_jAllProMatchStat.GetInt(3);
-        int score2 = g_jAllProMatchStat.GetInt(4);
-        g_jAllProMatchStat.GetString(5, time, sizeof(time));
+        JSON_Array arrval = view_as<JSON_Array>(g_jAllProMatchStat.GetObject(idx));
+        int iidx = arrval.GetInt(0);
+        arrval.GetString(0, index, sizeof(index));
+        arrval.GetString(1, team1, sizeof(team1));
+        arrval.GetString(2, team2, sizeof(team2));
+        int score1 = arrval.GetInt(3);
+        int score2 = arrval.GetInt(4);
+        arrval.GetString(5, time, sizeof(time));
         char msg[LENGTH_NAME * 4];
-
         Format(msg, sizeof(msg), "[%s] %d : %d [%s] (%s)", team1, score1, score2, team2, time);
+        IntToString(iidx, index, sizeof(index));
+        PrintToChat(client, "%s", index);
         AddMenuItem(menuhandle, index, msg);
+        json_cleanup_and_delete(arrval);
     }
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
@@ -67,7 +71,7 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
             case 1: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 2: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 3: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
-            case 4: GetAllProMatchStat(client), ClientCommand(client, "sm_option");
+            case 4: GetAllProMatchStat(client);
             case 7: ClientCommand(client, "sm_panel");
             case 8: CloseHandle(menu);
         }

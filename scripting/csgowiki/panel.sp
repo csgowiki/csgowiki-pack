@@ -18,7 +18,7 @@ public Action:Command_Panel(client, args) {
     panel.DrawItem("道具反馈[!feedback]", ITEMDRAW_DISABLED);
     panel.DrawText("   ");
     panel.DrawItem("第三方插件面板[!wikidiy]", ITEMDRAW_DISABLED);
-    panel.DrawItem("个人偏好设置[!option]", ITEMDRAW_DISABLED);
+    panel.DrawItem("个人偏好设置[!option]");
     panel.DrawItem("管理员工具[!wikiop]");
     panel.DrawText("   ");
     panel.DrawItem("退出", ITEMDRAW_CONTROL);

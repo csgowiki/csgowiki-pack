@@ -77,7 +77,8 @@ public OnMapStart() {
     ResetReqLock();
 
     // init collection
-    GetAllCollection();
+    GetAllCollection("common");
+    GetAllCollection("all_pro_match");
 
     // channel chat timer
     if (GetConVarBool(g_hChannelEnable)) {
