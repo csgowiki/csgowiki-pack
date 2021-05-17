@@ -1,4 +1,5 @@
 // 
+#pragma dynamic 262144 
 #include "global_define.inc"
 
 #include "csgowiki/utils.sp"
@@ -39,11 +40,11 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_qq", Command_QQchat);
     RegConsoleCmd("sm_option", Command_Option);
+    RegConsoleCmd("sm_wikipro", Command_WikiPro);
 
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
-
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -77,8 +78,7 @@ public OnMapStart() {
     ResetReqLock();
 
     // init collection
-    GetAllCollection("common");
-    GetAllCollection("all_pro_match");
+    GetAllCollection();
 
     // channel chat timer
     if (GetConVarBool(g_hChannelEnable)) {

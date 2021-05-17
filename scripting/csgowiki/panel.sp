@@ -1,9 +1,9 @@
 // menu collect
 
 #include "csgowiki/menus/menu_wiki.sp"
-// #include "csgowiki/menus/menu_wikipro.sp"
 #include "csgowiki/menus/menu_wikiop.sp"
 #include "csgowiki/menus/menu_option.sp"
+#include "csgowiki/menus/menu_wikipro.sp"
 
 public Action:Command_Panel(client, args) {
     Panel panel = new Panel();
@@ -12,7 +12,7 @@ public Action:Command_Panel(client, args) {
 
     panel.DrawItem("社区道具合集[!wiki]");
     panel.DrawItem("职业道具合集[!wikipro]");
-    panel.DrawItem("道具能力测试[!wikitest]", ITEMDRAW_DISABLED);
+    panel.DrawItem("道具能力测试[!wikiquiz]", ITEMDRAW_DISABLED);
     panel.DrawText("   ");
     panel.DrawItem("道具上传[!submit]");
     panel.DrawItem("道具反馈[!feedback]", ITEMDRAW_DISABLED);

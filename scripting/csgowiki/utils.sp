@@ -304,7 +304,7 @@ public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPR
 
 void ClearPlayerProMatchInfo(client) {
     if (IsPlayer(client)) {
-        g_aProMatchIndex[client].Cleanup();
+        g_aProMatchIndex[client] = -1;
     }
 }
 

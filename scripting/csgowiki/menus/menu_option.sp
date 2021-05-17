@@ -1,25 +1,23 @@
 
 void GetAllProMatchStat(client) {
-    new Handle:menuhandle = CreateMenu(GetAllProMatchStatCallback);
+    new Handle:menuhandle = CreateMenu(ProMatchInfoMenuCallback);
     SetMenuTitle(menuhandle, "职业比赛合集");
 
-    for (new idx = 0; idx < g_jAllProMatchStat.Length; idx++) {
+    for (new idx = 0; idx < g_aProMatchInfo.Length; idx++) {
         char team1[LENGTH_NAME], team2[LENGTH_NAME], time[LENGTH_NAME];
-        char index[LENGTH_NAME];
-        JSON_Array arrval = view_as<JSON_Array>(g_jAllProMatchStat.GetObject(idx));
-        int iidx = arrval.GetInt(0);
-        arrval.GetString(0, index, sizeof(index));
-        arrval.GetString(1, team1, sizeof(team1));
-        arrval.GetString(2, team2, sizeof(team2));
-        int score1 = arrval.GetInt(3);
-        int score2 = arrval.GetInt(4);
-        arrval.GetString(5, time, sizeof(time));
+        char matchId[LENGTH_NAME];
+        JSON_Object arrval = g_aProMatchInfo.GetObject(idx);
+        JSON_Object teamInfo_1 = arrval.GetObject("team1");
+        JSON_Object teamInfo_2 = arrval.GetObject("team2");
+        teamInfo_1.GetString("name", team1, sizeof(team1));
+        teamInfo_2.GetString("name", team2, sizeof(team2));
+        int score1 = teamInfo_1.GetInt("result");
+        int score2 = teamInfo_2.GetInt("result");
+        arrval.GetString("time", time, sizeof(time));
+        arrval.GetString("matchId", matchId, sizeof(matchId));
         char msg[LENGTH_NAME * 4];
         Format(msg, sizeof(msg), "[%s] %d : %d [%s] (%s)", team1, score1, score2, team2, time);
-        IntToString(iidx, index, sizeof(index));
-        PrintToChat(client, "%s", index);
-        AddMenuItem(menuhandle, index, msg);
-        json_cleanup_and_delete(arrval);
+        AddMenuItem(menuhandle, matchId, msg);
     }
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
@@ -28,19 +26,52 @@ void GetAllProMatchStat(client) {
 }
 
 
-public GetAllProMatchStatCallback(Handle:menuhandle, MenuAction:action, client, Position) {
+public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Position) {
     if (MenuAction_Select == action) {
-        decl String:index[LENGTH_NAME];
-        GetMenuItem(menuhandle, Position, index, sizeof(index));
+        decl String:matchId[LENGTH_NAME];
+        GetMenuItem(menuhandle, Position, matchId, sizeof(matchId));
 
         // checkstatus
-        PrintToChat(client, "正在请求: %s", index);
+        PrintToChat(client, "%s \x04正在请求比赛数据: [\x02%s\x01] \x04可能需要一段时间，请耐心等待", PREFIX, matchId);
+        // set index
+        for (new idx = 0; idx < g_aProMatchInfo.Length; idx++) {
+            char _matchId[LENGTH_NAME];
+            JSON_Object arrval = g_aProMatchInfo.GetObject(idx);
+            arrval.GetString("matchId", _matchId, sizeof(_matchId));
+            if (StrEqual(matchId, _matchId)) {
+                g_aProMatchIndex[client] = idx;
+                break;
+            }
+        }
 
-
+        // temp
         DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
+
+        System2HTTPRequest httpRequest = new System2HTTPRequest(
+            ProMatchDetailResponseCallback,
+            "https://api.hx-w.top/%s/%s",
+            g_sCurrentMap, matchId
+        );
+        httpRequest.Any = client;
+        httpRequest.GET();
+        delete httpRequest;
     }
     else if (MenuAction_Cancel == action) {
-        
+        ClientCommand(client, "sm_m");
+    }
+}
+
+public ProMatchDetailResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    new client = request.Any;
+    if (success) {
+        char[] content = new char[response.ContentLength + 1];
+        response.GetContent(content, response.ContentLength + 1);
+        PrintToChat(client, "%s \x04比赛道具数据请求成功", PREFIX);
+        g_aProMatchDetail[client] = view_as<JSON_Array>(json_decode(content));
+        ClientCommand(client, "sm_wikipro");
+    }
+    else {
+        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%s", PREFIX, error);
     }
 }
 
