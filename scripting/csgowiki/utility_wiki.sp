@@ -31,7 +31,7 @@ void GetAllCollection(char[] type="common", client=-1, char[] match_id="default"
     if (StrEqual(type, "common")) {
         System2HTTPRequest AllCollectionRequest = new System2HTTPRequest (
             AllCollectionResponseCallback, 
-            "https://test.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
             token, g_sCurrentMap, g_iServerTickrate, "common"
         );
         AllCollectionRequest.Any = client;
@@ -42,7 +42,7 @@ void GetAllCollection(char[] type="common", client=-1, char[] match_id="default"
     if (StrEqual(type, "pro")) {
         System2HTTPRequest ProCollectionRequest = new System2HTTPRequest (
             ProCollectionResponseCallback, 
-            "https://test.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s&pro_match_id=%s",
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s&pro_match_id=%s",
             token, g_sCurrentMap, "pro", match_id
         );
         ProCollectionRequest.Any = client;
@@ -53,7 +53,7 @@ void GetAllCollection(char[] type="common", client=-1, char[] match_id="default"
     if (StrEqual(type, "all_pro_match")) {
         System2HTTPRequest AllProMatchRequest = new System2HTTPRequest (
             AllProMatchResponseCallback, 
-            "https://test.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s",
+            "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&type=%s",
             token, g_sCurrentMap, "all_pro_match"
         );
         AllProMatchRequest.Any = client;
@@ -70,7 +70,7 @@ void GetFilterCollection(client, char[] method) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
-        "https://test.csgowiki.top/api/utility/spot_filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        "https://api.csgowiki.top/api/utility/spot_filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
@@ -98,7 +98,7 @@ void GetUtilityDetail(client, char[] utId, char[] type="common") {
     if (StrEqual(type, "common")) {
         System2HTTPRequest httpRequest = new System2HTTPRequest(
             UtilityDetailResponseCallback, 
-            "https://test.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=common",
+            "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=common",
             token, utId
         );
         httpRequest.Any = client;
@@ -108,7 +108,7 @@ void GetUtilityDetail(client, char[] utId, char[] type="common") {
     else if (StrEqual(type, "pro")) {
         System2HTTPRequest httpRequest = new System2HTTPRequest(
             ProUtilityDetailResponseCallback, 
-            "https://test.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=pro",
+            "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=pro",
             token, utId
         );
         httpRequest.Any = client;

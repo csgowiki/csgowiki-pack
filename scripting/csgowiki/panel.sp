@@ -35,7 +35,7 @@ public PanelHandler(Handle:menu, MenuAction:action, client, Position) {
             case 1: ClientCommand(client, "sm_wiki");
             case 2: ClientCommand(client, "sm_wikipro");
             case 3: ClientCommand(client, "sm_wikitest");
-            case 4: ClientCommand(client, "sm_submit");
+            case 4: ClientCommand(client, "sm_submit"), ClientCommand(client, "sm_m");
             case 5: ClientCommand(client, "sm_feedback");
             case 6: ClientCommand(client, "sm_wikidiy");
             case 7: ClientCommand(client, "sm_option");

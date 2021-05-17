@@ -105,7 +105,7 @@ void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
 
 void TriggerWikiPost(client) {
     // post api
-    // url = "https://test.csgowiki.top/api/utility/submit/"
+    // url = "https://api.csgowiki.top/api/utility/submit/"
 
     // param define
     char token[LENGTH_TOKEN] = "";
@@ -123,7 +123,7 @@ void TriggerWikiPost(client) {
 
     // request
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiPostResponseCallback, "https://test.csgowiki.top/api/utility/submit/"
+        WikiPostResponseCallback, "https://api.csgowiki.top/api/utility/submit/"
     );
     httpRequest.SetData(
         "token=%s&steamid=%s&start_x=%f&start_y=%f&start_z=%f\

@@ -40,7 +40,7 @@ public Menu_UtilityWiki_v1_CallBack(Handle:menuhandle, MenuAction:action, client
         }        
     }
     else if (MenuAction_Cancel == action) {
-        ClientCommand(client, "sm_panel");
+        ClientCommand(client, "sm_m");
     }
 }
 

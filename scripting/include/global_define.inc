@@ -100,8 +100,9 @@ int g_aActionRecord[MAXPLAYERS + 1];    // encoded
 
 
 // ------------- wikipro.sp define ----------------
-JSON_Array g_jAllProMatchStat;
-JSON_Object g_aProMatchIndex[MAXPLAYERS + 1];
+JSON_Array g_aProMatchInfo;
+JSON_Array g_aProMatchDetail[MAXPLAYERS + 1];
+int g_aProMatchIndex[MAXPLAYERS + 1];
 
 // ------------- utility_wiki.sp define -----------
 JSON_Array g_jaUtilityCollection;

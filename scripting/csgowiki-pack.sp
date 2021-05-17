@@ -33,7 +33,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
-    RegConsoleCmd("sm_panel", Command_Panel);
+    RegConsoleCmd("sm_m", Command_Panel);
 
     // RegConsoleCmd("sm_proround", Command_ProRound);
 

@@ -72,7 +72,7 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
             case 2: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 3: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 4: GetAllProMatchStat(client);
-            case 7: ClientCommand(client, "sm_panel");
+            case 7: ClientCommand(client, "sm_m");
             case 8: CloseHandle(menu);
         }
     }
