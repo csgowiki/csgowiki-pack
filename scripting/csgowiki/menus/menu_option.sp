@@ -31,8 +31,6 @@ public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Po
         decl String:matchId[LENGTH_NAME];
         GetMenuItem(menuhandle, Position, matchId, sizeof(matchId));
 
-        // checkstatus
-        PrintToChat(client, "%s \x04正在请求比赛数据: [\x02%s\x01] \x04可能需要一段时间，请耐心等待", PREFIX, matchId);
         // set index
         for (new idx = 0; idx < g_aProMatchInfo.Length; idx++) {
             char _matchId[LENGTH_NAME];
@@ -43,38 +41,12 @@ public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Po
                 break;
             }
         }
-
-        // temp
-        DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
-
-        System2HTTPRequest httpRequest = new System2HTTPRequest(
-            ProMatchDetailResponseCallback,
-            "https://api.hx-w.top/%s/%s",
-            g_sCurrentMap, matchId
-        );
-        httpRequest.Any = client;
-        httpRequest.GET();
-        delete httpRequest;
+        ClientCommand(client, "sm_wikipro");
     }
     else if (MenuAction_Cancel == action) {
         ClientCommand(client, "sm_m");
     }
 }
-
-public ProMatchDetailResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        PrintToChat(client, "%s \x04比赛道具数据请求成功", PREFIX);
-        g_aProMatchDetail[client] = view_as<JSON_Array>(json_decode(content));
-        ClientCommand(client, "sm_wikipro");
-    }
-    else {
-        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%s", PREFIX, error);
-    }
-}
-
 
 public Action:Command_Option(client, args) {
     Panel panel = new Panel();

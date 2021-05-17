@@ -160,6 +160,24 @@ void Utility_TinyName2Zh(char[] utTinyName, char[] format, char[] zh) {
     }
 }
 
+void Utility_FullName2Zh(char[] utFullName, char[] format, char[] zh) {
+    if (StrEqual(utFullName, "smokegrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "烟雾弹");
+    }
+    else if (StrEqual(utFullName, "hegrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "手雷");
+    }
+    else if (StrEqual(utFullName, "flashbang")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "闪光弹");
+    }
+    else if (StrEqual(utFullName, "molotov")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "燃烧弹");
+    }
+    else if (StrEqual(utFullName, "incgrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "燃烧瓶");
+    }
+}
+
 void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
     if (StrEqual(utTinyName, "smoke")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_smokegrenade");
