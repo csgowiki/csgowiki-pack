@@ -3,7 +3,7 @@
 
 # Install | 安装
 
-1. 安装环境：[sourcemod](https://www.sourcemod.net/downloads.php?branch=stable) (v1.9以上) 
+1. 安装环境：[sourcemod](https://www.sourcemod.net/downloads.php?branch=stable) (v1.10以上) 
 
     > sourcemod 基础环境
 
@@ -11,15 +11,18 @@
 
     > 实现http/https等网络通信
 
-3. 安装编译依赖：[sm-json](https://github.com/clugg/sm-json) (不必须，编译时需要) 
+3. 安装插件依赖：[csgo-practice-mode](https://github.com/splewis/csgo-practice-mode) (必须)
+    > 启用练习环境
+
+4. 安装编译依赖：[sm-json](https://github.com/clugg/sm-json) (不必须，编译时需要) 
 
     > 实现基于sourcemod的json操作
 
-4. 下载 [csgowiki-pack.zip](https://github.com/hx-w/CSGOWiki-Plugins/releases/)，解压，编辑`cfg/sourcemod/csgowiki-pack.cfg`文件
+5. 下载 [csgowiki-pack.zip](https://github.com/hx-w/CSGOWiki-Plugins/releases/)，解压，编辑`cfg/sourcemod/csgowiki-pack.cfg`文件
 
-    > 参考[CFG | 配置](#CFG | 配置)，`sm_csgowiki_token`一项必填
+    > 参考[CFG | 配置]，`sm_csgowiki_token`一项必填
 
-5. 将`addons/`与`cfg/`拖拽至`csgo/`目录下即可
+6. 将`addons/`与`cfg/`拖拽至`csgo/`目录下即可
 
 ### 注意
 
