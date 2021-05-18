@@ -1,5 +1,5 @@
 // 
-#pragma dynamic 262144 
+#pragma dynamic 131022
 #include "global_define.inc"
 
 #include "csgowiki/utils.sp"

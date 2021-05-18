@@ -179,16 +179,16 @@ void Utility_FullName2Zh(char[] utFullName, char[] format, char[] zh) {
 }
 
 void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
-    if (StrEqual(utTinyName, "smoke")) {
+    if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_smokegrenade");
     }
-    else if (StrEqual(utTinyName, "grenade")) {
+    else if (StrEqual(utTinyName, "grenade") || StrEqual(utTinyName, "hegrenade")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_hegrenade");
     }
-    else if (StrEqual(utTinyName, "flash")) {
+    else if (StrEqual(utTinyName, "flash") || StrEqual(utTinyName, "flashbang")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_flashbang");
     }
-    else if (StrEqual(utTinyName, "molotov")) {
+    else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
         new teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_molotov");
@@ -200,16 +200,16 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
 }
 
 GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
-    if (StrEqual(utTinyName, "smoke")) {
+    if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         return GrenadeType_Smoke;
     }
-    else if (StrEqual(utTinyName, "grenade")) {
+    else if (StrEqual(utTinyName, "grenade") || StrEqual(utTinyName, "hegrenade")) {
         return GrenadeType_HE;
     }
-    else if (StrEqual(utTinyName, "flash")) {
+    else if (StrEqual(utTinyName, "flash") || StrEqual(utTinyName, "flashbang")) {
         return GrenadeType_Flash;
     }
-    else if (StrEqual(utTinyName, "molotov")) {
+    else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
         new teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             return GrenadeType_Molotov;

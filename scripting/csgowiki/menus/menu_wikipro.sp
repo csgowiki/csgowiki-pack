@@ -103,14 +103,12 @@ void CreateProDetailMenu(client, char round_str[4]) {
     char utFullName[LENGTH_UTILITY_FULL];
     char utZhName[LENGTH_UTILITY_ZH];
     char item[LENGTH_NAME * 4];
-    char round_throw_time_str[12];
     char utId[LENGTH_UTILITY_ID];
     for (new idx = 0; idx < g_aProMatchDetail[client].Length; idx++) {
         JSON_Array curr = view_as<JSON_Array>(g_aProMatchDetail[client].GetObject(idx));
         curr.GetString(11, playerName, sizeof(playerName));
         curr.GetString(17, utFullName, sizeof(utFullName));
-        curr.GetString(10, round_throw_time_str, sizeof(round_throw_time_str));
-        int round_throw_time = StringToInt(round_throw_time_str);
+        int round_throw_time = RoundFloat(curr.GetFloat(10));
         int round_remain_secs = 55 + 60 - round_throw_time;
         int round_remain_min = round_remain_secs / 60;
         round_remain_secs %= 60;
@@ -129,9 +127,8 @@ public ProMatchDetailMenuCallback(Handle:menuhandle, MenuAction:action, client, 
     if (MenuAction_Select == action) {
         decl String:utId[LENGTH_UTILITY_ID];
         GetMenuItem(menuhandle, Position, utId, sizeof(utId));
-        PrintToChat(client, "utid=%d", utId);
         int utId_int = StringToInt(utId);
-        // ShowProUtilityDetail(client, utId_int);
+        ShowProUtilityDetail(client, utId_int);
         DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
     }
     else if (MenuAction_Cancel == action) {
@@ -139,70 +136,64 @@ public ProMatchDetailMenuCallback(Handle:menuhandle, MenuAction:action, client, 
     }
 }
 
-// void ShowProUtilityDetail(client, int utId) {
-//     char utType[LENGTH_UTILITY_FULL], playerName[LENGTH_NAME], teamName[LENGTH_NAME];
-//     char eventName[LENGTH_MESSAGE];
-//     char actionBody[LENGTH_UTILITY_ZH], actionMouse[LENGTH_UTILITY_ZH];
-//     float throwPos[DATA_DIM], startAngle[DATA_DIM];
+void ShowProUtilityDetail(client, int utId) {
+    char utType[LENGTH_UTILITY_FULL], playerName[LENGTH_NAME], teamName[LENGTH_NAME];
+    char eventName[LENGTH_MESSAGE];
+    float throwPos[DATA_DIM], startAngle[DATA_DIM], velocity[DATA_DIM];
+    float entityPos[DATA_DIM];
 
-//     JSON_Array detail_json = view_as<JSON_Array>(g_aProMatchDetail[client].GetObject(utId));
-//     JSON_Object match_json = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
+    JSON_Array detail_json = view_as<JSON_Array>(g_aProMatchDetail[client].GetObject(utId));
+    JSON_Object match_json = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
 
-//     detail_json.GetString(17, utType, sizeof(utType));
-//     detail_json.GetString(11, playerName, sizeof(playerName));
-//     detail_json.GetString(13, teamName, sizeof(teamName));
-//     match_json.GetString("event", eventName, sizeof(eventName));
-//     throwPos[0] = detail_json.GetFloat("throw_x");
-//     throwPos[1] = detail_json.GetFloat("throw_y");
-//     throwPos[2] = detail_json.GetFloat("throw_z");
-//     startAngle[0] = detail_json.GetFloat("aim_pitch");
-//     startAngle[1] = detail_json.GetFloat("aim_yaw");
-//     startAngle[2] = 0.0;
-//     detail_json.GetString("action_body", actionBody, sizeof(actionBody));
-//     detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
-//     JSON_Array related_utility = view_as<JSON_Array>(detail_json.GetObject("related_utility"));
+    detail_json.GetString(17, utType, sizeof(utType));
+    detail_json.GetString(11, playerName, sizeof(playerName));
+    detail_json.GetString(13, teamName, sizeof(teamName));
+    match_json.GetString("event", eventName, sizeof(eventName));
+    throwPos[0] = detail_json.GetFloat(14);
+    throwPos[1] = detail_json.GetFloat(15);
+    throwPos[2] = detail_json.GetFloat(16);
+    velocity[0] = detail_json.GetFloat(18);
+    velocity[1] = detail_json.GetFloat(19);
+    velocity[2] = detail_json.GetFloat(20);
+    entityPos[0] = detail_json.GetFloat(21);
+    entityPos[1] = detail_json.GetFloat(22);
+    entityPos[2] = detail_json.GetFloat(23);
+    startAngle[0] = detail_json.GetFloat(0);
+    startAngle[1] = detail_json.GetFloat(1);
+    startAngle[2] = 0.0;
 
-//     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
-//     Utility_TinyName2Zh(utType, "%s", utNameZh);
-//     Utility_TinyName2Weapon(utType, utWeaponCmd, client);
-//     int round_remain_secs = 55 + 60 - round_time;
-//     int round_remain_min = round_remain_secs / 60;
-//     round_remain_secs %= 60;
-//     // tp player and get utility
-//     TeleportEntity(client, throwPos, startAngle, NULL_VECTOR);
-//     GivePlayerItem(client, utWeaponCmd);
-//     Format(utWeaponCmd, sizeof(utWeaponCmd), "use %s", utWeaponCmd);
-//     SetEntProp(client, Prop_Send, "m_iAmmo", 1);
-//     FakeClientCommand(client, utWeaponCmd);
+    // detail_json.GetString("action_body", actionBody, sizeof(actionBody));
+    // detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
 
+    char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
+    Utility_FullName2Zh(utType, "%s", utNameZh);
+    Utility_TinyName2Weapon(utType, utWeaponCmd, client);
+    // tp player and get utility
+    TeleportEntity(client, throwPos, startAngle, NULL_VECTOR);
+    GivePlayerItem(client, utWeaponCmd);
+    Format(utWeaponCmd, sizeof(utWeaponCmd), "use %s", utWeaponCmd);
+    SetEntProp(client, Prop_Send, "m_iAmmo", 1);
+    FakeClientCommand(client, utWeaponCmd);
 
-//     if (GetConVarBool(g_hWikiAutoThrow)) {
-//         if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
-//             PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
-//         }
-//         else {
-//             GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
-//             CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
-//             PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
-//         }
-//     }
+    GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
+    CSU_ThrowGrenade(client, grenadeType, entityPos, velocity);
 
-//     // printout
-//     PrintToChat(client, "\x09 ------------------------------------- ");
-//     PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
-//     PrintToChat(client, "%s %s", PREFIX, result);
-//     PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
+    // // printout
+    // PrintToChat(client, "\x09 ------------------------------------- ");
+    // PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
+    // PrintToChat(client, "%s %s", PREFIX, result);
+    // PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
 
-//     if (related_utility.Length > 0) {
-//         PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
-//         for (new idx = 0; idx < related_utility.Length; idx ++) {
-//             char utId[LENGTH_UTILITY_ID];
-//             related_utility.GetString(idx, utId, sizeof(utId));
-//             PrintToChat(client, "%s \x09!wiki %s", PREFIX, utId);
-//         }
-//     }
+    // if (related_utility.Length > 0) {
+    //     PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
+    //     for (new idx = 0; idx < related_utility.Length; idx ++) {
+    //         char utId[LENGTH_UTILITY_ID];
+    //         related_utility.GetString(idx, utId, sizeof(utId));
+    //         PrintToChat(client, "%s \x09!wiki %s", PREFIX, utId);
+    //     }
+    // }
 
-//     PrintToChat(client, "\x09 ------------------------------------- ");
-//     //
-//     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n以上信息不一定准确", actionBody, actionMouse);
-// }
+    // PrintToChat(client, "\x09 ------------------------------------- ");
+    // //
+    // PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n以上信息不一定准确", actionBody, actionMouse);
+}
