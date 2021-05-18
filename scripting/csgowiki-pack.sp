@@ -1,8 +1,9 @@
 // 
+#pragma dynamic 131022
 #include "global_define.inc"
 
 #include "csgowiki/utils.sp"
-#include "csgowiki/menus.sp"
+#include "csgowiki/panel.sp"
 
 #include "csgowiki/steam_bind.sp"
 #include "csgowiki/utility_submit.sp"
@@ -15,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.2.3",
+    version = "v1.3.0",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -33,10 +34,16 @@ public OnPluginStart() {
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
-    RegConsoleCmd("sm_proround", Command_ProRound);
+    RegConsoleCmd("sm_m", Command_Panel);
+
+    // RegConsoleCmd("sm_proround", Command_ProRound);
 
     RegConsoleCmd("sm_qq", Command_QQchat);
+    RegConsoleCmd("sm_option", Command_Option);
+    RegConsoleCmd("sm_wikipro", Command_WikiPro);
 
+
+    RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
 
     // post fix
@@ -55,6 +62,8 @@ public OnPluginStart() {
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
+
+    HookOpConVarChange();
 
     AutoExecConfig(true, "csgowiki-pack");
 }
@@ -88,6 +97,7 @@ public OnClientPutInServer(client) {
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);
+    ClearPlayerProMatchInfo(client);
 }
 
 public OnClientDisconnect(client) {
@@ -97,6 +107,7 @@ public OnClientDisconnect(client) {
     ResetReqLock(client);
     // reset bind_flag
     ResetSteamBindFlag(client);
+    ClearPlayerProMatchInfo(client);
 }
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {

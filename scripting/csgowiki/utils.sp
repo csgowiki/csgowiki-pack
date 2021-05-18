@@ -26,12 +26,55 @@ Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription,
     Handle cvHandle = FindConVar(cvName);
     if (cvHandle == INVALID_HANDLE) {
         if (fMin == -1.0 && fMax == -1.0)
-            cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
+            cvHandle = CreateConVar(cvName, cvDefault, cvDescription, FCVAR_NOTIFY|FCVAR_REPLICATED);
         else if (fMin != -1.0 && fMax != -1.0)
             cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
         else return INVALID_HANDLE;
     }
     return cvHandle;
+}
+
+void HookOpConVarChange() {
+    HookConVarChange(g_hCSGOWikiEnable, ConVar_CSGOWikiEnableChange);
+    HookConVarChange(g_hOnUtilitySubmit, ConVar_OnUtilitySubmitChange);
+    HookConVarChange(g_hOnUtilityWiki, ConVar_OnUtilityWikiChange);
+    HookConVarChange(g_hChannelEnable, ConVar_ChannelEnableChange);
+}
+
+public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hCSGOWikiEnable)) {
+        PrintToChatAll("%s \x09CSGOWiki插件总功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09CSGOWiki插件总功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_OnUtilitySubmitChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hOnUtilitySubmit)) {
+        PrintToChatAll("%s \x09道具上传功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09道具上传功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_OnUtilityWikiChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hOnUtilityWiki)) {
+        PrintToChatAll("%s \x09道具学习功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09道具学习功能\x01 => \x02已关闭", PREFIX);
+    }
+}
+
+public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    if (GetConVarBool(g_hChannelEnable)) {
+        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x04已开启", PREFIX);
+    }
+    else {
+        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x02已关闭", PREFIX);
+    }
 }
 
 // utils for utility submit
@@ -117,17 +160,35 @@ void Utility_TinyName2Zh(char[] utTinyName, char[] format, char[] zh) {
     }
 }
 
+void Utility_FullName2Zh(char[] utFullName, char[] format, char[] zh) {
+    if (StrEqual(utFullName, "smokegrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "烟雾弹");
+    }
+    else if (StrEqual(utFullName, "hegrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "手雷");
+    }
+    else if (StrEqual(utFullName, "flashbang")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "闪光弹");
+    }
+    else if (StrEqual(utFullName, "molotov")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "燃烧弹");
+    }
+    else if (StrEqual(utFullName, "incgrenade")) {
+        Format(zh, LENGTH_UTILITY_ZH, format, "燃烧瓶");
+    }
+}
+
 void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
-    if (StrEqual(utTinyName, "smoke")) {
+    if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_smokegrenade");
     }
-    else if (StrEqual(utTinyName, "grenade")) {
+    else if (StrEqual(utTinyName, "grenade") || StrEqual(utTinyName, "hegrenade")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_hegrenade");
     }
-    else if (StrEqual(utTinyName, "flash")) {
+    else if (StrEqual(utTinyName, "flash") || StrEqual(utTinyName, "flashbang")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_flashbang");
     }
-    else if (StrEqual(utTinyName, "molotov")) {
+    else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
         new teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_molotov");
@@ -139,16 +200,16 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
 }
 
 GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
-    if (StrEqual(utTinyName, "smoke")) {
+    if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         return GrenadeType_Smoke;
     }
-    else if (StrEqual(utTinyName, "grenade")) {
+    else if (StrEqual(utTinyName, "grenade") || StrEqual(utTinyName, "hegrenade")) {
         return GrenadeType_HE;
     }
-    else if (StrEqual(utTinyName, "flash")) {
+    else if (StrEqual(utTinyName, "flash") || StrEqual(utTinyName, "flashbang")) {
         return GrenadeType_Flash;
     }
-    else if (StrEqual(utTinyName, "molotov")) {
+    else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
         new teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             return GrenadeType_Molotov;
@@ -259,6 +320,11 @@ public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPR
     }
 }
 
+void ClearPlayerProMatchInfo(client) {
+    if (IsPlayer(client)) {
+        g_aProMatchIndex[client] = -1;
+    }
+}
 
 // ----------------- hint color message fix --------------
 UserMsg g_TextMsg, g_HintText, g_KeyHintText;

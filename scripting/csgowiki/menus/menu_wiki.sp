@@ -13,9 +13,7 @@ void Menu_UtilityWiki_v1(client) {
     AddMenuItem(menuhandle, "startspot", ">>附近起点道具<<");
     AddMenuItem(menuhandle, "endspot", ">>附近落点道具<<");
 
-    AddMenuItem(menuhandle, "pro", "职业比赛道具记录")
-
-    // SetMenuPagination(menuhandle, 7);
+    SetMenuExitBackButton(menuhandle, true);
     SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
@@ -31,15 +29,12 @@ public Menu_UtilityWiki_v1_CallBack(Handle:menuhandle, MenuAction:action, client
         else if (StrEqual(Item, "startspot")) {
             GetFilterCollection(client, "start");
         }
-        else if (StrEqual(Item, "pro")) {
-            Menu_UtilityWiki_pro_round_list(client);
-            if (g_iServerTickrate != 128) {
-                PrintToChat(client, "%s 当前服务器为\x02%d\x01tick，与职业比赛服务器tick不相符，可能会出现道具不准确的情况。", PREFIX, g_iServerTickrate)
-            }
-        }
         else {
             Menu_UtilityWiki_v2(client, Item);
         }        
+    }
+    else if (MenuAction_Cancel == action) {
+        ClientCommand(client, "sm_m");
     }
 }
 
@@ -150,106 +145,5 @@ public Menu_UtilityWiki_v3_CallBack(Handle:menuhandle, MenuAction:action, client
     }
     else if (MenuAction_Cancel == action) {
         Menu_UtilityWiki_v1(client);
-    }
-}
-
-
-void Menu_UtilityWiki_pro_round_list(client) {
-    new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_pro_round_list_CallBack);
-    char team1[LENGTH_NAME], team2[LENGTH_NAME], match_time[LENGTH_NAME];
-    g_joProMatchInfo.GetString("team1", team1, sizeof(team1));
-    g_joProMatchInfo.GetString("team2", team2, sizeof(team2));
-    g_joProMatchInfo.GetString("match_time", match_time, sizeof(match_time));
-    char menuTitle[LENGTH_NAME * 3 + 10];
-    Format(menuTitle, sizeof(menuTitle), "[%s] vs [%s] (%s)", team1, team2, match_time);
-    SetMenuTitle(menuhandle, menuTitle);
-    int round = 0;
-
-    for (new idx = 0; idx < g_jaProUtilityInfo.Length; idx++) {
-        JSON_Array arrval = view_as<JSON_Array>(g_jaProUtilityInfo.GetObject(idx));
-        int cround = arrval.GetInt(3);
-        if (cround != round) {
-            round = cround;
-            char msg[LENGTH_NAME];
-            char round_str[LENGTH_STATUS];
-            IntToString(round, round_str, sizeof(round_str));
-            Format(msg, sizeof(msg), "第%d回合", round);
-            AddMenuItem(menuhandle, round_str, msg);
-        }
-    }
-
-    SetMenuPagination(menuhandle, 7);
-    SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
-    DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
-}
-
-
-public Menu_UtilityWiki_pro_round_list_CallBack(Handle:menuhandle, MenuAction:action, client, Position) {
-    if (MenuAction_Select == action) {
-        char round[LENGTH_STATUS];
-        GetMenuItem(menuhandle, Position, round, LENGTH_STATUS);
-        Menu_UtilityWiki_pro_in_round(client, round);
-        char command[LENGTH_NAME];
-        Format(command, sizeof(command), "sm_proround %s", round);
-        ClientCommand(client, command);
-        DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
-    }
-    else if (MenuAction_Cancel == action) {
-        Menu_UtilityWiki_v1(client);
-    }
-}
-
-public Action:Command_ProRound(client, args) {
-    char round[LENGTH_STATUS];
-    GetCmdArgString(round, LENGTH_STATUS);
-    TrimString(round);
-    Menu_UtilityWiki_pro_in_round(client, round);
-}
-
-void Menu_UtilityWiki_pro_in_round(client, char round[LENGTH_STATUS]) {
-    new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_pro_in_round_CallBack);
-    char menuTitle[LENGTH_NAME];
-    int round_int = StringToInt(round);
-    Format(menuTitle, sizeof(menuTitle), "第%s回合道具记录", round);
-    SetMenuTitle(menuhandle, menuTitle);
-    char playerName[LENGTH_NAME];
-    char utTinyName[LENGTH_UTILITY_TINY];
-    char utNameZh[LENGTH_UTILITY_ZH];
-    char proid_str[LENGTH_UTILITY_ID];
-    char msg[LENGTH_NAME * 4];
-    for (new idx = 0; idx < g_jaProUtilityInfo.Length; idx++) {
-        JSON_Array arrval = view_as<JSON_Array>(g_jaProUtilityInfo.GetObject(idx));
-        int cround = arrval.GetInt(3);
-        if (cround != round_int) continue;
-        int proid = arrval.GetInt(0);
-        arrval.GetString(1, playerName, sizeof(playerName));
-        arrval.GetString(2, utTinyName, sizeof(utTinyName));
-        int round_throw_time = arrval.GetInt(4);
-        int round_remain_secs = 55 + 60 - round_throw_time;
-        int round_remain_min = round_remain_secs / 60;
-        round_remain_secs %= 60;
-        Utility_TinyName2Zh(utTinyName, "%s", utNameZh);
-        IntToString(proid, proid_str, sizeof(proid_str));
-        Format(msg, sizeof(msg), "[%s] %2d:%2d <%s>投掷", utNameZh, round_remain_min, round_remain_secs, playerName);
-        // PrintToChat(client, proid_str);
-        AddMenuItem(menuhandle, proid_str, msg);
-    }
-
-    SetMenuPagination(menuhandle, 7);
-    SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
-    DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
-}
-
-public Menu_UtilityWiki_pro_in_round_CallBack(Handle:menuhandle, MenuAction:action, client, Position) {
-    if (MenuAction_Select == action) {
-        decl String:proid_str[LENGTH_UTILITY_ID];
-        GetMenuItem(menuhandle, Position, proid_str, LENGTH_STATUS);
-        GetUtilityDetail(client, proid_str, "pro")
-        DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
-    }
-    else if (MenuAction_Cancel == action) {
-        Menu_UtilityWiki_pro_round_list(client);
     }
 }
