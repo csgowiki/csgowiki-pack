@@ -1,4 +1,8 @@
 public Action:Command_WikiPro(client, args) {
+    if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
+        return;
+    }
+
     if (g_aProMatchIndex[client] == -1) { // not set
         PrintToChat(client, "%s \x05请先选择职业比赛场次，已自动跳转选择菜单，如未跳转，请输入\x02!option\x05选择。", PREFIX);
         GetAllProMatchStat(client);
