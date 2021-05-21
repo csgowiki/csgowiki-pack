@@ -44,7 +44,7 @@ public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Po
         ClientCommand(client, "sm_wikipro");
     }
     else if (MenuAction_Cancel == action) {
-        ClientCommand(client, "sm_m");
+        ClientCommand(client, "sm_option");
     }
 }
 
@@ -53,7 +53,12 @@ public Action:Command_Option(client, args) {
 
     panel.SetTitle("个人设置")
 
-    panel.DrawItem("道具开启自动投掷：开", ITEMDRAW_DISABLED);
+    if (g_bAutoThrow[client]) {
+        panel.DrawItem("道具开启自动投掷：开");
+    }
+    else {
+        panel.DrawItem("道具开启自动投掷：关");
+    }
     panel.DrawItem("快捷道具上传(双击E)：开", ITEMDRAW_DISABLED);
     panel.DrawItem("qq聊天触发方式：单次触发", ITEMDRAW_DISABLED);
     panel.DrawItem("职业道具场次选择");
@@ -71,7 +76,7 @@ public Action:Command_Option(client, args) {
 public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
     if (action == MenuAction_Select) {
         switch(Position) {
-            case 1: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
+            case 1: g_bAutoThrow[client] = !g_bAutoThrow[client], PrintToChat(client, "%s \x04设置已更改", PREFIX), ClientCommand(client, "sm_option");
             case 2: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 3: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
             case 4: GetAllProMatchStat(client);
@@ -81,3 +86,6 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
     }
 }
 
+void ResetAutoThrow(client) {
+    g_bAutoThrow[client] = GetConVarBool(g_hWikiAutoThrow);
+}

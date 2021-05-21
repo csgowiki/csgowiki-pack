@@ -113,3 +113,6 @@ bool g_aReqLock[MAXPLAYERS + 1];
 
 // ------------- utility_modify.sp define ------------
 char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
+
+// ------------- option.sp define ------------------
+bool g_bAutoThrow[MAXPLAYERS + 1];

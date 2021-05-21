@@ -36,7 +36,6 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_m", Command_Panel);
 
-    // RegConsoleCmd("sm_proround", Command_ProRound);
 
     RegConsoleCmd("sm_qq", Command_QQchat);
     RegConsoleCmd("sm_option", Command_Option);
@@ -98,6 +97,7 @@ public OnClientPutInServer(client) {
     ClearPlayerToken(client);
     ResetReqLock(client);
     ClearPlayerProMatchInfo(client);
+    ResetAutoThrow(client);
 }
 
 public OnClientDisconnect(client) {
@@ -108,6 +108,7 @@ public OnClientDisconnect(client) {
     // reset bind_flag
     ResetSteamBindFlag(client);
     ClearPlayerProMatchInfo(client);
+    ResetAutoThrow(client);
 }
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
