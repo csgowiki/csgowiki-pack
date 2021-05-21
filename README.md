@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/hx-w/csgowiki-plugins/badge/master)](https://www.codefactor.io/repository/github/hx-w/csgowiki-plugins/overview/master)
+
 # CSGOWiki-Pack
 `csgowiki-pack`插件服务于[csgowiki](https://csgowiki.top)网站，插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
 
