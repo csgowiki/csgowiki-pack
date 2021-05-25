@@ -87,5 +87,5 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
 }
 
 void ResetAutoThrow(client) {
-    g_bAutoThrow[client] = GetConVarBool(g_hWikiAutoThrow);
+    g_bAutoThrow[client] = false;
 }

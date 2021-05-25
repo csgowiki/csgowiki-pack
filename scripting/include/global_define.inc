@@ -35,9 +35,8 @@ Handle g_hWikiAutoKicker = INVALID_HANDLE;
 Handle g_hChannelEnable = INVALID_HANDLE;
 Handle g_hChannelServerRemark = INVALID_HANDLE;
 Handle g_hChannelQQgroup = INVALID_HANDLE;
-Handle g_hWikiAutoThrow = INVALID_HANDLE;
 // wiki token
-new Handle: g_hCSGOWikiToken;
+Handle g_hCSGOWikiToken;
 
 // 地图 tick信息
 char g_sCurrentMap[LENGTH_MAPNAME];
