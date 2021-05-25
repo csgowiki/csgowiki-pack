@@ -37,7 +37,6 @@ void CreateProRoundMenu(client) {
 
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
@@ -50,10 +49,6 @@ public ProMatchRoundMenuCallback(Handle:menuhandle, MenuAction:action, client, P
     }
     else if (MenuAction_Cancel == action) {
         ClientCommand(client, "sm_m");
-    }
-    else if (MenuAction_End == action) {
-        PrintToChat(client, "exit");
-        CloseHandle(menuhandle);
     }
 }
 
@@ -127,7 +122,6 @@ void CreateProDetailMenu(client, char round_str[4]) {
     }
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
@@ -141,9 +135,6 @@ public ProMatchDetailMenuCallback(Handle:menuhandle, MenuAction:action, client, 
     }
     else if (MenuAction_Cancel == action) {
         CreateProRoundMenu(client);
-    }
-    else if (MenuAction_End == action) {
-        CloseHandle(menuhandle);
     }
 }
 
