@@ -3,7 +3,7 @@ void GetAllProMatchStat(client) {
     new Handle:menuhandle = CreateMenu(ProMatchInfoMenuCallback);
     SetMenuTitle(menuhandle, "职业比赛合集");
 
-    for (new idx = 0; idx < g_aProMatchInfo.Length; idx++) {
+    for (new idx = g_aProMatchInfo.Length - 1; idx >= 0; idx--) {
         char team1[LENGTH_NAME], team2[LENGTH_NAME], time[LENGTH_NAME];
         char matchId[LENGTH_NAME];
         JSON_Object arrval = g_aProMatchInfo.GetObject(idx);
