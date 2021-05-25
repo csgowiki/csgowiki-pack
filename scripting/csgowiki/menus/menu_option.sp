@@ -46,6 +46,9 @@ public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Po
     else if (MenuAction_Cancel == action) {
         ClientCommand(client, "sm_option");
     }
+    else if (MenuAction_End == action) {
+        CloseHandle(menuhandle);
+    }
 }
 
 public Action:Command_Option(client, args) {
