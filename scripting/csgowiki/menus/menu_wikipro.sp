@@ -37,7 +37,6 @@ void CreateProRoundMenu(client) {
 
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
@@ -123,7 +122,6 @@ void CreateProDetailMenu(client, char round_str[4]) {
     }
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);
-    SetMenuExitButton(menuhandle, true);
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
@@ -166,9 +164,6 @@ void ShowProUtilityDetail(client, int utId) {
     startAngle[1] = detail_json.GetFloat(1);
     startAngle[2] = 0.0;
 
-    // detail_json.GetString("action_body", actionBody, sizeof(actionBody));
-    // detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
-
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
     Utility_FullName2Zh(utType, "%s", utNameZh);
     Utility_TinyName2Weapon(utType, utWeaponCmd, client);
@@ -181,23 +176,4 @@ void ShowProUtilityDetail(client, int utId) {
 
     GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
     CSU_ThrowGrenade(client, grenadeType, entityPos, velocity);
-
-    // // printout
-    // PrintToChat(client, "\x09 ------------------------------------- ");
-    // PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
-    // PrintToChat(client, "%s %s", PREFIX, result);
-    // PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
-
-    // if (related_utility.Length > 0) {
-    //     PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
-    //     for (new idx = 0; idx < related_utility.Length; idx ++) {
-    //         char utId[LENGTH_UTILITY_ID];
-    //         related_utility.GetString(idx, utId, sizeof(utId));
-    //         PrintToChat(client, "%s \x09!wiki %s", PREFIX, utId);
-    //     }
-    // }
-
-    // PrintToChat(client, "\x09 ------------------------------------- ");
-    // //
-    // PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n以上信息不一定准确", actionBody, actionMouse);
 }

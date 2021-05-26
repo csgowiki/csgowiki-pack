@@ -231,7 +231,7 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     SetEntProp(client, Prop_Send, "m_iAmmo", 1);
     FakeClientCommand(client, utWeaponCmd);
     // auto throw
-    if (GetConVarBool(g_hWikiAutoThrow)) {
+    if (g_bAutoThrow[client]) {
         if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
             PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
         }
@@ -255,59 +255,3 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     //
     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n", actionBody, actionMouse);
 }
-
-// void ShowProUtilityDetail(client, JSON_Object detail_json) {
-//     char utType[LENGTH_UTILITY_TINY], playerName[LENGTH_NAME], teamName[LENGTH_NAME];
-//     char eventName[LENGTH_MESSAGE], result[LENGTH_MESSAGE];
-//     char actionBody[LENGTH_UTILITY_ZH], actionMouse[LENGTH_UTILITY_ZH];
-//     float throwPos[DATA_DIM], startAngle[DATA_DIM];
-
-//     detail_json.GetString("type", utType, sizeof(utType));
-//     detail_json.GetString("player_name", playerName, sizeof(playerName));
-//     detail_json.GetString("player_team", teamName, sizeof(teamName));
-//     int round = detail_json.GetInt("round");
-//     int round_time = detail_json.GetInt("round_time");
-//     detail_json.GetString("event", eventName, sizeof(eventName));
-//     detail_json.GetString("result", result, sizeof(result));
-//     throwPos[0] = detail_json.GetFloat("throw_x");
-//     throwPos[1] = detail_json.GetFloat("throw_y");
-//     throwPos[2] = detail_json.GetFloat("throw_z");
-//     startAngle[0] = detail_json.GetFloat("aim_pitch");
-//     startAngle[1] = detail_json.GetFloat("aim_yaw");
-//     startAngle[2] = 0.0;
-//     detail_json.GetString("action_body", actionBody, sizeof(actionBody));
-//     detail_json.GetString("action_mouse", actionMouse, sizeof(actionMouse));
-//     JSON_Array related_utility = view_as<JSON_Array>(detail_json.GetObject("related_utility"));
-
-//     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
-//     Utility_TinyName2Zh(utType, "%s", utNameZh);
-//     Utility_TinyName2Weapon(utType, utWeaponCmd, client);
-//     int round_remain_secs = 55 + 60 - round_time;
-//     int round_remain_min = round_remain_secs / 60;
-//     round_remain_secs %= 60;
-//     // tp player and get utility
-//     TeleportEntity(client, throwPos, startAngle, NULL_VECTOR);
-//     GivePlayerItem(client, utWeaponCmd);
-//     Format(utWeaponCmd, sizeof(utWeaponCmd), "use %s", utWeaponCmd);
-//     SetEntProp(client, Prop_Send, "m_iAmmo", 1);
-//     FakeClientCommand(client, utWeaponCmd);
-
-//     // printout
-//     PrintToChat(client, "\x09 ------------------------------------- ");
-//     PrintToChat(client, "%s 赛事: \x0B%s", PREFIX, eventName);
-//     PrintToChat(client, "%s %s", PREFIX, result);
-//     PrintToChat(client, "%s \x01<\x03%s\x01> 由 *\x04%s\x01* 在第\x04%d\x01回合 \x04%2d:%2d\x01投掷", PREFIX, utNameZh, playerName, round, round_remain_min, round_remain_secs);
-
-//     if (related_utility.Length > 0) {
-//         PrintToChat(client, "%s 相似的CSGOWiki收录道具：", PREFIX);
-//         for (new idx = 0; idx < related_utility.Length; idx ++) {
-//             char utId[LENGTH_UTILITY_ID];
-//             related_utility.GetString(idx, utId, sizeof(utId));
-//             PrintToChat(client, "%s \x09!wiki %s", PREFIX, utId);
-//         }
-//     }
-
-//     PrintToChat(client, "\x09 ------------------------------------- ");
-//     //
-//     PrintCenterText(client, "身体动作：<font color='#ED0C39'>%s\n<font color='#ffffff'>鼠标动作：<font color='#0CED26'>%s\n以上信息不一定准确", actionBody, actionMouse);
-// }

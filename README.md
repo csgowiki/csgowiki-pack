@@ -1,4 +1,6 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/hx-w/csgowiki-plugins/badge/master)](https://www.codefactor.io/repository/github/hx-w/csgowiki-plugins/overview/master)
+![GitHub](https://img.shields.io/github/license/hx-w/CSGOWiki-Plugins)
+![GitHub](https://img.shields.io/github/downloads/hx-w/CSGOWiki-Plugins/total)
+![GitHub](https://img.shields.io/github/languages/top/hx-w/CSGOWiki-Plugins)
 
 # CSGOWiki-Pack
 `csgowiki-pack`插件服务于[csgowiki](https://csgowiki.top)网站，插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
@@ -60,7 +62,6 @@
 | ----------------------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------- |
 | `sm_csgowiki_enable`    | 0/1      | 插件功能总开关                                               | 无                                                      |
 | `sm_csgowiki_token`     | 字符串   | csgowiki用户token，不要泄露，前往[csgowiki](https://www.csgowiki.top/profile/revise/)获取 | 无                                                      |
-| `sm_server_monitor_on`  | 0/1      | 服务器监视功能开关，开启此功能也须在csgowiki开启服务器监视选项，非csgowiki网站部署的服务器请关闭这个功能 | 无                                                      |
 | `sm_utility_submit_on`  | 0/1      | 道具上传功能开关                                             | >=Lv3                                                   |
 | `sm_utility_wiki_on`    | 0/1      | 道具学习功能开关                                             | 见[请求次数限制](https://www.csgowiki.top/profile/exp/) |
 | `sm_wiki_request_limit` | 0.0~10.0 | `!wiki`请求冷却时间(秒)，默认1.0s，设置0为不限制冷却时间     | 无                                                      |
@@ -68,7 +69,6 @@
 | `sm_qqchat_remark`      | 字符串   | 服务器的备注，显示在qq群里消息的前缀 **不要包含空格**                        | 无                                                      |
 | `sm_qqchat_qqgroup`     | 字符串   | 指定的qq群号，一个服务器只能指定一个                         | 无                                                      |
 | `sm_wiki_auto_kick`     | 0.0~10.0 | 未绑定csgowiki的账号在服务器的时间(分钟)，超出改时间会将玩家踢出服务器。设置为0为不开启(不建议开启) | 无                                                      |
-| `sm_wiki_auto_throw`    | 0/1      | 是否在`!wiki`时自动投掷道具(测试阶段)                        | 无                                                      |
 
 ## Command | 命令
 

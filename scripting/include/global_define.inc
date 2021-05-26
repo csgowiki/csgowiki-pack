@@ -35,9 +35,8 @@ Handle g_hWikiAutoKicker = INVALID_HANDLE;
 Handle g_hChannelEnable = INVALID_HANDLE;
 Handle g_hChannelServerRemark = INVALID_HANDLE;
 Handle g_hChannelQQgroup = INVALID_HANDLE;
-Handle g_hWikiAutoThrow = INVALID_HANDLE;
 // wiki token
-new Handle: g_hCSGOWikiToken;
+Handle g_hCSGOWikiToken;
 
 // 地图 tick信息
 char g_sCurrentMap[LENGTH_MAPNAME];
@@ -113,3 +112,6 @@ bool g_aReqLock[MAXPLAYERS + 1];
 
 // ------------- utility_modify.sp define ------------
 char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
+
+// ------------- option.sp define ------------------
+bool g_bAutoThrow[MAXPLAYERS + 1];

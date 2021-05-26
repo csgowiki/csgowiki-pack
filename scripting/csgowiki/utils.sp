@@ -26,7 +26,7 @@ Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription,
     Handle cvHandle = FindConVar(cvName);
     if (cvHandle == INVALID_HANDLE) {
         if (fMin == -1.0 && fMax == -1.0)
-            cvHandle = CreateConVar(cvName, cvDefault, cvDescription, FCVAR_NOTIFY|FCVAR_REPLICATED);
+            cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
         else if (fMin != -1.0 && fMax != -1.0)
             cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
         else return INVALID_HANDLE;
