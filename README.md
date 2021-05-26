@@ -1,3 +1,7 @@
+![GitHub](https://img.shields.io/github/license/hx-w/CSGOWiki-Plugins)
+![GitHub](https://img.shields.io/github/downloads/hx-w/CSGOWiki-Plugins/total)
+![GitHub](https://img.shields.io/github/languages/top/hx-w/CSGOWiki-Plugins)
+
 # CSGOWiki-Pack
 `csgowiki-pack`插件服务于[csgowiki](https://csgowiki.top)网站，插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
 
