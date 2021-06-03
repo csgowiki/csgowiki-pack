@@ -51,6 +51,7 @@
 - [x] 只有一项编译文件，更合理的插件结构
 - [x] 实现游戏服务器与qq群之间信息互通
 - [x] 自动投掷记录的道具
+- [ ] 最新职业比赛道具解析重现
 
 # Setup | 配置与指令
 
@@ -98,6 +99,12 @@
 2. 将机器人邀请进入群聊
 3. 开启`sm_qqchat_enable 1`，设置qq群号`sm_qqchat_qqgroup xxx`和服务器备注`sm_qqchat_remark xxx`
 4. 在服务器内使用`!qq <内容>`向qq群发消息，在qq群内at机器人向服务器发消息
+
+## 职业道具比赛解析
+
+解析库：[hltv-utility-api](https://github.com/hx-w/hltv-utility-api)
+
+![uptime bot](https://img.shields.io/uptimerobot/ratio/7/m788310337-ea4f6609966b5e058d032d7e)
 
 **注意**
 
