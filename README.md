@@ -93,18 +93,21 @@
     
 - `!qq <内容>` 可以向`sm_qqchat_qqgroup`指定的qq群里发送消息
 
+## 职业道具比赛解析
+API-url：https://api.hx-w.top
+
+解析库：
+
+![uptime bot](https://img.shields.io/uptimerobot/ratio/7/m788310337-ea4f6609966b5e058d032d7e)
+
+![GitHub](https://github-readme-stats.vercel.app/api/pin/?username=hx-w&repo=hltv-utility-api)
+
 ## qqchat | qq群聊功能
 
 1. 申请添加csgowiki官方的qq机器人：`qq2823195212`，验证消息输入：`8802`
 2. 将机器人邀请进入群聊
 3. 开启`sm_qqchat_enable 1`，设置qq群号`sm_qqchat_qqgroup xxx`和服务器备注`sm_qqchat_remark xxx`
 4. 在服务器内使用`!qq <内容>`向qq群发消息，在qq群内at机器人向服务器发消息
-
-## 职业道具比赛解析
-
-解析库：[hltv-utility-api](https://github.com/hx-w/hltv-utility-api)
-
-![uptime bot](https://img.shields.io/uptimerobot/ratio/7/m788310337-ea4f6609966b5e058d032d7e)
 
 **注意**
 
