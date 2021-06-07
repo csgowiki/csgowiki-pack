@@ -1,6 +1,6 @@
 // 
 #pragma dynamic 131022
-#include "global_define.inc"
+#include <csgowiki>
 
 #include "csgowiki/utils.sp"
 #include "csgowiki/panel.sp"
