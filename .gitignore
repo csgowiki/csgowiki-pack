@@ -1,5 +1,8 @@
 .vscode
-include/
+*.inc
+botreplay/
+!csgowiki.inc
+!socket.inc
 spcomp
 spcomp64
 compile.sh
