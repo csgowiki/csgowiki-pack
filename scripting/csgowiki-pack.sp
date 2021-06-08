@@ -93,7 +93,7 @@ public OnMapStart() {
     GetAllCollection();
 
     if (GetConVarBool(g_hChannelEnable)) {
-        CreateTimer(10.0, TcpHeartBeat, _, TIMER_REPEAT);
+        CreateTimer(120.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 
     PluginVersionCheck();
