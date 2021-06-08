@@ -1,6 +1,8 @@
 // kick player have no csgowiki account
 
 public Action:AutoKickerCallback(Handle timer, client) {
+    if (!IsPlayer(client))
+        return Plugin_Handled;
     if (g_aPlayerStateBind[client] == e_bBinded) 
         return Plugin_Handled;
     char client_name[LENGTH_NAME];

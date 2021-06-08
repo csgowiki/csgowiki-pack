@@ -1,6 +1,7 @@
 // 
 #pragma dynamic 131022
 #include <csgowiki>
+#include <socket>
 
 #include "csgowiki/utils.sp"
 #include "csgowiki/panel.sp"
@@ -60,10 +61,25 @@ public OnPluginStart() {
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
+    g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
 
     HookOpConVarChange();
 
     AutoExecConfig(true, "csgowiki-pack");
+    
+	g_hSocket = SocketCreate(SOCKET_TCP, OnSocketError);
+	SocketBind(g_hSocket, "0.0.0.0", GetConVarInt(g_hChannelSvPort));
+	SocketListen(g_hSocket, OnSocketIncoming);
+
+    if (GetConVarBool(g_hChannelEnable)) {
+        TcpCreate();
+    }
+}
+
+public OnPluginEnd() {
+    // close socket
+    TcpClose();
+    CloseHandle(g_hSocket);
 }
 
 public OnMapStart() {
@@ -78,9 +94,9 @@ public OnMapStart() {
     // init collection
     GetAllCollection();
 
-    // channel chat timer
     if (GetConVarBool(g_hChannelEnable)) {
-        CreateTimer(1.0, ChannelPullTimerCallback, _, TIMER_REPEAT);
+        // heart beat
+        TcpCreate();
     }
     PluginVersionCheck();
 }
@@ -123,7 +139,6 @@ public Action:Event_HegrenadeDetonate(Handle:event, const String:name[], bool:do
         Event_HegrenadeDetonateForUtilitySubmit(event);
     }
 }
-
 
 
 public Action:Event_FlashbangDetonate(Handle:event, const String:name[], bool:dontBroadcast) {

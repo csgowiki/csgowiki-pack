@@ -77,6 +77,17 @@ public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const 
     }
 }
 
+void GetServerHost(char []str, int size) {
+    Handle hServerHost;
+    if(hServerHost == INVALID_HANDLE) {
+        // Oh noes :O
+        if( (hServerHost = FindConVar("net_public_adr")) == INVALID_HANDLE) {
+            return;
+        }
+    }
+    GetConVarString(hServerHost, str, size);
+} 
+
 // utils for utility submit
 void GrenadeType_2_Tinyname(GrenadeType utCode, char[] utTinyName) {
     switch (utCode) {

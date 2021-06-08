@@ -10,82 +10,169 @@ public Action:Command_QQchat(client, args) {
     GetClientName(client, name, sizeof(name));
     GetCmdArgString(words, sizeof(words));
     TrimString(words);
-    ChannelPush(name, words);
+    MessageToQQ(client, name, words);
 }
 
-public Action:ChannelPullTimerCallback(Handle timer) {
-    ChannelPull();
-}
-
-void ChannelPull() {
+void MessageToQQ(int client, char[] name, char[] words, int msg_type=0) {
     char remark[LENGTH_NAME];
     char qqgroup[LENGTH_NAME];
+    char svHost[LENGTH_IP];
+    char token[LENGTH_TOKEN]
+    int svPort = GetConVarInt(g_hChannelSvPort);
+    GetServerHost(svHost, LENGTH_IP);
     GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
     GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
+    GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        ChannelPullCallback,
-        "http://channel.csgowiki.top:8000/channel/csgo/?server_remark=%s&qqgroup_id=%s",
-        remark, qqgroup
-    );
-    httpRequest.GET();
-    delete httpRequest;
-}
-
-public ChannelPullCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        JSON_Object json_obj = json_decode(content);
-        json_obj.GetString("status", status, LENGTH_STATUS);
-        if (StrEqual(status, "ok")) {
-            char name[LENGTH_NAME], words[LENGTH_MESSAGE];
-            json_obj.GetString("name", name, sizeof(name));
-            json_obj.GetString("words", words, sizeof(words));
-            if (StrEqual(words, "状态")) {
-                char str_monitor[LENGTH_SERVER_MONITOR];
-                JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true);
-                monitor_json.Encode(str_monitor, LENGTH_SERVER_MONITOR);
-                ChannelPush("CSGOWiki-Bot", str_monitor);
-            }
-            else {
-                PrintToChatAll("[\x09QQ\x01] \x04%s\x01：%s", name, words);
-            }
-        }
-        json_cleanup_and_delete(json_obj);
-    }
-}
-
-void ChannelPush(char[] name, char[] words) {
-    char remark[LENGTH_NAME];
-    char qqgroup[LENGTH_NAME];
-    GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
-    GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
-
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        ChannelPushCallback,
-        "http://channel.csgowiki.top:8000/channel/csgo/"
+        MessageToQQCallback,
+        "https://message-channel.vercel.app/api/to_qq"
     );
 
     httpRequest.SetData(
-        "server_remark=%s&qqgroup_id=%s&name=%s&words=%s",
-        remark, qqgroup, name, words
+        "sv_remark=%s&qq_group=%s&sender=%s&message=%s&msg_type=%d&sv_host=%s&sv_port=%d&token=%s",
+        remark, qqgroup, name, words, msg_type, svHost, svPort, token
     );
+    httpRequest.Any = client;
     httpRequest.POST();
     delete httpRequest;
 }
 
-public ChannelPushCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+public MessageToQQCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     if (success) {
+        int client = request.Any;
         char[] status = new char[LENGTH_STATUS];
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
         JSON_Object json_obj = json_decode(content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
-            PrintToChatAll("%s \x02未能成功发送消息", PREFIX);
+            if (IsPlayer(client)) {
+                PrintToChat(client, "%s \x02未能成功发送消息", PREFIX);
+            }
+        }
+        else {
+            if (IsPlayer(client)) {
+                PrintToChat(client, "%s \x06消息发送成功", PREFIX);
+            }
         }
         json_cleanup_and_delete(json_obj);
     }
+}
+
+void TcpCreate() {
+    char remark[LENGTH_NAME];
+    char qqgroup[LENGTH_NAME];
+    char svHost[LENGTH_IP];
+    char token[LENGTH_TOKEN]
+    int svPort = GetConVarInt(g_hChannelSvPort);
+    GetServerHost(svHost, LENGTH_IP);
+    GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
+    GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
+    GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
+
+    System2HTTPRequest httpRequest = new System2HTTPRequest(
+        TcpCreateCallback,
+        "https://message-channel.vercel.app/api/tcp_create"
+    );
+
+    httpRequest.SetData(
+        "sv_remark=%s&qq_group=%s&sv_host=%s&sv_port=%d&token=%s",
+        remark, qqgroup, svHost, svPort, token
+    );
+    httpRequest.POST();
+    delete httpRequest;
+}
+
+public TcpCreateCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    if (success) {
+        char[] status = new char[LENGTH_STATUS];
+        char[] content = new char[response.ContentLength + 1];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object json_obj = json_decode(content);
+        json_obj.GetString("status", status, LENGTH_STATUS);
+        if (StrEqual(status, "error")) {
+            PrintToChatAll("%s \x02消息通道建立失败", PREFIX);
+        }
+        else if (StrEqual(status, "ok")){
+            PrintToServer("%s \x06消息通道建立成功", PREFIX);
+        }
+        json_cleanup_and_delete(json_obj);
+    }
+}
+
+void TcpClose() {
+    char remark[LENGTH_NAME];
+    char qqgroup[LENGTH_NAME];
+    char svHost[LENGTH_IP];
+    char token[LENGTH_TOKEN]
+    GetServerHost(svHost, LENGTH_IP);
+    GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
+    GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
+    GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
+
+    System2HTTPRequest httpRequest = new System2HTTPRequest(
+        TcpCloseCallback,
+        "https://message-channel.vercel.app/api/tcp_close"
+    );
+
+    httpRequest.SetData(
+        "sv_remark=%s&qq_group=%s&sv_host=%s&token=%s",
+        remark, qqgroup, svHost, token
+    );
+    httpRequest.POST();
+    delete httpRequest;
+}
+
+public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    if (success) {
+        char[] status = new char[LENGTH_STATUS];
+        char[] content = new char[response.ContentLength + 1];
+        response.GetContent(content, response.ContentLength + 1);
+        JSON_Object json_obj = json_decode(content);
+        json_obj.GetString("status", status, LENGTH_STATUS);
+        if (StrEqual(status, "error")) {
+            PrintToChatAll("%s \x02消息通道关闭失败", PREFIX);
+        }
+        else if (StrEqual(status, "ok")){
+            PrintToServer("%s \x06消息通道关闭成功", PREFIX);
+        }
+        json_cleanup_and_delete(json_obj);
+    }
+}
+
+public Action OnSocketIncoming(Handle socket, Handle newSocket, char[] remoteIP, int remotePort, any arg) {
+	// setup callbacks required to 'enable' newSocket
+	// newSocket won't process data until these callbacks are set
+	SocketSetReceiveCallback(newSocket, OnChildSocketReceive);
+	SocketSetDisconnectCallback(newSocket, OnChildSocketDisconnected);
+	SocketSetErrorCallback(newSocket, OnChildSocketError);
+	// SocketSend(newSocket, "send quit to quit\n");
+}
+
+public Action OnSocketError(Handle socket, const int errorType, const int errorNum, args) {
+	// a socket error occured
+
+	LogError("socket error %d (errno %d)", errorType, errorNum);
+	CloseHandle(socket);
+}
+
+public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int dataSize, any hFile) {
+	// send (echo) the received data back
+	PrintToChatAll("%s", receiveData);
+	PrintToServer("%s", receiveData);
+	SocketSend(socket, receiveData);
+	// close the connection/socket/handle if it matches quit
+	// if (strncmp(receiveData, "quit", 4) == 0) CloseHandle(socket);
+}
+
+public Action OnChildSocketDisconnected(Handle socket, args) {
+	// remote side disconnected
+	CloseHandle(socket);
+}
+
+public Action OnChildSocketError(Handle socket, const int errorType, const int errorNum, any ary) {
+	// a socket error occured
+	LogError("child socket error %d (errno %d)", errorType, errorNum);
+	CloseHandle(socket);
 }

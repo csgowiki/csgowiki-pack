@@ -12,7 +12,7 @@
 #define LENGTH_STEAMID64 20 // 17 for usuall
 #define LENGTH_STATUS 16
 #define LENGTH_NAME 33
-#define LENGTH_IP 17
+#define LENGTH_IP 27
 #define LENGTH_SERVER_MONITOR 512
 #define LENGTH_MAPNAME 12
 #define LENGTH_UTILITY_FULL 13
@@ -26,6 +26,7 @@
 #define CSGO_ACTION_NUM 9
 #define CSGOWIKI_ACTION_NUM 7
 
+Handle g_hSocket = INVALID_HANDLE;
 // 功能开关  steambind 不能关闭
 Handle g_hCSGOWikiEnable = INVALID_HANDLE;
 Handle g_hOnUtilitySubmit = INVALID_HANDLE;
@@ -35,6 +36,7 @@ Handle g_hWikiAutoKicker = INVALID_HANDLE;
 Handle g_hChannelEnable = INVALID_HANDLE;
 Handle g_hChannelServerRemark = INVALID_HANDLE;
 Handle g_hChannelQQgroup = INVALID_HANDLE;
+Handle g_hChannelSvPort = INVALID_HANDLE;
 // wiki token
 Handle g_hCSGOWikiToken;
 
