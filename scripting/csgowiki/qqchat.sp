@@ -5,6 +5,10 @@ public Action:Command_QQchat(client, args) {
         PrintToChat(client, "%s \x02qq聊天已关闭，请联系服务器管理员", PREFIX);
         return;
     }
+    if (g_bQQTrigger[client]) {
+        PrintToChat(client, "%s \x09当前QQ聊天触发模式为 \x04打字触发\x09，不必要使用该指令，可在!option中修改设置");
+        return;
+    }
     char words[LENGTH_MESSAGE];
     char name[LENGTH_NAME];
     GetClientName(client, name, sizeof(name));
@@ -14,6 +18,12 @@ public Action:Command_QQchat(client, args) {
 }
 
 void MessageToQQ(int client, char[] name, char[] words, int msg_type=0) {
+    if (strlen(words) == 0) {
+        if (IsPlayer(client)) {
+            PrintToChat(client, "%s \x02不能发送空内容", PREFIX);
+        }
+        return;
+    }
     char remark[LENGTH_NAME];
     char qqgroup[LENGTH_NAME];
     char svHost[LENGTH_IP];
@@ -64,12 +74,18 @@ void TcpCreate() {
     char remark[LENGTH_NAME];
     char qqgroup[LENGTH_NAME];
     char svHost[LENGTH_IP];
-    char token[LENGTH_TOKEN]
+    char token[LENGTH_TOKEN];
     int svPort = GetConVarInt(g_hChannelSvPort);
     GetServerHost(svHost, LENGTH_IP);
     GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
     GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
-    GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
+    GetConVarString(g_hCSGOWikiToken, token, sizeof(token));
+
+    if (strlen(qqgroup) == 0 || strlen(svHost) == 0 || strlen(remark) == 0) {
+        PrintToServer("群号或主机信息获取失败");
+        PrintToChatAll("%s \x02QQ或主机获取失败", PREFIX);
+        return;
+    }
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         TcpCreateCallback,
@@ -141,7 +157,7 @@ public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest req
     }
 }
 
-public Action TcpHeartBeat(Handle timer) {
+public Action:TcpHeartBeat(Handle timer) {
     TcpCreate();
 }
 
@@ -171,10 +187,16 @@ public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int 
     json_obj.GetString("message", message, sizeof(message));
 
     if (msg_type == 0) {
-        PrintToChatAll("[\x09QQ群\x01] \x04%s\x01：%s", sender, message);
-        PrintToServer("[\x09QQ群\x01] \x04%s\x01：%s", sender, message);
+        PrintToChatAll("[\x09QQ\x01] \x04%s\x01：%s", sender, message);
+        PrintToServer("[QQ] \x04%s\x01：%s", sender, message);
     }
     else if (msg_type == 1) {
+        char monitor_str[LENGTH_SERVER_MONITOR];
+        JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true);
+        monitor_json.Encode(monitor_str, LENGTH_SERVER_MONITOR);
+        MessageToQQ(-1, "Bot", monitor_str, 1);
+    }
+    else if (msg_type == 2) {
         ServerCommand("%s", message);
     }
     json_cleanup_and_delete(json_obj);

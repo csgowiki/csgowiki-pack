@@ -59,21 +59,19 @@ public OnPluginStart() {
     g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid");
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
-    g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
+    g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
+
+    TcpCreate();
 
     HookOpConVarChange();
 
-    AutoExecConfig(true, "csgowiki-pack");
-    
 	g_hSocket = SocketCreate(SOCKET_TCP, OnSocketError);
 	SocketBind(g_hSocket, "0.0.0.0", GetConVarInt(g_hChannelSvPort));
 	SocketListen(g_hSocket, OnSocketIncoming);
 
-    if (GetConVarBool(g_hChannelEnable)) {
-        CreateTimer(60.0, TcpHeartBeat, _, TIMER_REPEAT);
-    }
+    AutoExecConfig(true, "csgowiki-pack");
 }
 
 public OnPluginEnd() {
@@ -95,14 +93,13 @@ public OnMapStart() {
     GetAllCollection();
 
     if (GetConVarBool(g_hChannelEnable)) {
-        // heart beat
-        TcpCreate();
+        CreateTimer(10.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
+
     PluginVersionCheck();
 }
 
 public OnClientPutInServer(client) {
-
     // timer define
     if (IsPlayer(client) && GetConVarBool(g_hCSGOWikiEnable)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
@@ -146,13 +143,11 @@ public Action:Event_HegrenadeDetonate(Handle:event, const String:name[], bool:do
     }
 }
 
-
 public Action:Event_FlashbangDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_FlashbangDetonateForUtilitySubmit(event);
     }
 }
-
 
 public Action:Event_SmokegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
@@ -161,9 +156,23 @@ public Action:Event_SmokegrenadeDetonate(Handle:event, const String:name[], bool
 }
 
 
-
 public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dontBroadcast) { 
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_MolotovDetonateForUtilitySubmit(event);
     }
+}
+
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
+    if (!IsPlayer(client)) {
+        return Plugin_Continue;
+    }
+    if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
+        char name[LENGTH_NAME];
+        GetClientName(client, name, sizeof(name));
+        char words[LENGTH_MESSAGE];
+        strcopy(words, sizeof(words), sArgs);
+        StripQuotes(words);
+        MessageToQQ(client, name, words);
+    }
+    return Plugin_Continue;
 }

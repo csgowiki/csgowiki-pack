@@ -117,3 +117,4 @@ char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
 
 // ------------- option.sp define ------------------
 bool g_bAutoThrow[MAXPLAYERS + 1];
+bool g_bQQTrigger[MAXPLAYERS + 1]; // 0=>!qq  1=>raw
