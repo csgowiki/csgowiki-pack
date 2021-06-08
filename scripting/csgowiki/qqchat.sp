@@ -177,6 +177,7 @@ public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int 
     else if (msg_type == 1) {
         ServerCommand("%s", message);
     }
+    json_cleanup_and_delete(json_obj);
 	// SocketSend(socket, receiveData);
 	// close the connection/socket/handle if it matches quit
 	// if (strncmp(receiveData, "quit", 4) == 0) CloseHandle(socket);

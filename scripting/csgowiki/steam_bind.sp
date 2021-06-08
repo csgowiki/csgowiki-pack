@@ -97,6 +97,11 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
         json_cleanup_and_delete(json_obj);
         // test
         ClientCommand(client, "sm_m");
+        char clientName[LENGTH_NAME];
+        GetClientName(client, clientName, sizeof(clientName));
+        char message[LENGTH_MESSAGE];
+        Format(message, sizeof(message), "<%s>加入服务器", clientName);
+        MessageToQQ(-1, "Bot", message, 2);
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);

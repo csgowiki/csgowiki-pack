@@ -116,7 +116,13 @@ public OnClientPutInServer(client) {
 }
 
 public OnClientDisconnect(client) {
-
+    if (IsPlayer(client)) {
+        char clientName[LENGTH_NAME];
+        GetClientName(client, clientName, sizeof(clientName));
+        char message[LENGTH_MESSAGE];
+        Format(message, sizeof(message), "<%s>离开服务器", clientName);
+        MessageToQQ(-1, "Bot", message, 2);
+    }
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);
