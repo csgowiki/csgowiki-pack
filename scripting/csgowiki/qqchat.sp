@@ -141,6 +141,10 @@ public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest req
     }
 }
 
+public Action TcpHeartBeat(Handle timer) {
+    TcpCreate();
+}
+
 public Action OnSocketIncoming(Handle socket, Handle newSocket, char[] remoteIP, int remotePort, any arg) {
 	// setup callbacks required to 'enable' newSocket
 	// newSocket won't process data until these callbacks are set
@@ -159,9 +163,21 @@ public Action OnSocketError(Handle socket, const int errorType, const int errorN
 
 public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int dataSize, any hFile) {
 	// send (echo) the received data back
-	PrintToChatAll("%s", receiveData);
-	PrintToServer("%s", receiveData);
-	SocketSend(socket, receiveData);
+    JSON_Object json_obj = json_decode(receiveData);
+    char sender[LENGTH_NAME];
+    char message[LENGTH_MESSAGE];
+    int msg_type = json_obj.GetInt("msg_type");
+    json_obj.GetString("sender", sender, sizeof(sender));
+    json_obj.GetString("message", message, sizeof(message));
+
+    if (msg_type == 0) {
+        PrintToChatAll("[\x09QQ群\x01] \x04%s\x01：%s", sender, message);
+        PrintToServer("[\x09QQ群\x01] \x04%s\x01：%s", sender, message);
+    }
+    else if (msg_type == 1) {
+        ServerCommand("%s", message);
+    }
+	// SocketSend(socket, receiveData);
 	// close the connection/socket/handle if it matches quit
 	// if (strncmp(receiveData, "quit", 4) == 0) CloseHandle(socket);
 }

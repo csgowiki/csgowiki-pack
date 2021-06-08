@@ -17,7 +17,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.3.0",
+    version = "v1.3.1",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -72,7 +72,7 @@ public OnPluginStart() {
 	SocketListen(g_hSocket, OnSocketIncoming);
 
     if (GetConVarBool(g_hChannelEnable)) {
-        TcpCreate();
+        CreateTimer(60.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 }
 
