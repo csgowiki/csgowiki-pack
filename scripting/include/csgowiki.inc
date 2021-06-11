@@ -6,6 +6,7 @@
 #include <json>
 
 #define PREFIX "\x01[\x05CSGO Wiki\x01]"
+#pragma dynamic 131072
 
 #define LENGTH_VERSION 10
 #define LENGTH_TOKEN 33

@@ -1,5 +1,4 @@
 // 
-#pragma dynamic 131022
 #include <csgowiki>
 #include <socket>
 
@@ -17,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.3.1",
+    version = "v1.4.0",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -93,7 +92,7 @@ public OnMapStart() {
     GetAllCollection();
 
     if (GetConVarBool(g_hChannelEnable)) {
-        CreateTimer(120.0, TcpHeartBeat, _, TIMER_REPEAT);
+        CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 
     PluginVersionCheck();
@@ -113,13 +112,6 @@ public OnClientPutInServer(client) {
 }
 
 public OnClientDisconnect(client) {
-    if (IsPlayer(client)) {
-        char clientName[LENGTH_NAME];
-        GetClientName(client, clientName, sizeof(clientName));
-        char message[LENGTH_MESSAGE];
-        Format(message, sizeof(message), "<%s>离开服务器", clientName);
-        MessageToQQ(-1, "Bot", message, 2);
-    }
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);
