@@ -95,6 +95,8 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
             }
         }
         json_cleanup_and_delete(json_obj);
+        // test
+        // ClientCommand(client, "sm_m");
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);

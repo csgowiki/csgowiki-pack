@@ -1,7 +1,9 @@
 .vscode
-include/
+*.inc
+botreplay/
+!csgowiki.inc
+!socket.inc
 spcomp
 spcomp64
-compile.sh
 compiled/
-for_test.sh
+*.sh

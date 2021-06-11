@@ -39,6 +39,8 @@ void HookOpConVarChange() {
     HookConVarChange(g_hOnUtilitySubmit, ConVar_OnUtilitySubmitChange);
     HookConVarChange(g_hOnUtilityWiki, ConVar_OnUtilityWikiChange);
     HookConVarChange(g_hChannelEnable, ConVar_ChannelEnableChange);
+    HookConVarChange(g_hChannelQQgroup, ConVar_ChannelQQgroupChange);
+    HookConVarChange(g_hChannelServerRemark, ConVar_ChannelRemarkChange);
 }
 
 public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
@@ -71,11 +73,33 @@ public ConVar_OnUtilityWikiChange(Handle:convar, const String:oldValue[], const 
 public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
     if (GetConVarBool(g_hChannelEnable)) {
         PrintToChatAll("%s \x09QQ聊天功能\x01 => \x04已开启", PREFIX);
+        TcpCreate();
     }
     else {
         PrintToChatAll("%s \x09QQ聊天功能\x01 => \x02已关闭", PREFIX);
+        TcpClose();
     }
 }
+
+public ConVar_ChannelQQgroupChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    PrintToServer("qq group change");
+    TcpCreate();
+}
+
+public ConVar_ChannelRemarkChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+    PrintToServer("server remark change");
+    TcpCreate();
+}
+
+void GetServerHost(char []str, int size) {
+    Handle hServerHost = INVALID_HANDLE;
+    if(hServerHost == INVALID_HANDLE) {
+        if( (hServerHost = FindConVar("net_public_adr")) == INVALID_HANDLE) {
+            return;
+        }
+    }
+    GetConVarString(hServerHost, str, size);
+} 
 
 // utils for utility submit
 void GrenadeType_2_Tinyname(GrenadeType utCode, char[] utTinyName) {
@@ -345,15 +369,15 @@ void HintColorMessageFixStart() {
 }
 
 Action TextMsgHintTextHook(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init) {
-    static char sBuf[sizeof g_sSpace];
+    static char sBuf[sizeof(g_sSpace)];
     if(msg_id == g_HintText) {
-        msg.ReadString("text", sBuf, sizeof sBuf);
-  	}
+        msg.ReadString("text", sBuf, sizeof(sBuf));
+    }
     else if(msg_id == g_KeyHintText) {
-        msg.ReadString("hints", sBuf, sizeof sBuf, 0);
+        msg.ReadString("hints", sBuf, sizeof(sBuf), 0);
     }
     else if(msg.ReadInt("msg_dst") == 4) {
-        msg.ReadString("params", sBuf, sizeof sBuf, 0);
+        msg.ReadString("params", sBuf, sizeof(sBuf), 0);
     }
     else {
         return Plugin_Continue;
@@ -369,7 +393,7 @@ Action TextMsgHintTextHook(UserMsg msg_id, Protobuf msg, const int[] players, in
         hPack.Reset();
         RequestFrame(TextMsgFix, hPack);
         return Plugin_Handled;
-    }	
+    }
     return Plugin_Continue;
 }
 
