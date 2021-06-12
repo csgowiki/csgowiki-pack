@@ -38,6 +38,7 @@ Handle g_hChannelEnable = INVALID_HANDLE;
 Handle g_hChannelServerRemark = INVALID_HANDLE;
 Handle g_hChannelQQgroup = INVALID_HANDLE;
 Handle g_hChannelSvPort = INVALID_HANDLE;
+Handle g_hChannelSvHost = INVALID_HANDLE;
 // wiki token
 Handle g_hCSGOWikiToken;
 

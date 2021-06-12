@@ -92,6 +92,10 @@ public ConVar_ChannelRemarkChange(Handle:convar, const String:oldValue[], const 
 }
 
 void GetServerHost(char []str, int size) {
+    GetConVarString(g_hChannelSvHost, str, size);
+    if (strlen(str) != 0) {
+        return;
+    }
     Handle hServerHost = INVALID_HANDLE;
     if(hServerHost == INVALID_HANDLE) {
         if( (hServerHost = FindConVar("net_public_adr")) == INVALID_HANDLE) {
