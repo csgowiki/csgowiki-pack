@@ -16,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGO Wiki] Plugin-Pack",
     author = "CarOL",
     description = "Provide interactive method between www.csgowiki.top and game server",
-    version = "v1.4.0",
+    version = "v1.4.0-beta1",
     url = "https://github.com/hx-w/CSGOWiki-Plugins"
 };
 
@@ -61,6 +61,7 @@ public OnPluginStart() {
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
+    g_hChannelSvHost = FindOrCreateConvar("sm_qqchat_sv_host", "", "Set host of the current server. `net_public_adr` will be used if this convar set empty");
 
     TcpCreate();
 
