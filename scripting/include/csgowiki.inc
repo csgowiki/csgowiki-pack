@@ -8,7 +8,7 @@
 #define PREFIX "\x01[\x05CSGO Wiki\x01]"
 #pragma dynamic 131072
 
-#define LENGTH_VERSION 10
+#define LENGTH_VERSION 20
 #define LENGTH_TOKEN 33
 #define LENGTH_STEAMID64 20 // 17 for usuall
 #define LENGTH_STATUS 16
