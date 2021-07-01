@@ -36,7 +36,7 @@ void MessageToQQ(int client, char[] name, char[] words, int msg_type=0) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         MessageToQQCallback,
-        "https://message-channel.vercel.app/api/to_qq"
+        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/to_qq"
     );
 
     httpRequest.SetData(
@@ -89,7 +89,7 @@ void TcpCreate() {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         TcpCreateCallback,
-        "https://message-channel.vercel.app/api/tcp_create"
+        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_create"
     );
     httpRequest.SetData(
         "sv_remark=%s&qq_group=%s&sv_host=%s&sv_port=%d&token=%s",
@@ -128,7 +128,7 @@ void TcpClose() {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         TcpCloseCallback,
-        "https://message-channel.vercel.app/api/tcp_close"
+        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_close"
     );
 
     httpRequest.SetData(
