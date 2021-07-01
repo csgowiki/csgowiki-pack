@@ -30,7 +30,7 @@ public Action:Command_Wikiop(client, args) {
         panel.DrawItem("QQ聊天功能：关", Flag);
 
     panel.DrawText("   ");
-    panel.DrawItem("第三方插件设置", ITEMDRAW_DISABLED);
+    panel.DrawItem("第三方插件设置");
 
     panel.DrawItem("   ", ITEMDRAW_SPACER);
     panel.DrawItem("返回", ITEMDRAW_CONTROL);

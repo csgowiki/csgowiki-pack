@@ -262,7 +262,7 @@ void ResetReqLock(pclient = -1) {
 
 
 // ----------------- server monitor json generator -------
-JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false) {
+JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
     JSON_Array monitor_json = new JSON_Array();
     if (inctoken) {
         char token[LENGTH_TOKEN];
@@ -289,6 +289,9 @@ JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool aut
         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
         // json encode
         JSON_Array client_arr = new JSON_Array();
+        if (incid) {
+            client_arr.PushInt(client_id);
+        }
         client_arr.PushString(client_name);
         client_arr.PushString(steamid);
         client_arr.PushString(str_ping);

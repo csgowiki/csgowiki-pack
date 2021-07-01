@@ -91,7 +91,6 @@ void TcpCreate() {
         TcpCreateCallback,
         "https://message-channel.vercel.app/api/tcp_create"
     );
-
     httpRequest.SetData(
         "sv_remark=%s&qq_group=%s&sv_host=%s&sv_port=%d&token=%s",
         remark, qqgroup, svHost, svPort, token
@@ -197,7 +196,10 @@ public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int 
         MessageToQQ(-1, "Bot", monitor_str, 1);
     }
     else if (msg_type == 2) {
-        ServerCommand("%s", message);
+        char monitor_str[LENGTH_SERVER_MONITOR];
+        JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true, true);
+        monitor_json.Encode(monitor_str, LENGTH_SERVER_MONITOR);
+        SocketSend(socket, monitor_str);
     }
     json_cleanup_and_delete(json_obj);
 	// SocketSend(socket, receiveData);

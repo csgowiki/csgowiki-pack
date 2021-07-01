@@ -5,7 +5,7 @@
 #include <system2>
 #include <json>
 
-#define PREFIX "\x01[\x05CSGO Wiki\x01]"
+#define PREFIX "\x01[\x05CSGOWiki\x01]"
 #pragma dynamic 131072
 
 #define LENGTH_VERSION 20

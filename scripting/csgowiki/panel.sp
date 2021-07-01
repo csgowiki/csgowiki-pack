@@ -6,6 +6,7 @@
 #include "csgowiki/menus/menu_wikipro.sp"
 
 public Action:Command_Panel(client, args) {
+    if (!IsPlayer(client)) return Plugin_Handled;
     Panel panel = new Panel();
 
     panel.SetTitle("CSGOWiki操作面板")
@@ -30,6 +31,7 @@ public Action:Command_Panel(client, args) {
 }
 
 public PanelHandler(Handle:menu, MenuAction:action, client, Position) {
+    if (!IsPlayer(client)) return;
     if (action == MenuAction_Select) {
         switch(Position) {
             case 1: ClientCommand(client, "sm_wiki");

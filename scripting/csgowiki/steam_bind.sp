@@ -91,12 +91,12 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
             if (kicker_timer > 0.0) {
                 CreateTimer(kicker_timer * 60, AutoKickerCallback, client);
                 PrintToChat(client, "%s \x0f由于你未绑定csgowiki账号，根据设置，将在\x04%.2f\x0f分钟内将您踢出服务器", PREFIX, kicker_timer);
-                PrintToChat(client, "%s \x05绑定账号请前往\x09www.csgowiki.top", PREFIX);
+                PrintToChat(client, "%s \x05绑定账号请前往\x09mycsgolab", PREFIX);
             }
         }
         json_cleanup_and_delete(json_obj);
         // test
-        // ClientCommand(client, "sm_m");
+        ClientCommand(client, "sm_m");
     }
     else {
         PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
