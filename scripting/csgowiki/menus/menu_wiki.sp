@@ -3,7 +3,7 @@
 // 道具分类  第一层menu
 void Menu_UtilityWiki_v1(client) {
     new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_v1_CallBack);
-    SetMenuTitle(menuhandle, "CSGO Wiki道具分类");
+    SetMenuTitle(menuhandle, "CSGOWiki道具分类");
 
     AddMenuItem(menuhandle, "smoke", "烟雾弹");
     AddMenuItem(menuhandle, "flash", "闪光弹");

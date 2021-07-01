@@ -13,11 +13,11 @@
 #include "csgowiki/qqchat.sp"
 
 public Plugin:myinfo = {
-    name = "[CSGO Wiki] Plugin-Pack",
+    name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
-    description = "Provide interactive method between www.csgowiki.top and game server",
+    description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
     version = "v1.4.1",
-    url = "https://github.com/hx-w/CSGOWiki-Plugins"
+    url = "https://docs.csgowiki.top/plugins"
 };
 
 public OnPluginStart() {
@@ -160,6 +160,9 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
         return Plugin_Continue;
     }
     if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
+        if (strlen(sArgs) <= 0 || sArgs[0] == '!' || sArgs[0] == '.' || sArgs[0] == '/') {
+            return Plugin_Continue;
+        }
         char name[LENGTH_NAME];
         GetClientName(client, name, sizeof(name));
         char words[LENGTH_MESSAGE];
