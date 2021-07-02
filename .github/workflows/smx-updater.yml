@@ -23,8 +23,8 @@ jobs:
       - name: dispatching
         uses: appleboy/scp-action@master
         with:
-          host: s1.csgowiki.top
-          username: csgo
-          password: ${{ secrets.PASSWORD_S1 }}
-          source: "plugins/csgowiki-pack.smx"
+          host: s1.csgowiki.top, s3.csgowiki.top
+          username: csgo, csgo
+          password: ${{ secrets.PASSWORD_S1 }}, ${{ secrets.PASSWORD_S3 }}
+          source: "plugins/*"
           target: "steamcmd/games/csgo/csgo/addons/sourcemod/logs/"
