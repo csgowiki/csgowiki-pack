@@ -27,4 +27,4 @@ jobs:
           username: csgo
           password: ${{ secrets.PASSWORD_S1 }}
           source: "plugins/csgowiki-pack.smx"
-          target: "steamcmd/games/csgo/csgo/addons/sourcemode/logs/"
+          target: "steamcmd/games/csgo/csgo/addons/sourcemod/logs/"
