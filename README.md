@@ -4,7 +4,9 @@
 ![smx-updater](https://github.com/hx-w/CSGOWiki-Plugins/workflows/smx-updater/badge.svg)
 
 # CSGOWiki-Pack
-`csgowiki-pack`插件服务于[csgowiki](https://csgowiki.top)网站，插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
+`csgowiki-pack`插件服务于[csgowiki](https://csgowiki.top)网站。
+
+插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
 
 插件文档库请移步：[**csgowiki帮助中心**](https://docs.csgowiki.top/plugins)
 
