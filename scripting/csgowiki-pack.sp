@@ -28,7 +28,7 @@ public OnPluginStart() {
     HookEvent("molotov_detonate", Event_MolotovDetonate);
 
     // command define
-    RegConsoleCmd("sm_bsteam", Command_BindSteam);
+    // RegConsoleCmd("sm_bsteam", Command_BindSteam);
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
     RegConsoleCmd("sm_modify", Command_Modify);
