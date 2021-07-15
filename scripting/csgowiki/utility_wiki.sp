@@ -13,8 +13,7 @@ public Action:Command_Wiki(client, args) {
         PrintToChat(client, "%s 正在请求道具<\x0E%s\x01>", PREFIX, utId);
         GetUtilityDetail(client, utId);
     }
-
-    if (g_jaUtilityCollection.Length < 3) {
+    if (g_jaUtilityCollection == INVALID_HANDLE || g_jaUtilityCollection.Length < 10) {
         PrintToChat(client, "%s 道具合集初始化失败，正在重新请求数据...", PREFIX);
         GetAllCollection(client);
     }
@@ -30,11 +29,13 @@ void GetAllCollection(client=-1) {
 
     System2HTTPRequest AllCollectionRequest = new System2HTTPRequest(
         AllCollectionResponseCallback, 
-        "https://api.csgowiki.top/api/utility/collection/?token=%s&map=%s&tickrate=%d&type=%s",
-        token, g_sCurrentMap, g_iServerTickrate, "common"
+        "https://api.mycsgolab.com/utility/utility/collection?token=%s&current_map=%s&tickrate=%d",
+        token, g_sCurrentMap, g_iServerTickrate
     );
     AllCollectionRequest.Any = client;
-    AllCollectionRequest.GET();
+    if (g_jaUtilityCollection == INVALID_HANDLE || g_jaUtilityCollection.Length < 10) {
+        AllCollectionRequest.GET();
+    }
     delete AllCollectionRequest;
 
     // pro
@@ -43,7 +44,9 @@ void GetAllCollection(client=-1) {
         "https://api.hx-w.top/%s",
         g_sCurrentMap
     )
-    ProCollectionRequest.GET();
+    if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
+        ProCollectionRequest.GET();
+    }
     delete ProCollectionRequest;
 }
 
@@ -55,7 +58,7 @@ void GetFilterCollection(client, char[] method) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
-        "https://api.csgowiki.top/api/utility/spot_filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        "https://api.mycsgolab.com/utility/utility/filter?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
@@ -82,7 +85,7 @@ void GetUtilityDetail(client, char[] utId) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
-        "https://api.csgowiki.top/api/utility/detail_info/?token=%s&id=%s&type=common",
+        "https://api.mycsgolab.com/utility/utility/detail?token=%s&utility_id=%s",
         token, utId
     );
     httpRequest.Any = client;
@@ -120,8 +123,8 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
         }
     }
     else {
-        if (client == -1) PrintToChatAll("%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
-        else PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        if (client == -1) PrintToChatAll("%s \x02连接至mycsgolab失败：%s", PREFIX, error);
+        else PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
     }
 }
 
@@ -161,7 +164,7 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
     }
 }
 
@@ -186,7 +189,7 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         json_cleanup_and_delete(resp_json);
     }
     else {
-        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败：%s", PREFIX, error);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
     }
 }
 

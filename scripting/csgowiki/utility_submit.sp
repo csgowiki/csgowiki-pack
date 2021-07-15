@@ -7,7 +7,7 @@ public Action:Command_Submit(client, args) {
         return;
     }
     PrintToChat(client, "%s \x06道具上传功能开启", PREFIX);
-    PrintToChat(client, "%s 你接下来的道具投掷记录将会被自动上传至\x09www.csgowiki.top", PREFIX);
+    PrintToChat(client, "%s 你接下来的道具投掷记录将会被自动上传至\x09mycsgolab", PREFIX);
     PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
@@ -122,17 +122,42 @@ void TriggerWikiPost(client) {
 
 
     // request
+    char url[128] = "";
+    Format(url, sizeof(url), "https://api.mycsgolab.com/utility/utility/submit/?token=%s", token);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiPostResponseCallback, "https://api.csgowiki.top/api/utility/submit/"
+        WikiPostResponseCallback, url
     );
+    // remain path [TODO]
+    httpRequest.SetHeader("Content-Type", "application/json");
     httpRequest.SetData(
-        "token=%s&steamid=%s&start_x=%f&start_y=%f&start_z=%f\
-        &end_x=%f&end_y=%f&end_z=%f&aim_pitch=%f&aim_yaw=%f\
-        &is_run=%d&is_walk=%d&is_jump=%d&is_duck=%d&is_left=%d&is_right=%d\
-        &map_belong=%s&tickrate=%s&utility_type=%s\
-        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f\
-        &velocity_x=%f&velocity_y=%f&velocity_z=%f",
-        token, steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
+        "{\
+            \"steam_id\": \"%s\",\
+            \"start_x\": %f,\
+            \"start_y\": %f,\
+            \"start_z\": %f,\
+            \"end_x\": %f,\
+            \"end_y\": %f,\
+            \"end_z\": %f,\
+            \"aim_pitch\": %f,\
+            \"aim_yaw\": %f,\
+            \"is_run\": %b,\
+            \"is_walk\": %b,\
+            \"is_jump\": %b,\
+            \"is_duck\": %b,\
+            \"is_left\": %b,\
+            \"is_right\": %b,\
+            \"map_belong\": \"%s\",\
+            \"tickrate\": \"%s\",\
+            \"utility_type\": \"%s\",\
+            \"throw_x\": %f,\
+            \"throw_y\": %f,\
+            \"throw_z\": %f,\
+            \"air_time\": %f,\
+            \"velocity_x\": %f,\
+            \"velocity_y\": %f,\
+            \"velocity_z\": %f\
+        }",
+        steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
         g_aStartAngles[client][0], g_aStartAngles[client][1],
@@ -155,6 +180,7 @@ public WikiPostResponseCallback(bool success, const char[] error, System2HTTPReq
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
         JSON_Object json_obj = json_decode(content);
+        PrintToChat(client, "%s", content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             char[] utId = new char[LENGTH_UTILITY_ID];
@@ -169,7 +195,7 @@ public WikiPostResponseCallback(bool success, const char[] error, System2HTTPReq
         json_cleanup_and_delete(json_obj);
     }
     else {
-        PrintToChat(client, "%s \x02连接至www.csgowiki.top失败", PREFIX);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败", PREFIX);
     }
     ResetSingleClientSubmitState(client);
 }
@@ -178,7 +204,7 @@ void ShowResult(client, char[] utId) {
     char strAction[LENGTH_MESSAGE] = "";
     Action_Int2Str(client, strAction);
     PrintToChat(client, "\x09 ------------------------------------- ");
-    PrintToChat(client, "%s 已将道具记录上传至\x09www.csgowiki.top\x01", PREFIX);
+    PrintToChat(client, "%s 已将道具记录上传至\x09mycsgolab\x01", PREFIX);
     PrintToChat(client, "%s [\x0F起点\x01] \x0D%f,%f,%f", PREFIX, g_aStartPositions[client][0], g_aStartPositions[client][1], g_aStartPositions[client][2]);
     PrintToChat(client, "%s [\x0F角度\x01] \x0D%f,%f, 0.0", PREFIX, g_aStartAngles[client][0], g_aStartAngles[client][1]);
     PrintToChat(client, "%s [\x0F出手点\x01] \x0D%f,%f,%f", PREFIX, g_aThrowPositions[client][0], g_aThrowPositions[client][1], g_aThrowPositions[client][2]);
