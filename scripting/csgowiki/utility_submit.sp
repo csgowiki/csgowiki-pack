@@ -122,18 +122,42 @@ void TriggerWikiPost(client) {
 
 
     // request
+    char url[128] = "";
+    Format(url, sizeof(url), "https://api.mycsgolab.com/utility/utility/submit/?token=%s", token);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiPostResponseCallback, "https://api.beta.mycsgolab.com/utility/utility/submit/"
+        WikiPostResponseCallback, url
     );
     // remain path [TODO]
+    httpRequest.SetHeader("Content-Type", "application/json");
     httpRequest.SetData(
-        "token=%s&steam_id=%s&start_x=%f&start_y=%f&start_z=%f\
-        &end_x=%f&end_y=%f&end_z=%f&aim_pitch=%f&aim_yaw=%f\
-        &is_run=%d&is_walk=%d&is_jump=%d&is_duck=%d&is_left=%d&is_right=%d\
-        &map_belong=%s&tickrate=%s&utility_type=%s\
-        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f\
-        &velocity_x=%f&velocity_y=%f&velocity_z=%f",
-        token, steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
+        "{\
+            \"steam_id\": \"%s\",\
+            \"start_x\": %f,\
+            \"start_y\": %f,\
+            \"start_z\": %f,\
+            \"end_x\": %f,\
+            \"end_y\": %f,\
+            \"end_z\": %f,\
+            \"aim_pitch\": %f,\
+            \"aim_yaw\": %f,\
+            \"is_run\": %b,\
+            \"is_walk\": %b,\
+            \"is_jump\": %b,\
+            \"is_duck\": %b,\
+            \"is_left\": %b,\
+            \"is_right\": %b,\
+            \"map_belong\": \"%s\",\
+            \"tickrate\": \"%s\",\
+            \"utility_type\": \"%s\",\
+            \"throw_x\": %f,\
+            \"throw_y\": %f,\
+            \"throw_z\": %f,\
+            \"air_time\": %f,\
+            \"velocity_x\": %f,\
+            \"velocity_y\": %f,\
+            \"velocity_z\": %f\
+        }",
+        steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
         g_aStartAngles[client][0], g_aStartAngles[client][1],
@@ -156,6 +180,7 @@ public WikiPostResponseCallback(bool success, const char[] error, System2HTTPReq
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
         JSON_Object json_obj = json_decode(content);
+        PrintToChat(client, "%s", content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             char[] utId = new char[LENGTH_UTILITY_ID];

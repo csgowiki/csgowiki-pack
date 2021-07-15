@@ -17,7 +17,7 @@
 //         GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
 //         System2HTTPRequest httpRequest = new System2HTTPRequest(
 //             SteamBindResponseCallback,
-//             "https://api.beta.mycsgolab.com/user/steambind/"
+//             "https://api.mycsgolab.com/user/steambind/"
 //         )
 //         httpRequest.SetData("steamid=%s&token=%s", steamid, token);
 //         httpRequest.Any = client;
@@ -56,6 +56,9 @@
 // }
 
 public Action:QuerySteamTimerCallback(Handle:timer, client) {
+    if (GetConVarFloat(g_hWikiAutoKicker) == 0.0) {
+        return; // 非公用服务器
+    }
     char steamid[LENGTH_STEAMID64];
     char token[LENGTH_TOKEN] = "";
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
@@ -63,7 +66,7 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     // GET
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         QuerySteamResponseCallback, 
-        "https://api.beta.mycsgolab.com/user/steambind/?steamid=%s&token=%s",
+        "https://api.mycsgolab.com/user/steambind?steamid=%s&token=%s",
         steamid, token
     );
     httpRequest.Any = client;
@@ -73,9 +76,6 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
 
 public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
     int client = request.Any;
-    if (GetConVarFloat(g_hWikiAutoKicker) == 0.0) {
-        return; // 非公用服务器
-    }
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];

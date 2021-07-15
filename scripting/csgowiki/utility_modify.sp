@@ -74,17 +74,42 @@ void TriggerWikiModify(client) {
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
     // request
+    char url[128] = "";
+    Format(url, sizeof(url), "https://api.mycsgolab.com/utility/utility/modify/?token=%s", token);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiModifyResponseCallback, "https://api.mycsgolab.com/utility/utility/modify/"
+        WikiModifyResponseCallback, url
     );
+    httpRequest.SetHeader("Content-Type", "application/json");
     httpRequest.SetData(
-        "user_token=%s&token=%s&utility_id=%s&start_x=%f&start_y=%f&start_z=%f\
-        &end_x=%f&end_y=%f&end_z=%f&aim_pitch=%f&aim_yaw=%f\
-        &is_run=%d&is_walk=%d&is_jump=%d&is_duck=%d&is_left=%d&is_right=%d\
-        &map_belong=%s&tickrate=%s&utility_type=%s\
-        &throw_x=%f&throw_y=%f&throw_z=%f&air_time=%f\
-        &velocity_x=%f&velocity_y=%f&velocity_z=%f",
-        g_aPlayerToken[client], token, g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
+        "{\
+            \"user_token\": \"%s\",\
+            \"utility_id\": \"%s\",\
+            \"start_x\": %f,\
+            \"start_y\": %f,\
+            \"start_z\": %f,\
+            \"end_x\": %f,\
+            \"end_y\": %f,\
+            \"end_z\": %f,\
+            \"aim_pitch\": %f,\
+            \"aim_yaw\": %f,\
+            \"is_run\": %b,\
+            \"is_walk\": %b,\
+            \"is_jump\": %b,\
+            \"is_duck\": %b,\
+            \"is_left\": %b,\
+            \"is_right\": %b,\
+            \"map_belong\": \"%s\",\
+            \"tickrate\": \"%s\",\
+            \"utility_type\": \"%s\",\
+            \"throw_x\": %f,\
+            \"throw_y\": %f,\
+            \"throw_z\": %f,\
+            \"air_time\": %f,\
+            \"velocity_x\": %f,\
+            \"velocity_y\": %f,\
+            \"velocity_z\": %f\
+        }",
+        g_aPlayerToken[client], g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
         g_aStartAngles[client][0], g_aStartAngles[client][1],
@@ -93,7 +118,7 @@ void TriggerWikiModify(client) {
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
         g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
         g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2]
-    );
+    )
     httpRequest.Any = client;
     httpRequest.POST();
 
