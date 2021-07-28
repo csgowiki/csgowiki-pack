@@ -6,7 +6,7 @@
 #include <json>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
-#pragma dynamic 231072
+#pragma dynamic 131072
 
 #define LENGTH_VERSION 20
 #define LENGTH_TOKEN 40
@@ -14,7 +14,7 @@
 #define LENGTH_STATUS 16
 #define LENGTH_NAME 33
 #define LENGTH_IP 27
-#define LENGTH_SERVER_MONITOR 5048
+#define LENGTH_SERVER_MONITOR 2048
 #define LENGTH_MAPNAME 12
 #define LENGTH_UTILITY_FULL 13
 #define LENGTH_UTILITY_TINY 8

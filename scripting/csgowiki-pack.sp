@@ -159,6 +159,12 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
     if (!IsPlayer(client)) {
         return Plugin_Continue;
     }
+    
+    if (GetConVarFloat(g_hWikiAutoKicker) != 0.0) {
+        if (g_aPlayerStateBind[client] == e_bUnbind) {
+            return Plugin_Continue; // 非公用服务器
+        }
+    }
     if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
         if (strlen(sArgs) <= 0 || sArgs[0] == '!' || sArgs[0] == '.' || sArgs[0] == '/') {
             return Plugin_Continue;
