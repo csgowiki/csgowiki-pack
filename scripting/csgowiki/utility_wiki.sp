@@ -22,6 +22,10 @@ public Action:Command_Wiki(client, args) {
     }
 }
 
+public Action:Command_Refresh(client, args) {
+    GetAllCollection(client);
+}
+
 void GetAllCollection(client=-1) {
     if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
@@ -33,9 +37,7 @@ void GetAllCollection(client=-1) {
         token, g_sCurrentMap, g_iServerTickrate
     );
     AllCollectionRequest.Any = client;
-    if (g_jaUtilityCollection == INVALID_HANDLE || g_jaUtilityCollection.Length < 10) {
-        AllCollectionRequest.GET();
-    }
+    AllCollectionRequest.GET();
     delete AllCollectionRequest;
 
     // pro

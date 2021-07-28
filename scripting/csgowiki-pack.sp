@@ -41,6 +41,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_option", Command_Option);
     RegConsoleCmd("sm_wikipro", Command_WikiPro);
 
+    RegConsoleCmd("sm_refresh", Command_Refresh);
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
