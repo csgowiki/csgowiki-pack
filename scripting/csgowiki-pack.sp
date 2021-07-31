@@ -45,6 +45,7 @@ public OnPluginStart() {
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
+    RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS); 
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -63,8 +64,6 @@ public OnPluginStart() {
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
     g_hChannelSvHost = FindOrCreateConvar("sm_qqchat_sv_host", "", "Set host of the current server. `net_public_adr` will be used if this convar set empty");
-
-    TcpCreate();
 
     HookOpConVarChange();
 
@@ -97,6 +96,8 @@ public OnMapStart() {
         CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 
+    TcpCreate();
+    
     PluginVersionCheck();
 }
 

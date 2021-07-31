@@ -88,13 +88,11 @@ public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const 
 }
 
 public ConVar_ChannelQQgroupChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("qq group change");
-    TcpCreate();
+    PrintToServer("qq group change, new: %s", newValue);
 }
 
 public ConVar_ChannelRemarkChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("server remark change");
-    TcpCreate();
+    PrintToServer("server remark change, new: %s", newValue);
 }
 
 void GetServerHost(char []str, int size) {

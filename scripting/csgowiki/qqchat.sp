@@ -17,6 +17,11 @@ public Action:Command_QQchat(client, args) {
     MessageToQQ(client, name, words);
 }
 
+public Action:Command_InitQQ(client, args) {
+    PrintToServer("initing message channel...");
+    TcpCreate();
+}
+
 void MessageToQQ(int client, char[] name, char[] words, int msg_type=0) {
     if (strlen(words) == 0) {
         if (IsPlayer(client)) {
@@ -71,12 +76,24 @@ public MessageToQQCallback(bool success, const char[] error, System2HTTPRequest 
 }
 
 void TcpCreate() {
+    g_hChannelEnable = FindConVar("sm_qqchat_enable");
+    if (!GetConVarBool(g_hChannelEnable)) {
+        return;
+    }
+    g_hCSGOWikiToken = FindConVar("sm_csgowiki_token");
+    g_hChannelQQgroup = FindConVar("sm_qqchat_qqgroup");
+    g_hChannelServerRemark = FindConVar("sm_qqchat_remark");
+    g_hChannelSvPort = FindConVar("sm_qqchat_sv_port");
+    g_hChannelSvHost = FindConVar("sm_qqchat_sv_host");
     char remark[LENGTH_NAME];
     char qqgroup[LENGTH_NAME];
     char svHost[LENGTH_IP];
     char token[LENGTH_TOKEN];
     int svPort = GetConVarInt(g_hChannelSvPort);
-    GetServerHost(svHost, LENGTH_IP);
+    GetConVarString(g_hChannelSvHost, svHost, sizeof(svHost));
+    if (strlen(svHost) == 0) {
+        GetServerHost(svHost, LENGTH_IP);
+    }
     GetConVarString(g_hChannelServerRemark, remark, sizeof(remark));
     GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
     GetConVarString(g_hCSGOWikiToken, token, sizeof(token));
@@ -108,6 +125,7 @@ public TcpCreateCallback(bool success, const char[] error, System2HTTPRequest re
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChatAll("%s \x02消息通道建立失败", PREFIX);
+            PrintToServer("%s \x02消息通道建立失败", PREFIX);
         }
         else if (StrEqual(status, "ok")){
             PrintToServer("%s \x06消息通道建立成功", PREFIX);
