@@ -33,7 +33,8 @@ void GetAllCollection(client=-1) {
 
     System2HTTPRequest AllCollectionRequest = new System2HTTPRequest(
         AllCollectionResponseCallback, 
-        "https://api.mycsgolab.com/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
+        // "https://api.mycsgolab.com/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
+        "http://ci.csgowiki.top:2333/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
         token, g_sCurrentMap, g_iServerTickrate
     );
     AllCollectionRequest.Any = client;
@@ -61,6 +62,7 @@ void GetFilterCollection(client, char[] method) {
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
         "https://api.mycsgolab.com/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        // "http://ci.csgowiki.top:2333/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
@@ -87,7 +89,8 @@ void GetUtilityDetail(client, char[] utId) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
-        "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
+        // "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
+        "http://ci.csgowiki.top:2333/utility/utility/detail/?token=%s&utility_id=%s",
         token, utId
     );
     httpRequest.Any = client;
