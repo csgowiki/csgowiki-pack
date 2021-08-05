@@ -64,6 +64,7 @@ public OnPluginStart() {
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
     g_hChannelSvHost = FindOrCreateConvar("sm_qqchat_sv_host", "", "Set host of the current server. `net_public_adr` will be used if this convar set empty");
+    g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "https://api.mycsgolab.com", "Default api host is in HongKong. Set `http://ci.csgowiki.top:2333` to make response faster.")
 
     HookOpConVarChange();
 

@@ -30,12 +30,15 @@ void GetAllCollection(client=-1) {
     if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+    
+    char apiHost[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
 
     System2HTTPRequest AllCollectionRequest = new System2HTTPRequest(
         AllCollectionResponseCallback, 
         // "https://api.mycsgolab.com/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
-        "http://ci.csgowiki.top:2333/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
-        token, g_sCurrentMap, g_iServerTickrate
+        "%s/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
+        apiHost, token, g_sCurrentMap, g_iServerTickrate
     );
     AllCollectionRequest.Any = client;
     AllCollectionRequest.GET();
@@ -86,12 +89,14 @@ void GetUtilityDetail(client, char[] utId) {
 
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+    char apiHost[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
         // "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
-        "http://ci.csgowiki.top:2333/utility/utility/detail/?token=%s&utility_id=%s",
-        token, utId
+        "%s/utility/utility/detail/?token=%s&utility_id=%s",
+        apiHost, token, utId
     );
     httpRequest.Any = client;
     httpRequest.GET();

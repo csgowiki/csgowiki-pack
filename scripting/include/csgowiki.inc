@@ -41,6 +41,8 @@ Handle g_hChannelSvPort = INVALID_HANDLE;
 Handle g_hChannelSvHost = INVALID_HANDLE;
 // wiki token
 Handle g_hCSGOWikiToken;
+// api host
+Handle g_hApiHost = INVALID_HANDLE;
 
 // 地图 tick信息
 char g_sCurrentMap[LENGTH_MAPNAME];
