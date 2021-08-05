@@ -22,13 +22,19 @@ int GetServerTickrate() {
 }
 
 // convar handle function
-Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription, float fMin=-1.0, float fMax=-1.0) {
+Handle FindOrCreateConvar(char[] cvName, char[] cvDefault, char[] cvDescription, float fMin=-1.0, float fMax=-1.0, bool flag=false) {
     Handle cvHandle = FindConVar(cvName);
     if (cvHandle == INVALID_HANDLE) {
         if (fMin == -1.0 && fMax == -1.0)
-            cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
+            if (flag)
+                cvHandle = CreateConVar(cvName, cvDefault, cvDescription, FCVAR_PROTECTED);
+            else
+                cvHandle = CreateConVar(cvName, cvDefault, cvDescription);
         else if (fMin != -1.0 && fMax != -1.0)
-            cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
+            if (flag)
+                cvHandle = CreateConVar(cvName, cvDefault, cvDescription, FCVAR_PROTECTED, true, fMin, true, fMax);
+            else
+                cvHandle = CreateConVar(cvName, cvDefault, cvDescription, _, true, fMin, true, fMax);
         else return INVALID_HANDLE;
     }
     return cvHandle;
@@ -82,13 +88,11 @@ public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const 
 }
 
 public ConVar_ChannelQQgroupChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("qq group change");
-    TcpCreate();
+    PrintToServer("qq group change, new: %s", newValue);
 }
 
 public ConVar_ChannelRemarkChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("server remark change");
-    TcpCreate();
+    PrintToServer("server remark change, new: %s", newValue);
 }
 
 void GetServerHost(char []str, int size) {

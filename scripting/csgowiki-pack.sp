@@ -45,6 +45,7 @@ public OnPluginStart() {
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
+    RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS); 
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -56,15 +57,13 @@ public OnPluginStart() {
     g_hCSGOWikiEnable = FindOrCreateConvar("sm_csgowiki_enable", "0", "Set wether enable csgowiki plugins or not. Set 0 will disable all modules belong to CSGOWiki.");
     g_hOnUtilitySubmit = FindOrCreateConvar("sm_utility_submit_on", "1", "Set module: <utility_submit> on/off.");
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
-    g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid");
+    g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid", -1.0, -1.0, true);
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
     g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
     g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
     g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
     g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
     g_hChannelSvHost = FindOrCreateConvar("sm_qqchat_sv_host", "", "Set host of the current server. `net_public_adr` will be used if this convar set empty");
-
-    TcpCreate();
 
     HookOpConVarChange();
 
@@ -97,6 +96,8 @@ public OnMapStart() {
         CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 
+    TcpCreate();
+    
     PluginVersionCheck();
 }
 
