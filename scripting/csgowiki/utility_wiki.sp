@@ -91,12 +91,16 @@ void GetUtilityDetail(client, char[] utId) {
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    char steamid[LENGTH_STEAMID64];
+    GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
+    char name[LENGTH_NAME];
+    GetClientName(client, name, sizeof(name));
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
         // "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
-        "%s/utility/utility/detail/?token=%s&utility_id=%s",
-        apiHost, token, utId
+        "%s/utility/utility/detail/?token=%s&utility_id=%s&force=%b&_map=%s&steamid=%s&player_name=%s",
+        apiHost, token, utId, false, g_sCurrentMap, steamid, name
     );
     httpRequest.Any = client;
     httpRequest.GET();
