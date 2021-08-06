@@ -166,7 +166,8 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
     if (GetConVarFloat(g_hWikiAutoKicker) != 0.0) {
         if (g_aPlayerStateBind[client] == e_bUnbind) {
             PrintToChat(client, "%s \x02请前往CSGOLab.com绑定steam账号，有疑问请加群：762993431", PREFIX);
-            return Plugin_Handled; // 非公用服务器
+            PrintCenterText(client, "\x02请前往<font color='#0CED26'>mycsgolab.com<font color='#ffffff'>绑定Steam账号，从而获得更多权限，有疑问加群：762993431");
+            return Plugin_Handled;
         }
     }
     if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
