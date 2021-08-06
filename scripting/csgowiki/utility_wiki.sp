@@ -91,10 +91,10 @@ void GetUtilityDetail(client, char[] utId) {
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    char steamid[LENGTH_STEAMID64];
-    GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
-    char name[LENGTH_NAME];
-    GetClientName(client, name, sizeof(name));
+    char steamid_[LENGTH_STEAMID64];
+    GetClientAuthId(client, AuthId_SteamID64, steamid_, LENGTH_STEAMID64);
+    char player_name[LENGTH_NAME];
+    GetClientName(client, player_name, sizeof(player_name));
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
@@ -106,6 +106,23 @@ void GetUtilityDetail(client, char[] utId) {
     httpRequest.Any = client;
     httpRequest.GET();
     delete httpRequest;
+
+    System2HTTPRequest postRequest = new System2HTTPRequest(
+        WikiPlayerTriggerResponseCallback,
+        "http://ci.csgowiki.top:2333/trigger/wiki-player/"
+    );
+
+    postRequest.SetHeader("Content-Type", "application/json");
+    postRequest.SetData(
+        "{\
+        \"map_name\": \"%s\",\
+        \"steamid\": \"%s\",\
+        \"player_name\": \"%s\"\
+        }",
+        g_sCurrentMap, steamid_, player_name
+    );
+    postRequest.POST();
+    delete postRequest;
 }
 
 void ResetSingleClientWikiState(client) {
@@ -205,6 +222,13 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
     }
     else {
         PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
+    }
+}
+
+
+public WikiPlayerTriggerResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
+    if (!success) {
+        PrintToServer("wiki-player trigger error: %s", error);
     }
 }
 
