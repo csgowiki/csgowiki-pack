@@ -99,8 +99,9 @@ void GetUtilityDetail(client, char[] utId) {
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         UtilityDetailResponseCallback, 
         // "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
-        "%s/utility/utility/detail/?token=%s&utility_id=%s&force=%b&_map=%s&steamid=%s&player_name=%s",
-        apiHost, token, utId, false, g_sCurrentMap, steamid, name
+        // "%s/utility/utility/detail/?token=%s&utility_id=%s&force=%b&_map=%s&steamid=%s&player_name=%s",
+        "%s/utility/utility/detail/?token=%s&utility_id=%s",
+        apiHost, token, utId
     );
     httpRequest.Any = client;
     httpRequest.GET();
