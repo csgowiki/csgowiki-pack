@@ -90,14 +90,25 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
             g_aPlayerStateBind[client] = e_bBinded;
         }
         else {
-            PrintToChat(client, "%s \x02您还没有在mycsgolab绑定steam账号~", PREFIX);
-            g_aPlayerStateBind[client] = e_bUnbind;
-            // set kicker
-            float kicker_timer = GetConVarFloat(g_hWikiAutoKicker);
-            if (kicker_timer > 0.0) {
-                CreateTimer(kicker_timer * 60, AutoKickerCallback, client);
-                PrintToChat(client, "%s \x0f由于你未绑定mycsgolab账号，根据设置，将在\x04%.2f\x0f分钟内将您踢出服务器", PREFIX, kicker_timer);
-                PrintToChat(client, "%s \x05绑定账号请前往\x09mycsgolab", PREFIX);
+            char message[LENGTH_MESSAGE];
+            json_obj.GetString("message", message, sizeof(message));
+            if (StrEqual(message, "banned")) {
+                char name[LENGTH_NAME];
+                GetClientName(client, name, sizeof(name));
+                PrintToChatAll("%s 玩家[\x02%s\x01] 被CSGOWiki封禁，已被踢出服务器", PREFIX, name);
+                KickClient(client, "你已被CSGOWiki封禁，如有疑问请加群：762993431申诉");
+            }
+            else {
+                PrintToChat(client, "%s \x02您还没有在mycsgolab绑定steam账号~", PREFIX);
+                g_aPlayerStateBind[client] = e_bUnbind;
+                // set kicker
+                float kicker_timer = GetConVarFloat(g_hWikiAutoKicker);
+                if (kicker_timer > 0.0) {
+                    CreateTimer(kicker_timer * 60, AutoKickerCallback, client);
+                    PrintToChat(client, "%s \x0f由于你未绑定mycsgolab账号，根据设置，将在\x04%.2f\x0f分钟内将您踢出服务器", PREFIX, kicker_timer);
+                    PrintToChat(client, "%s 请前往\x04mycsgolab.com\x01绑定账号，以获得服务器内所有权限~");
+                    PrintToChat(client, "%s \x05绑定账号请前往\x09mycsgolab", PREFIX);
+                }
             }
         }
         json_cleanup_and_delete(json_obj);
