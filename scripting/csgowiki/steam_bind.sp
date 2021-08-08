@@ -106,7 +106,7 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
                 if (kicker_timer > 0.0) {
                     CreateTimer(kicker_timer * 60, AutoKickerCallback, client);
                     PrintToChat(client, "%s \x0f由于你未绑定mycsgolab账号，根据设置，将在\x04%.2f\x0f分钟内将您踢出服务器", PREFIX, kicker_timer);
-                    PrintToChat(client, "%s 请前往\x04mycsgolab.com\x01绑定账号，以获得服务器内所有权限~");
+                    PrintToChat(client, "%s 请前往\x04mycsgolab.com\x01绑定账号，以获得服务器内所有权限~", PREFIX);
                     PrintToChat(client, "%s \x05绑定账号请前往\x09mycsgolab", PREFIX);
                 }
             }
