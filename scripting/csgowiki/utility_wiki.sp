@@ -64,7 +64,7 @@ void GetFilterCollection(client, char[] method) {
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
-        "https://api.mycsgolab.com/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        "https://apiproxy.mycsgolab.com:5555/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         // "http://ci.csgowiki.top:2333/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );

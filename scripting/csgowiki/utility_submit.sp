@@ -123,7 +123,7 @@ void TriggerWikiPost(client) {
 
     // request
     char url[128] = "";
-    Format(url, sizeof(url), "https://api.mycsgolab.com/utility/utility/submit/?token=%s", token);
+    Format(url, sizeof(url), "https://apiproxy.mycsgolab.com:5555/utility/utility/submit/?token=%s", token);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         WikiPostResponseCallback, url
     );

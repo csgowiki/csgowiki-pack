@@ -66,7 +66,7 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     // GET
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         QuerySteamResponseCallback, 
-        "https://api.mycsgolab.com/user/steambind?steamid=%s&token=%s",
+        "https://apiproxy.mycsgolab.com:5555/user/steambind?steamid=%s&token=%s",
         steamid, token
     );
     httpRequest.Any = client;
