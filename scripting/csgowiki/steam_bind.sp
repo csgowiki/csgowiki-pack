@@ -64,10 +64,12 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     // GET
+    char apiHost[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         QuerySteamResponseCallback, 
-        "https://apiproxy.mycsgolab.com:5555/user/steambind?steamid=%s&token=%s",
-        steamid, token
+        "%s/user/steambind?steamid=%s&token=%s",
+        apiHost, steamid, token
     );
     httpRequest.Any = client;
     httpRequest.GET();

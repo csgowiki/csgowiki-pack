@@ -62,11 +62,13 @@ void GetFilterCollection(client, char[] method) {
     GetClientAbsOrigin(client, playerPos);
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
 
+    char apiHost[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         FilterCollectionResponseCallback, 
-        "https://apiproxy.mycsgolab.com:5555/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
+        "%s/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
         // "http://ci.csgowiki.top:2333/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
-        token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
+        apiHost, token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
     );
     httpRequest.Any = client;
     httpRequest.GET();

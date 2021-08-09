@@ -75,7 +75,9 @@ void TriggerWikiModify(client) {
     TicktagGenerate(tickTag, wikiAction);
     // request
     char url[128] = "";
-    Format(url, sizeof(url), "https://apiproxy.mycsgolab.com:5555/utility/utility/modify/?token=%s", token);
+    char apiHost[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    Format(url, sizeof(url), "%s/utility/utility/modify/?token=%s", apiHost, token);
     System2HTTPRequest httpRequest = new System2HTTPRequest(
         WikiModifyResponseCallback, url
     );
