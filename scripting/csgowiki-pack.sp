@@ -16,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
     description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
-    version = "v1.4.2",
+    version = "v1.4.2-fix1",
     url = "https://docs.csgowiki.top/plugins"
 };
 
