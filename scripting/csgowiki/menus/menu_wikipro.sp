@@ -81,6 +81,10 @@ public ProRoundResponseCallback(bool success, const char[] error, System2HTTPReq
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         g_aProMatchDetail[client] = view_as<JSON_Array>(json_decode(content));
         CreateProDetailMenu(client, round_str);
     }

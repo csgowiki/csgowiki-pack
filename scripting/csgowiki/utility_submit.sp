@@ -181,6 +181,10 @@ public WikiPostResponseCallback(bool success, const char[] error, System2HTTPReq
         char[] status = new char[LENGTH_STATUS];
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object json_obj = json_decode(content);
         PrintToChat(client, "%s", content);
         json_obj.GetString("status", status, LENGTH_STATUS);

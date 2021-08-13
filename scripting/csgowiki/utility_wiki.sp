@@ -143,6 +143,10 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
@@ -167,6 +171,10 @@ public ProCollectionResponseCallback(bool success, const char[] error, System2HT
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         g_aProMatchInfo = view_as<JSON_Array>(json_decode(content));
     }
     else {
@@ -180,6 +188,10 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
@@ -208,6 +220,10 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {

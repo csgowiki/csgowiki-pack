@@ -340,6 +340,10 @@ public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPR
         }
         else {
             response.GetContent(content, response.ContentLength + 1);
+            if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+                PrintToServer("%s Version check \x02服务器异常：%s", PREFIX, content);
+                return;
+            }
             JSON_Object resp_json = json_decode(content);
             resp_json.GetString("tag_name", g_sLatestVersion, sizeof(g_sLatestVersion));
             resp_json.GetString("name", g_sLatestInfo, sizeof(g_sLatestInfo));

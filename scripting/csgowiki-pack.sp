@@ -96,9 +96,10 @@ public OnMapStart() {
     if (GetConVarBool(g_hChannelEnable)) {
         CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
+}
 
+public OnConfigsExecuted() {
     TcpCreate();
-    
     PluginVersionCheck();
 }
 
