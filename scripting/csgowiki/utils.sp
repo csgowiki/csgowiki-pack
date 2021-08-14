@@ -359,6 +359,18 @@ public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPR
     }
 }
 
+public bool EnforceDirExists(const char[] smPath) {
+    char dir[PLATFORM_MAX_PATH + 1];
+    BuildPath(Path_SM, dir, sizeof(dir), smPath);
+    if (!DirExists(dir)) {
+        if (!CreateDirectory(dir, 511)) {
+            LogError("Failed to create dir: %s", dir);
+            return false;
+        }
+    }
+    return true;
+}
+
 void ClearPlayerProMatchInfo(client) {
     if (IsPlayer(client)) {
         g_aProMatchIndex[client] = -1;

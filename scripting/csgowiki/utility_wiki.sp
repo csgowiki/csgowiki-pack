@@ -128,6 +128,17 @@ void GetUtilityDetail(client, char[] utId) {
 }
 
 void ResetSingleClientWikiState(client) {
+    if (strlen(g_aLastUtilityId[client]) == 0) return;
+    bool candelete = true;
+    for (int i = 0; i <= MaxClients; i++) {
+        if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+            candelete = false;
+            break;
+        }
+    }
+    if (candelete) {
+        DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+    }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, "");
 }
 
@@ -279,6 +290,17 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     throwPos[2] = detail_json.GetFloat("throw_z");
 
     // set last ut record
+    // clear pre-recfile
+    bool candelete = true;
+    for (int i = 0; i <= MaxClients; i++) {
+        if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+            candelete = false;
+            break;
+        }
+    }
+    if (candelete) {
+        DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+    }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
     // decode ut name
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
@@ -292,14 +314,15 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     FakeClientCommand(client, utWeaponCmd);
     // auto throw
     if (g_bAutoThrow[client]) {
-        if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
-            PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
-        }
-        else {
-            GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
-            CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
-            PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
-        }
+        StartRequestReplayFile(client, utId);
+        // if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
+        //     PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
+        // }
+        // else {
+        //     GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
+        //     CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
+        //     PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
+        // }
     }
 
     // printout
