@@ -6,6 +6,10 @@ public Action:Command_Submit(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         return;
     }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     PrintToChat(client, "%s \x06道具上传功能开启", PREFIX);
     PrintToChat(client, "%s 你接下来的道具投掷记录将会被自动上传至\x09mycsgolab", PREFIX);
     PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
@@ -18,6 +22,9 @@ public Action:Command_SubmitAbort(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         g_aPlayerStatus[client] = e_cDefault
         PrintToChat(client, "%s 已终止上传流程", PREFIX);
+    }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        BotMimic_StopPlayerMimic(client);
     }
 }
 

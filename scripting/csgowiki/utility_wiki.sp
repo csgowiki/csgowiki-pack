@@ -6,6 +6,10 @@ public Action:Command_Wiki(client, args) {
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (args >= 1) {
         char utId[LENGTH_TOKEN];
         GetCmdArgString(utId, LENGTH_TOKEN);
@@ -78,6 +82,10 @@ void GetFilterCollection(client, char[] method) {
 void GetUtilityDetail(client, char[] utId) {
     // lock
     float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (g_aReqLock[client]) {
         PrintToChat(client, "%s \x07请求过快！\x01冷却时间：\x09%.2f\x01秒", PREFIX, fWikiLimit);
         return;

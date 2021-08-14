@@ -3,6 +3,10 @@ public Action:Command_WikiPro(client, args) {
         return;
     }
 
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (g_aProMatchIndex[client] == -1) { // not set
         PrintToChat(client, "%s \x05请先选择职业比赛场次，已自动跳转选择菜单，如未跳转，请输入\x02!option\x05选择。", PREFIX);
         GetAllProMatchStat(client);
@@ -54,6 +58,10 @@ public ProMatchRoundMenuCallback(Handle:menuhandle, MenuAction:action, client, P
 
 void ShowProListInRound(client, char round_str[4]) {
     if (g_aProMatchIndex[client] == -1) {
+        return;
+    }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
     }
     char _matchId[LENGTH_NAME];

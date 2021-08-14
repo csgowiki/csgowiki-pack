@@ -30,7 +30,8 @@ public OnPluginStart() {
 
     // command define
     // RegConsoleCmd("sm_bsteam", Command_BindSteam);
-    RegConsoleCmd("sm_ttt", Command_Test);
+    RegAdminCmd("sm_srec", Command_Record, ADMFLAG_CHEATS);
+    RegAdminCmd("sm_frec", Command_StopRecord, ADMFLAG_CHEATS);
 
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
