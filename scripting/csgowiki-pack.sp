@@ -11,6 +11,7 @@
 #include "csgowiki/utility_modify.sp"
 #include "csgowiki/kicker.sp"
 #include "csgowiki/qqchat.sp"
+#include "csgowiki/replay.sp"
 
 public Plugin:myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
@@ -29,13 +30,15 @@ public OnPluginStart() {
 
     // command define
     // RegConsoleCmd("sm_bsteam", Command_BindSteam);
+    RegAdminCmd("sm_srec", Command_Record, ADMFLAG_CHEATS);
+    RegAdminCmd("sm_frec", Command_StopRecord, ADMFLAG_CHEATS);
+
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
     RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
     RegConsoleCmd("sm_m", Command_Panel);
-
 
     RegConsoleCmd("sm_qq", Command_QQchat);
     RegConsoleCmd("sm_option", Command_Option);
@@ -45,7 +48,7 @@ public OnPluginStart() {
 
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
-    RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS); 
+    RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS);
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -81,6 +84,14 @@ public OnPluginEnd() {
     CloseHandle(g_hSocket);
 }
 
+public void OnLibraryAdded(const char[] name) {
+    g_bBotMimicLoaded = LibraryExists("botmimic_csgowiki");
+}
+
+public void OnLibraryRemoved(const char[] name) {
+    g_bBotMimicLoaded = LibraryExists("botmimic_csgowiki");
+}
+
 public OnMapStart() {
     g_iServerTickrate = GetServerTickrate();
     GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
@@ -97,8 +108,12 @@ public OnMapStart() {
         CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
     }
 
+    EnforceDirExists("data/csgowiki");
+    EnforceDirExists("data/csgowiki/replays");
+}
+
+public OnConfigsExecuted() {
     TcpCreate();
-    
     PluginVersionCheck();
 }
 
@@ -116,6 +131,7 @@ public OnClientPutInServer(client) {
 }
 
 public OnClientDisconnect(client) {
+    ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
     ResetReqLock(client);

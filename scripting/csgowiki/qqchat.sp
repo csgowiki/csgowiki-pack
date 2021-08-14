@@ -59,6 +59,10 @@ public MessageToQQCallback(bool success, const char[] error, System2HTTPRequest 
         char[] status = new char[LENGTH_STATUS];
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object json_obj = json_decode(content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
@@ -121,6 +125,10 @@ public TcpCreateCallback(bool success, const char[] error, System2HTTPRequest re
         char[] status = new char[LENGTH_STATUS];
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object json_obj = json_decode(content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
@@ -162,6 +170,10 @@ public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest req
         char[] status = new char[LENGTH_STATUS];
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object json_obj = json_decode(content);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
@@ -196,6 +208,10 @@ public Action OnSocketError(Handle socket, const int errorType, const int errorN
 
 public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int dataSize, any hFile) {
 	// send (echo) the received data back
+    if (dataSize <= 1 || receiveData[0] != '{') {
+        PrintToServer("[Socket] receive error: %s", receiveData);
+        return;
+    }
     JSON_Object json_obj = json_decode(receiveData);
     char sender[LENGTH_NAME];
     char message[LENGTH_MESSAGE];

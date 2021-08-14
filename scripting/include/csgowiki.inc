@@ -4,6 +4,7 @@
 #include <cstrike>
 #include <system2>
 #include <json>
+#include <botmimic_csgowiki>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
 #pragma dynamic 131072
@@ -122,3 +123,5 @@ char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
 // ------------- option.sp define ------------------
 bool g_bAutoThrow[MAXPLAYERS + 1];
 bool g_bQQTrigger[MAXPLAYERS + 1]; // 0=>!qq  1=>raw
+
+bool g_bBotMimicLoaded = false;

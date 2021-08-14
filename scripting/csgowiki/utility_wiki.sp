@@ -6,6 +6,10 @@ public Action:Command_Wiki(client, args) {
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (args >= 1) {
         char utId[LENGTH_TOKEN];
         GetCmdArgString(utId, LENGTH_TOKEN);
@@ -78,6 +82,10 @@ void GetFilterCollection(client, char[] method) {
 void GetUtilityDetail(client, char[] utId) {
     // lock
     float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (g_aReqLock[client]) {
         PrintToChat(client, "%s \x07请求过快！\x01冷却时间：\x09%.2f\x01秒", PREFIX, fWikiLimit);
         return;
@@ -127,13 +135,29 @@ void GetUtilityDetail(client, char[] utId) {
     delete postRequest;
 }
 
-void ResetSingleClientWikiState(client) {
+void ResetSingleClientWikiState(client, bool force_del=false) {
+    if (strlen(g_aLastUtilityId[client]) == 0) return;
+    if (force_del) {
+        DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+    }
+    else {
+        bool candelete = true;
+        for (int i = 0; i <= MaxClients; i++) {
+            if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+                candelete = false;
+                break;
+            }
+        }
+        if (candelete) {
+            DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+        }
+    }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, "");
 }
 
 void ResetUtilityWikiState() {
     for (new client = 0; client <= MAXPLAYERS; client++) {
-        ResetSingleClientWikiState(client);
+        ResetSingleClientWikiState(client, true);
     }
 }
 
@@ -143,6 +167,10 @@ public AllCollectionResponseCallback(bool success, const char[] error, System2HT
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || content[0] != '{') {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
@@ -167,6 +195,10 @@ public ProCollectionResponseCallback(bool success, const char[] error, System2HT
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         g_aProMatchInfo = view_as<JSON_Array>(json_decode(content));
     }
     else {
@@ -180,6 +212,10 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
@@ -208,6 +244,10 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[LENGTH_STATUS];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         JSON_Object resp_json = json_decode(content);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
@@ -263,6 +303,17 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     throwPos[2] = detail_json.GetFloat("throw_z");
 
     // set last ut record
+    // clear pre-recfile
+    bool candelete = true;
+    for (int i = 0; i <= MaxClients; i++) {
+        if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+            candelete = false;
+            break;
+        }
+    }
+    if (candelete) {
+        DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+    }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
     // decode ut name
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
@@ -276,14 +327,15 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     FakeClientCommand(client, utWeaponCmd);
     // auto throw
     if (g_bAutoThrow[client]) {
-        if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
-            PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
-        }
-        else {
-            GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
-            CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
-            PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
-        }
+        StartRequestReplayFile(client, utId);
+        // if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
+        //     PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
+        // }
+        // else {
+        //     GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
+        //     CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
+        //     PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
+        // }
     }
 
     // printout

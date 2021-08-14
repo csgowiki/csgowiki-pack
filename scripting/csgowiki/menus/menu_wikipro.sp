@@ -3,6 +3,10 @@ public Action:Command_WikiPro(client, args) {
         return;
     }
 
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     if (g_aProMatchIndex[client] == -1) { // not set
         PrintToChat(client, "%s \x05请先选择职业比赛场次，已自动跳转选择菜单，如未跳转，请输入\x02!option\x05选择。", PREFIX);
         GetAllProMatchStat(client);
@@ -56,6 +60,10 @@ void ShowProListInRound(client, char round_str[4]) {
     if (g_aProMatchIndex[client] == -1) {
         return;
     }
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02正在播放录像", PREFIX);
+        return;
+    }
     char _matchId[LENGTH_NAME];
     JSON_Object arrval = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
     arrval.GetString("matchId", _matchId, sizeof(_matchId));
@@ -81,6 +89,10 @@ public ProRoundResponseCallback(bool success, const char[] error, System2HTTPReq
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
+        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
+            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
+            return;
+        }
         g_aProMatchDetail[client] = view_as<JSON_Array>(json_decode(content));
         CreateProDetailMenu(client, round_str);
     }
