@@ -127,24 +127,29 @@ void GetUtilityDetail(client, char[] utId) {
     delete postRequest;
 }
 
-void ResetSingleClientWikiState(client) {
+void ResetSingleClientWikiState(client, bool force_del=false) {
     if (strlen(g_aLastUtilityId[client]) == 0) return;
-    bool candelete = true;
-    for (int i = 0; i <= MaxClients; i++) {
-        if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
-            candelete = false;
-            break;
-        }
-    }
-    if (candelete) {
+    if (force_del) {
         DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+    }
+    else {
+        bool candelete = true;
+        for (int i = 0; i <= MaxClients; i++) {
+            if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+                candelete = false;
+                break;
+            }
+        }
+        if (candelete) {
+            DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+        }
     }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, "");
 }
 
 void ResetUtilityWikiState() {
     for (new client = 0; client <= MAXPLAYERS; client++) {
-        ResetSingleClientWikiState(client);
+        ResetSingleClientWikiState(client, true);
     }
 }
 
