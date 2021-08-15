@@ -304,17 +304,19 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
 
     // set last ut record
     // clear pre-recfile
-    bool candelete = true;
-    for (int i = 0; i <= MaxClients; i++) {
-        if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
-            candelete = false;
-            break;
+    if (!StrEqual(g_aLastUtilityId[client], utId)) {
+        bool candelete = true;
+        for (int i = 0; i <= MaxClients; i++) {
+            if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
+                candelete = false;
+                break;
+            }
         }
+        if (candelete) {
+            DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
+        }
+        strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
     }
-    if (candelete) {
-        DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
-    }
-    strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
     // decode ut name
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
     Utility_TinyName2Zh(utType, "%s", utNameZh);

@@ -53,7 +53,6 @@ void StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
     if (!IsPlayer(client)) return;
     char filepath[84];
     BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utility_id);
-    // Format(filepath, sizeof(filepath), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
     if (FileExists(filepath)) { // bug
         PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
         StartReplay(client, utility_id);
@@ -79,21 +78,14 @@ public BotMimicResponseCallback(bool success, const char[] error, System2HTTPReq
     int client = pack.ReadCell();
     if (success) {
         if (response.StatusCode == 200 && DirExists("addons/sourcemod/data/csgowiki/replays")) {
-            char url[84], filepath[84], utid[LENGTH_UTILITY_ID];
-            BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
-            if (FileExists(filepath)) {
-                PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
-                StartReplay(client, utid);
-                return;
-            }
+            char url[84], utid[LENGTH_UTILITY_ID];
             request.GetURL(url, sizeof(url));
             ReplaceString(url, sizeof(url), "query", "download");
             // strcopy(utid, sizeof(utid), url[strlen(url) - sizeof(utid) + 2]);
             pack.ReadString(utid, sizeof(utid));
-            // Format(url, sizeof(url), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
             System2HTTPRequest httpRequest = new System2HTTPRequest(BotMimicDownloadCallback, url);
-            BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
-            httpRequest.SetOutputFile(filepath);
+            Format(url, sizeof(url), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
+            httpRequest.SetOutputFile(url);
             httpRequest.Any = pack;
             httpRequest.GET();
             delete httpRequest;
