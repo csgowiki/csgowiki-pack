@@ -92,6 +92,6 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
 }
 
 void ResetDefaultOption(client) {
-    g_bAutoThrow[client] = false;
+    g_bAutoThrow[client] = true;
     g_bQQTrigger[client] = false;
 }
