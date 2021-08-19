@@ -8,7 +8,7 @@
 #include <base64>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
-#pragma dynamic 131072
+#pragma dynamic 1310720
 
 #define LENGTH_VERSION 20
 #define LENGTH_TOKEN 40
@@ -56,7 +56,7 @@ char g_sLatestVersion[LENGTH_VERSION];
 char g_sLatestInfo[LENGTH_MESSAGE];
 
 // 道具路径
-const int g_iUtilityPathInterval = 30; // 间隔Frame采样
+const int g_iUtilityPathInterval = 2; // 间隔Frame采样
 int g_iPlayerUtilityPathFrameCount[MAXPLAYERS + 1];
 JSON_Array g_aPlayerUtilityPath[MAXPLAYERS + 1];
 
