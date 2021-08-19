@@ -340,6 +340,15 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
                 PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
             }
         }
+        else {
+            // cache utility init velocity & throw pos
+            g_aUtilityVelocity[client][0] = velocity[0];
+            g_aUtilityVelocity[client][1] = velocity[1];
+            g_aUtilityVelocity[client][2] = velocity[2];
+            g_aThrowPositions[client][0] = throwPos[0];
+            g_aThrowPositions[client][1] = throwPos[1];
+            g_aThrowPositions[client][2] = throwPos[2];
+        }
     }
 
     // printout

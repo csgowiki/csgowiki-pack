@@ -64,6 +64,11 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
 
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
+        if (BotMimic_IsPlayerMimicing(client)) {
+            SetEntPropVector(entity, Prop_Data, "m_vecVelocity", g_aUtilityVelocity[client]);
+            SetEntPropVector(entity, Prop_Data, "m_vecOrigin", g_aThrowPositions[client]);
+            return;
+        }
         if (g_aPlayerStatus[client] != e_cThrowReady && g_aPlayerStatus[client] != e_cM_ThrowReady && g_aPlayerStatus[client] != e_cV_ThrowReady)
             return;
         if (grenadeType == GrenadeType_None || grenadeType == GrenadeType_Decoy) 
@@ -150,18 +155,18 @@ void TriggerWikiPost(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
-    char str[202400];
-    char path[202400];
+    // char str[202400];
+    // char path[202400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
-    g_aPlayerUtilityPath[client].Encode(str, sizeof(str));
+    // g_aPlayerUtilityPath[client].Encode(str, sizeof(str));
 
-    EncodeBase64(path, sizeof(path), str);
-    PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
+    // EncodeBase64(path, sizeof(path), str);
+    // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
 
     // request
     char url[128] = "";
@@ -199,8 +204,7 @@ void TriggerWikiPost(client) {
             \"air_time\": %f,\
             \"velocity_x\": %f,\
             \"velocity_y\": %f,\
-            \"velocity_z\": %f,\
-            \"path\": \"%s\"\
+            \"velocity_z\": %f\
         }",
         steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
@@ -210,7 +214,7 @@ void TriggerWikiPost(client) {
         wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
         g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
-        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2], path
+        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2]
     );
     httpRequest.Any = client;
     httpRequest.POST();
