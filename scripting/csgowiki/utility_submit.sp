@@ -16,17 +16,24 @@ public Action:Command_Submit(client, args) {
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cThrowReady;
+    g_aPlayerUtilityPath[client] = new JSON_Array();
 }
 
 public Action:Command_SubmitAbort(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
-        g_aPlayerStatus[client] = e_cDefault
+        g_aPlayerStatus[client] = e_cDefault;
+        ResetSingleClientSubmitState(client);
         PrintToChat(client, "%s 已终止上传流程", PREFIX);
     }
     if (BotMimic_IsPlayerMimicing(client)) {
         BotMimic_StopPlayerMimic(client);
     }
 }
+
+// float float_reserve(float v) {
+//     // float power = Pow(10.0, float(e));
+//     return float(RoundFloat(v * 10.0)) / 10.0;
+// }
 
 void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
     // record action => encoded
@@ -38,6 +45,21 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
             }
         }
     }
+    if (e_cAlreadyThrown == g_aPlayerStatus[client] || e_cM_AlreadyThrown == g_aPlayerStatus[client]) {
+        if (g_iUtilityEntityId[client] != 0 && g_iPlayerUtilityPathFrameCount[client] % g_iUtilityPathInterval == 0) {
+            float position[3];
+            JSON_Array pos = new JSON_Array();
+            GetEntPropVector(g_iUtilityEntityId[client], Prop_Send, "m_vecOrigin", position);
+            // pos.PushFloat(float_reserve(position[0]));
+            // pos.PushFloat(float_reserve(position[1]));
+            // pos.PushFloat(float_reserve(position[2]));
+            pos.PushFloat(position[0]);
+            pos.PushFloat(position[1]);
+            pos.PushFloat(position[2]);
+            g_aPlayerUtilityPath[client].PushObject(pos);
+        }
+        g_iPlayerUtilityPathFrameCount[client] ++;
+    }
 }
 
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
@@ -46,6 +68,7 @@ public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
             return;
         if (grenadeType == GrenadeType_None || grenadeType == GrenadeType_Decoy) 
             return;
+        g_iUtilityEntityId[client] = entity;
         g_aThrowPositions[client] = origin;
         g_aUtilityVelocity[client] = velocity;
         g_aUtilityAirtime[client] = GetEngineTime();
@@ -81,6 +104,9 @@ void Event_MolotovDetonateForUtilitySubmit(Handle:event) {
 void ResetSingleClientSubmitState(client) {
     g_aPlayerStatus[client] = e_cDefault;
     g_aActionRecord[client] = 0;
+    g_iPlayerUtilityPathFrameCount[client] = 0;
+    g_iUtilityEntityId[client] = 0;
+    json_cleanup_and_delete(g_aPlayerUtilityPath[client]);
 }
 
 void ResetUtilitySubmitState() {
@@ -99,6 +125,7 @@ void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
         g_aEndspotPositions[client][0] = GetEventFloat(event, "x");
         g_aEndspotPositions[client][1] = GetEventFloat(event, "y");
         g_aEndspotPositions[client][2] = GetEventFloat(event, "z");
+
         if (e_cM_AlreadyThrown == g_aPlayerStatus[client]) {
             g_aPlayerStatus[client] = e_cM_ThrowEnd;
             TriggerWikiModify(client);
@@ -107,6 +134,9 @@ void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
             g_aPlayerStatus[client] = e_cThrowEnd;
             TriggerWikiPost(client);
         }
+        g_iPlayerUtilityPathFrameCount[client] = 0;
+        g_iUtilityEntityId[client] = 0;
+        json_cleanup_and_delete(g_aPlayerUtilityPath[client]);
     }
 }
 
@@ -120,13 +150,18 @@ void TriggerWikiPost(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
+    char str[202400];
+    char path[202400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
+    g_aPlayerUtilityPath[client].Encode(str, sizeof(str));
 
+    EncodeBase64(path, sizeof(path), str);
+    PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
 
     // request
     char url[128] = "";
@@ -164,7 +199,8 @@ void TriggerWikiPost(client) {
             \"air_time\": %f,\
             \"velocity_x\": %f,\
             \"velocity_y\": %f,\
-            \"velocity_z\": %f\
+            \"velocity_z\": %f,\
+            \"path\": \"%s\"\
         }",
         steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
@@ -174,7 +210,7 @@ void TriggerWikiPost(client) {
         wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
         g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
-        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2]
+        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2], path
     );
     httpRequest.Any = client;
     httpRequest.POST();

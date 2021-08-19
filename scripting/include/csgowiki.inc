@@ -5,9 +5,10 @@
 #include <system2>
 #include <json>
 #include <botmimic_csgowiki>
+#include <base64>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
-#pragma dynamic 131072
+#pragma dynamic 1310720
 
 #define LENGTH_VERSION 20
 #define LENGTH_TOKEN 40
@@ -53,6 +54,11 @@ int g_iServerTickrate;
 char g_sCurrentVersion[LENGTH_VERSION];
 char g_sLatestVersion[LENGTH_VERSION];
 char g_sLatestInfo[LENGTH_MESSAGE];
+
+// 道具路径
+const int g_iUtilityPathInterval = 3; // 间隔Frame采样
+int g_iPlayerUtilityPathFrameCount[MAXPLAYERS + 1];
+JSON_Array g_aPlayerUtilityPath[MAXPLAYERS + 1];
 
 // --------- steam_bind.sp define -----------
 enum StateBind {
@@ -100,6 +106,7 @@ float g_aStartAngles[MAXPLAYERS + 1][DATA_DIM];
 float g_aThrowPositions[MAXPLAYERS + 1][DATA_DIM];
 float g_aEndspotPositions[MAXPLAYERS + 1][DATA_DIM];
 float g_aUtilityVelocity[MAXPLAYERS + 1][DATA_DIM];
+int g_iUtilityEntityId[MAXPLAYERS + 1];
 
 float g_aUtilityAirtime[MAXPLAYERS + 1];
 int g_aActionRecord[MAXPLAYERS + 1];    // encoded

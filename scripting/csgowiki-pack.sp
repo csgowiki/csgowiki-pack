@@ -13,6 +13,7 @@
 #include "csgowiki/qqchat.sp"
 #include "csgowiki/replay.sp"
 
+
 public Plugin:myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
@@ -35,7 +36,6 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_submit", Command_Submit);
     RegConsoleCmd("sm_wiki", Command_Wiki);
-    RegConsoleCmd("sm_modify", Command_Modify);
     RegConsoleCmd("sm_abort", Command_SubmitAbort);
 
     RegConsoleCmd("sm_m", Command_Panel);
@@ -46,6 +46,7 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_refresh", Command_Refresh);
 
+    RegAdminCmd("sm_modify", Command_Modify, ADMFLAG_CHEATS);
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
     RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS);
@@ -143,7 +144,7 @@ public OnClientDisconnect(client) {
 
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
     // for utility submit
-    if (!buttons) return;
+    // if (!buttons) return;
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }

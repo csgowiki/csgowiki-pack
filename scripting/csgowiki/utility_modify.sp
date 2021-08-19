@@ -7,10 +7,6 @@ public Action:Command_Modify(client, args) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;
     }
-    if (args < 1) {
-        PrintToChat(client, "%s 用法\x02/modify <token>", PREFIX);
-        return;
-    }
     if (strlen(g_aLastUtilityId[client]) == 0) {
         PrintToChat(client, "%s \x02没有缓存的道具可以修改", PREFIX);
         return;
@@ -23,6 +19,7 @@ public Action:Command_Modify(client, args) {
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cM_ThrowReady;
+    g_aPlayerUtilityPath[client] = new JSON_Array();
 }
 
 public Action:Command_Velocity(client, args) {
@@ -68,11 +65,19 @@ void TriggerWikiModify(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
+    char steamid[LENGTH_STEAMID64] = "";
+    char str[202400];
+    char path[202400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
+    GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
+    g_aPlayerUtilityPath[client].Encode(str, sizeof(str));
+    EncodeBase64(path, sizeof(path), str);
+    PrintToChat(client, "b64 len: %d", strlen(path));
+    PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
     // request
     char url[128] = "";
     char apiHost[LENGTH_TOKEN];
@@ -84,7 +89,6 @@ void TriggerWikiModify(client) {
     httpRequest.SetHeader("Content-Type", "application/json");
     httpRequest.SetData(
         "{\
-            \"user_token\": \"%s\",\
             \"utility_id\": \"%s\",\
             \"start_x\": %f,\
             \"start_y\": %f,\
@@ -109,9 +113,11 @@ void TriggerWikiModify(client) {
             \"air_time\": %f,\
             \"velocity_x\": %f,\
             \"velocity_y\": %f,\
-            \"velocity_z\": %f\
+            \"velocity_z\": %f,\
+            \"steam_id\": \"%s\",\
+            \"path\": \"%s\"\
         }",
-        g_aPlayerToken[client], g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
+        g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
         g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
         g_aStartAngles[client][0], g_aStartAngles[client][1],
@@ -119,12 +125,11 @@ void TriggerWikiModify(client) {
         wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
         g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
         g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
-        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2]
+        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2], steamid, path
     )
     httpRequest.Any = client;
     httpRequest.POST();
 
-    strcopy(g_aPlayerToken[client], LENGTH_TOKEN, "");
     delete httpRequest;
 }
 
@@ -172,13 +177,14 @@ public WikiModifyResponseCallback(bool success, const char[] error, System2HTTPR
         }
         else {
             char[] message = new char[LENGTH_NAME];
-            json_obj.GetString("message", message, LENGTH_NAME);
-            PrintToChat(client, "%s \x02%s", PREFIX, message);
+            json_obj.GetString("detail", message, LENGTH_NAME);
+            PrintToChat(client, "%s error: \x02%s", PREFIX, message);
+            PrintToChat(client, "%s", content);
         }
         json_cleanup_and_delete(json_obj);
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败", PREFIX);
+        PrintToChat(client, "%s error:\x02连接至mycsgolab失败", PREFIX);
     }
     ResetSingleClientSubmitState(client);
 }
