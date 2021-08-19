@@ -65,9 +65,15 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
         if (BotMimic_IsPlayerMimicing(client)) {
-            SetEntPropVector(entity, Prop_Data, "m_vecVelocity", g_aUtilityVelocity[client]);
-            SetEntPropVector(entity, Prop_Data, "m_vecOrigin", g_aThrowPositions[client]);
-            return;
+            AcceptEntityInput(entity, "Kill");
+
+            if (g_aUtilityVelocity[client][0] + g_aUtilityVelocity[client][1] + g_aUtilityVelocity[client][2] == 0.0) {
+                PrintToChat(client, "%s \x06当前道具没有记录初始速度", PREFIX);
+            }
+            else {
+                CSU_ThrowGrenade(client, grenadeType, g_aThrowPositions[client], g_aUtilityVelocity[client]);
+                // PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
+            }
         }
         if (g_aPlayerStatus[client] != e_cThrowReady && g_aPlayerStatus[client] != e_cM_ThrowReady && g_aPlayerStatus[client] != e_cV_ThrowReady)
             return;
@@ -204,7 +210,7 @@ void TriggerWikiPost(client) {
             \"air_time\": %f,\
             \"velocity_x\": %f,\
             \"velocity_y\": %f,\
-            \"velocity_z\": %f\
+            \"velocity_z\": %f,\
         }",
         steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
