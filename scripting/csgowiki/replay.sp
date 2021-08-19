@@ -49,14 +49,14 @@ public void ExecuteCallback(bool success, const char[] command, System2ExecuteOu
     }
 } 
 
-void StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
-    if (!IsPlayer(client)) return;
+bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
+    if (!IsPlayer(client)) return false;
     char filepath[84];
     BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utility_id);
     if (FileExists(filepath)) { // bug
         PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
         StartReplay(client, utility_id);
-        return;
+        return false;
     }
 
     System2HTTPRequest httpRequest = new System2HTTPRequest(
@@ -70,6 +70,7 @@ void StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
     httpRequest.Any = pack;
     httpRequest.GET(); 
     delete httpRequest;
+    return true;
 }
 
 public BotMimicResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {

@@ -275,6 +275,7 @@ public WikiPlayerTriggerResponseCallback(bool success, const char[] error, Syste
 }
 
 void ShowUtilityDetail(client, JSON_Object detail_json) {
+    if (!IsPlayer(client)) return;
     // var define
     char utId[LENGTH_UTILITY_ID], utType[LENGTH_UTILITY_TINY], utTitle[LENGTH_NAME];
     char utBrief[LENGTH_UTILITY_BRIEF], author[LENGTH_NAME];
@@ -329,15 +330,25 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
     FakeClientCommand(client, utWeaponCmd);
     // auto throw
     if (g_bAutoThrow[client]) {
-        StartRequestReplayFile(client, utId);
-        // if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
-        //     PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
-        // }
-        // else {
-        //     GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
-        //     CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
-        //     PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
-        // }
+        if (!StartRequestReplayFile(client, utId)) {
+            if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
+                PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
+            }
+            else {
+                GrenadeType grenadeType = TinyName_2_GrenadeType(utType, client);
+                CSU_ThrowGrenade(client, grenadeType, throwPos, velocity);
+                PrintToChat(client, "%s \x05已自动投掷道具", PREFIX);
+            }
+        }
+        else {
+            // cache utility init velocity & throw pos
+            g_aUtilityVelocity[client][0] = velocity[0];
+            g_aUtilityVelocity[client][1] = velocity[1];
+            g_aUtilityVelocity[client][2] = velocity[2];
+            g_aThrowPositions[client][0] = throwPos[0];
+            g_aThrowPositions[client][1] = throwPos[1];
+            g_aThrowPositions[client][2] = throwPos[2];
+        }
     }
 
     // printout
