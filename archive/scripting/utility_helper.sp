@@ -18,9 +18,9 @@
 
 char g_CurrentMap[MAPNAME_MAXLENGTH];
 int g_ServerTickRate;
-JSON_Array g_utilityCollection;
-JSON_Array g_LastUtilityDetail[MAXPLAYERS + 1];
-JSON_Array g_utSearchResult[MAXPLAYERS + 1];
+JSONArray g_utilityCollection;
+JSONArray g_LastUtilityDetail[MAXPLAYERS + 1];
+JSONArray g_utSearchResult[MAXPLAYERS + 1];
 bool g_Collection_status = false;
 Handle wiki_timer = INVALID_HANDLE;
 Handle collect_timer = INVALID_HANDLE;
@@ -260,7 +260,7 @@ void show_menu_v2(client, char[] c_ut_type) {
     int type_count = 0;
     for (int idx = 1; idx < g_utilityCollection.Length; idx ++) {
         if (g_utilityCollection.GetKeyType(idx) == JSON_Type_Object) {
-            JSON_Array arrval = view_as<JSON_Array>(g_utilityCollection.GetObject(idx));
+            JSONArray arrval = view_as<JSONArray>(g_utilityCollection.GetObject(idx));
             char ut_id[ID_LENGTH], ut_brief[BRIEF_LENGTH], ut_type[UTILITY_TYPE_LENGTH];
             arrval.GetString(0, ut_id, ID_LENGTH);
             arrval.GetString(1, ut_brief, BRIEF_LENGTH);
@@ -298,7 +298,7 @@ void show_menu_v3(client) {
 
     for (int idx = 1; idx < g_utSearchResult[client].Length; idx ++) {
         if (g_utSearchResult[client].GetKeyType(idx) == JSON_Type_Object) {
-            JSON_Array arrval = view_as<JSON_Array>(g_utSearchResult[client].GetObject(idx));
+            JSONArray arrval = view_as<JSONArray>(g_utSearchResult[client].GetObject(idx));
             char ut_id[ID_LENGTH], ut_brief[BRIEF_LENGTH], ut_type[UTILITY_TYPE_LENGTH];
             arrval.GetString(0, ut_id, ID_LENGTH);
             arrval.GetString(1, ut_brief, BRIEF_LENGTH);
@@ -417,7 +417,7 @@ public MenuCallBack_v2(Handle:menuhandle, MenuAction:action, client, Position) {
 
         for (int idx = 1; idx < g_utilityCollection.Length; idx ++) {
             if (g_utilityCollection.GetKeyType(idx) == JSON_Type_Object) {
-                JSON_Array arrval = view_as<JSON_Array>(g_utilityCollection.GetObject(idx));
+                JSONArray arrval = view_as<JSONArray>(g_utilityCollection.GetObject(idx));
                 char ut_id[ID_LENGTH];
                 arrval.GetString(0, ut_id, ID_LENGTH);
                 if (StrEqual(ut_id, Item)) {
@@ -439,7 +439,7 @@ public MenuCallBack_v3(Handle:menuhandle, MenuAction:action, client, Position) {
 
         for (int idx = 1; idx < g_utSearchResult[client].Length; idx ++) {
             if (g_utSearchResult[client].GetKeyType(idx) == JSON_Type_Object) {
-                JSON_Array arrval = view_as<JSON_Array>(g_utSearchResult[client].GetObject(idx));
+                JSONArray arrval = view_as<JSONArray>(g_utSearchResult[client].GetObject(idx));
                 char ut_id[ID_LENGTH];
                 arrval.GetString(0, ut_id, ID_LENGTH);
                 if (StrEqual(ut_id, Item)) {
@@ -473,7 +473,7 @@ public void DetailCallback(bool success, const char[] error, System2HTTPRequest 
         char[] status = new char[STATUS_LENGTH];
         response.GetContent(content, response.ContentLength + 1);
 
-        g_LastUtilityDetail[client] = view_as<JSON_Array>(json_decode(content));
+        g_LastUtilityDetail[client] = view_as<JSONArray>(json_decode(content));
         g_LastUtilityDetail[client].GetString(0, status, STATUS_LENGTH);
         if (StrEqual(status, "ok")) {
             PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x10获取道具信息成功，你将被传送至道具瞄点");
@@ -494,7 +494,7 @@ public void CollectionCallback(bool success, const char[] error, System2HTTPRequ
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[STATUS_LENGTH];
         response.GetContent(content, response.ContentLength + 1);
-        g_utilityCollection = view_as<JSON_Array>(json_decode(content));
+        g_utilityCollection = view_as<JSONArray>(json_decode(content));
         g_utilityCollection.GetString(0, status, STATUS_LENGTH);
         if (StrEqual(status, "ok")) {
             PrintToChatAll("\x01[\x05CSGO Wiki\x01] \x03已同步www.csgowiki.top道具合集");
@@ -517,7 +517,7 @@ public void SearchResultCallback(bool success, const char[] error, System2HTTPRe
         char[] content = new char[response.ContentLength + 1];
         char[] status = new char[STATUS_LENGTH];
         response.GetContent(content, response.ContentLength + 1);
-        g_utSearchResult[client] = view_as<JSON_Array>(json_decode(content));
+        g_utSearchResult[client] = view_as<JSONArray>(json_decode(content));
         g_utSearchResult[client].GetString(0, status, STATUS_LENGTH);
         if (StrEqual(status, "ok")) {
             PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x03道具查询已完成");

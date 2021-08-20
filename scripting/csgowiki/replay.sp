@@ -1,3 +1,5 @@
+#include <system2>
+
 public Action Command_Record(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
@@ -69,7 +71,6 @@ bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
     pack.WriteString(utility_id);
     httpRequest.Any = pack;
     httpRequest.GET(); 
-    delete httpRequest;
     return true;
 }
 
@@ -89,7 +90,6 @@ public BotMimicResponseCallback(bool success, const char[] error, System2HTTPReq
             httpRequest.SetOutputFile(url);
             httpRequest.Any = pack;
             httpRequest.GET();
-            delete httpRequest;
             if (IsPlayer(client))
                 PrintToChat(client, "%s \x09正在请求录像文件...", PREFIX);
         }
@@ -164,4 +164,10 @@ public void BotMimicStartReplay(DataPack pack) {
         LogError("Error playing record %s on client %d: %s", filepath, client, errString);
     }
     delete pack;
+}
+
+public void BotMimic_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
+    if (IsPlayer(client)) {
+        TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
+    }
 }

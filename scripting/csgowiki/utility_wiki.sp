@@ -38,26 +38,22 @@ void GetAllCollection(client=-1) {
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
 
-    System2HTTPRequest AllCollectionRequest = new System2HTTPRequest(
-        AllCollectionResponseCallback, 
-        // "https://api.mycsgolab.com/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
-        "%s/utility/utility/collection/?token=%s&current_map=%s&tickrate=%d",
-        apiHost, token, g_sCurrentMap, g_iServerTickrate
-    );
-    AllCollectionRequest.Any = client;
-    AllCollectionRequest.GET();
-    delete AllCollectionRequest;
+    char url[LENGTH_MESSAGE];
+    Format(url, sizeof(url), "%s/utility/utility/collection", apiHost);
+    HTTPRequest AllCollectionRequest = new HTTPRequest(url);
+    AllCollectionRequest.AppendQueryParam("token", token);
+    AllCollectionRequest.AppendQueryParam("current_map", g_sCurrentMap);
+    AllCollectionRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
+
+    AllCollectionRequest.Get(AllCollectionResponseCallback, client);
 
     // pro
-    System2HTTPRequest ProCollectionRequest = new System2HTTPRequest(
-        ProCollectionResponseCallback,
-        "https://api.hx-w.top/%s",
-        g_sCurrentMap
-    )
-    if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
-        ProCollectionRequest.GET();
-    }
-    delete ProCollectionRequest;
+    // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
+        Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
+        HTTPRequest ProCollectionRequest = new HTTPRequest(url);
+        ProCollectionRequest.SetHeader("Content-Type", "application/json");
+        ProCollectionRequest.Get(ProCollectionResponseCallback, client);
+    // }
 }
 
 void GetFilterCollection(client, char[] method) {
@@ -67,16 +63,18 @@ void GetFilterCollection(client, char[] method) {
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
 
     char apiHost[LENGTH_TOKEN];
+    char url[LENGTH_MESSAGE];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        FilterCollectionResponseCallback, 
-        "%s/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
-        // "http://ci.csgowiki.top:2333/utility/utility/filter/?token=%s&map=%s&tickrate=%d&method=%s&x=%f&y=%f",
-        apiHost, token, g_sCurrentMap, g_iServerTickrate, method, playerPos[0], playerPos[1]
-    );
-    httpRequest.Any = client;
-    httpRequest.GET();
-    delete httpRequest;
+    Format(url, sizeof(url), "%s/utility/utility/filter", apiHost);
+
+    HTTPRequest httpRequest = new HTTPRequest(url);
+    httpRequest.AppendQueryParam("token", token);
+    httpRequest.AppendQueryParam("map", g_sCurrentMap);
+    httpRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
+    httpRequest.AppendQueryParam("method", method);
+    httpRequest.AppendQueryParam("x", "%f", playerPos[0]);
+    httpRequest.AppendQueryParam("y", "%f", playerPos[1]);
+    httpRequest.Get(FilterCollectionResponseCallback, client);
 }
 
 void GetUtilityDetail(client, char[] utId) {
@@ -105,34 +103,25 @@ void GetUtilityDetail(client, char[] utId) {
     GetClientAuthId(client, AuthId_SteamID64, steamid_, LENGTH_STEAMID64);
     char player_name[LENGTH_NAME];
     GetClientName(client, player_name, sizeof(player_name));
+    char url[LENGTH_MESSAGE];
+    Format(url, sizeof(url), "%s/utility/utility/detail", apiHost);
 
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        UtilityDetailResponseCallback, 
-        // "https://api.mycsgolab.com/utility/utility/detail/?token=%s&utility_id=%s",
-        // "%s/utility/utility/detail/?token=%s&utility_id=%s&force=%b&_map=%s&steamid=%s&player_name=%s",
-        "%s/utility/utility/detail/?token=%s&utility_id=%s",
-        apiHost, token, utId
-    );
-    httpRequest.Any = client;
-    httpRequest.GET();
-    delete httpRequest;
+    HTTPRequest httpRequest = new HTTPRequest(url);
+    httpRequest.AppendQueryParam("token", token);
+    httpRequest.AppendQueryParam("utility_id", utId);
+    httpRequest.Get(UtilityDetailResponseCallback, client);
 
-    System2HTTPRequest postRequest = new System2HTTPRequest(
-        WikiPlayerTriggerResponseCallback,
-        "http://ci.csgowiki.top:2333/trigger/wiki-player/"
-    );
-
+    // =====================================================
+    HTTPRequest postRequest = new HTTPRequest("http://ci.csgowiki.top:2333/trigger/wiki-player");
     postRequest.SetHeader("Content-Type", "application/json");
-    postRequest.SetData(
-        "{\
-        \"map_name\": \"%s\",\
-        \"steamid\": \"%s\",\
-        \"player_name\": \"%s\"\
-        }",
-        g_sCurrentMap, steamid_, player_name
-    );
-    postRequest.POST();
-    delete postRequest;
+
+    JSONObject postData = new JSONObject();
+    postData.SetString("map_name", g_sCurrentMap);
+    postData.SetString("steamid", steamid_);
+    postData.SetString("player_name", player_name);
+    
+    postRequest.Post(postData, WikiPlayerTriggerResponseCallback);
+    delete postData;
 }
 
 void ResetSingleClientWikiState(client, bool force_del=false) {
@@ -161,62 +150,53 @@ void ResetUtilityWikiState() {
     }
 }
 
-public AllCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        char[] status = new char[LENGTH_STATUS];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object resp_json = json_decode(content);
+void AllCollectionResponseCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject resp_json = view_as<JSONObject>(response.Data);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
             if (client == -1) PrintToChatAll("%s \x02服务器数据请求失败，可能是token无效", PREFIX);
             else PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
             return;
         }
-        g_jaUtilityCollection = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
+        g_jaUtilityCollection = view_as<JSONArray>(resp_json.Get("utility_collection"));
         // show menu for Command_Wiki
-        if (client != -1) {
+        if (IsPlayer(client)) {
             Menu_UtilityWiki_v1(client);
         }
+        // need delete?
     }
     else {
-        if (client == -1) PrintToChatAll("%s \x02连接至mycsgolab失败：%s", PREFIX, error);
-        else PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
+        if (client == -1) PrintToChatAll("%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
+        else PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
 
-public ProCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
-            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
-            return;
+void ProCollectionResponseCallback(HTTPResponse response, int client) {
+    if (IsPlayer(client)) {
+        PrintToChat(client, "%s 职业比赛道具获取：%d", PREFIX, response.Status);
+    }
+    if (response.Status == HTTPStatus_OK) {
+        JSONArray resp_json = view_as<JSONArray>(response.Data);
+        g_aProMatchInfo = new JSONArray();
+        for (int idx = 0; idx < resp_json.Length; idx++) {
+            JSONObject arrval = view_as<JSONObject>(resp_json.Get(idx));
+            g_aProMatchInfo.Push(arrval);
         }
-        g_aProMatchInfo = view_as<JSON_Array>(json_decode(content));
+        // g_aProMatchInfo = view_as<JSONArray>(response.Data);
     }
     else {
-        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%s", PREFIX, error);
+        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);
+        PrintToServer("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);
     }
 }
 
-public FilterCollectionResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        char[] status = new char[LENGTH_STATUS];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object resp_json = json_decode(content);
+void FilterCollectionResponseCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject resp_json = view_as<JSONObject>(response.Data);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
@@ -227,28 +207,21 @@ public FilterCollectionResponseCallback(bool success, const char[] error, System
             Menu_UtilityWiki_v1(client);
         }
         else if (StrEqual(status, "ok")) {
-            g_aUtFilterCollection[client] = view_as<JSON_Array>(resp_json.GetObject("utility_collection"));
+            g_aUtFilterCollection[client] = view_as<JSONArray>(resp_json.Get("utility_collection"));
             // show menu for Command_Wiki
             Menu_UtilityWiki_v3(client);
         }
         delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
-public UtilityDetailResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        char[] status = new char[LENGTH_STATUS];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object resp_json = json_decode(content);
+void UtilityDetailResponseCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject resp_json = view_as<JSONObject>(response.Data);
         resp_json.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
@@ -257,24 +230,24 @@ public UtilityDetailResponseCallback(bool success, const char[] error, System2HT
             PrintToChat(client, "%s \x02服务器数据请求失败，已超过当日请求次数限制", PREFIX);
         }
         else if (StrEqual(status, "ok")) {
-            JSON_Object json_obj = resp_json.GetObject("utility_detail");
+            JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
             ShowUtilityDetail(client, json_obj);
         }
-        json_cleanup_and_delete(resp_json);
+        delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, error);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
 
-public WikiPlayerTriggerResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (!success) {
-        PrintToServer("wiki-player trigger error: %s", error);
+void WikiPlayerTriggerResponseCallback(HTTPResponse response, any data) {
+    if (response.Status != HTTPStatus_OK) {
+        PrintToServer("wiki-player trigger error: %d", response.Status);
     }
 }
 
-void ShowUtilityDetail(client, JSON_Object detail_json) {
+void ShowUtilityDetail(client, JSONObject detail_json) {
     if (!IsPlayer(client)) return;
     // var define
     char utId[LENGTH_UTILITY_ID], utType[LENGTH_UTILITY_TINY], utTitle[LENGTH_NAME];
@@ -348,6 +321,12 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
             g_aThrowPositions[client][0] = throwPos[0];
             g_aThrowPositions[client][1] = throwPos[1];
             g_aThrowPositions[client][2] = throwPos[2];
+            g_aStartPositions[client][0] = startPos[0];
+            g_aStartPositions[client][1] = startPos[1];
+            g_aStartPositions[client][2] = startPos[2];
+            g_aStartAngles[client][0] = startAngle[0];
+            g_aStartAngles[client][1] = startAngle[1];
+            g_aStartAngles[client][2] = startAngle[2];
         }
     }
 

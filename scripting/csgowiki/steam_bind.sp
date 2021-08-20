@@ -66,28 +66,19 @@ public Action:QuerySteamTimerCallback(Handle:timer, client) {
     // GET
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        QuerySteamResponseCallback, 
-        "%s/user/steambind?steamid=%s&token=%s",
-        apiHost, steamid, token
-    );
-    httpRequest.Any = client;
-    httpRequest.GET();
-    delete httpRequest;
+    char url[LENGTH_MESSAGE];
+    Format(url, sizeof(url), "%s/user/steambind", apiHost);
+    HTTPRequest httpRequest = new HTTPRequest(url);
+    httpRequest.AppendQueryParam("steamid", steamid);
+    httpRequest.AppendQueryParam("token", token);
+    httpRequest.Get(QuerySteamResponseCallback, client);
 }
 
-public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    int client = request.Any;
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        char[] status = new char[LENGTH_STATUS];
-        char[] aliasname = new char[LENGTH_NAME];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
+void QuerySteamResponseCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        char aliasname[LENGTH_NAME];
+        JSONObject json_obj = view_as<JSONObject>(response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             json_obj.GetString("aliasname", aliasname, LENGTH_NAME);
@@ -117,7 +108,7 @@ public QuerySteamResponseCallback(bool success, const char[] error, System2HTTPR
                 }
             }
         }
-        json_cleanup_and_delete(json_obj);
+        delete json_obj;
         // test
         ClientCommand(client, "sm_m");
     }
