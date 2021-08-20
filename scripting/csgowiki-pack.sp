@@ -1,6 +1,5 @@
 // 
 #include <csgowiki>
-#include <socket>
 
 #include "csgowiki/utils.sp"
 #include "csgowiki/panel.sp"

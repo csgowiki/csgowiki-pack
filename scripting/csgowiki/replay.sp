@@ -165,3 +165,9 @@ public void BotMimicStartReplay(DataPack pack) {
     }
     delete pack;
 }
+
+public void BotMimic_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
+    if (IsPlayer(client)) {
+        TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
+    }
+}

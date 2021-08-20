@@ -4,8 +4,8 @@
 #include <cstrike>
 #include <system2>
 #include <json>
+#include <socket>
 #include <botmimic_csgowiki>
-#include <base64>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
 #pragma dynamic 1310720

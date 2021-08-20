@@ -348,6 +348,12 @@ void ShowUtilityDetail(client, JSON_Object detail_json) {
             g_aThrowPositions[client][0] = throwPos[0];
             g_aThrowPositions[client][1] = throwPos[1];
             g_aThrowPositions[client][2] = throwPos[2];
+            g_aStartPositions[client][0] = startPos[0];
+            g_aStartPositions[client][1] = startPos[1];
+            g_aStartPositions[client][2] = startPos[2];
+            g_aStartAngles[client][0] = startAngle[0];
+            g_aStartAngles[client][1] = startAngle[1];
+            g_aStartAngles[client][2] = startAngle[2];
         }
     }
 
