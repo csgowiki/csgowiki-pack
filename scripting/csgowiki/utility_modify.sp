@@ -19,7 +19,7 @@ public Action:Command_Modify(client, args) {
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cM_ThrowReady;
-    g_aPlayerUtilityPath[client] = new JSON_Array();
+    g_aPlayerUtilityPath[client] = new JSONArray();
 }
 
 public Action:Command_Velocity(client, args) {
@@ -45,20 +45,6 @@ void ClearPlayerToken(client) {
     strcopy(g_aPlayerToken[client], LENGTH_TOKEN, "");
 }
 
-void TriggerVelocity(client) {
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        VelocityResponseCallback, "https://api.csgowiki.top/api/utility/velocity/"
-    );
-    httpRequest.SetData(
-        "id=%s&velocity_x=%f&velocity_y=%f&velocity_z=%f&throw_x=%f&throw_y=%f&throw_z=%f",
-        g_aLastUtilityId[client], g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2],
-        g_aThrowPositions[client][0], g_aThrowPositions[client][1], g_aThrowPositions[client][2]
-    );
-    httpRequest.Any = client;
-    httpRequest.POST();
-    delete httpRequest;
-}
-
 void TriggerWikiModify(client) {
     // param define
     char token[LENGTH_TOKEN] = "";
@@ -66,122 +52,76 @@ void TriggerWikiModify(client) {
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
     char steamid[LENGTH_STEAMID64] = "";
-    char str[302400];
+    // char str[302400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
-    g_aPlayerUtilityPath[client].Encode(str, sizeof(str));
+
     PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
     // request
-    char url[128] = "";
+    char url[LENGTH_MESSAGE];
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/modify/?token=%s", apiHost, token);
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        WikiModifyResponseCallback, url
-    );
+    Format(url, sizeof(url), "%s/utility/utility/modify", apiHost);
+    HTTPRequest httpRequest = new HTTPRequest(url);
+    httpRequest.AppendQueryParam("token", token);
+
     httpRequest.SetHeader("Content-Type", "application/json");
-    httpRequest.SetData(
-        "{\
-            \"utility_id\": \"%s\",\
-            \"start_x\": %f,\
-            \"start_y\": %f,\
-            \"start_z\": %f,\
-            \"end_x\": %f,\
-            \"end_y\": %f,\
-            \"end_z\": %f,\
-            \"aim_pitch\": %f,\
-            \"aim_yaw\": %f,\
-            \"is_run\": %b,\
-            \"is_walk\": %b,\
-            \"is_jump\": %b,\
-            \"is_duck\": %b,\
-            \"is_left\": %b,\
-            \"is_right\": %b,\
-            \"map_belong\": \"%s\",\
-            \"tickrate\": \"%s\",\
-            \"utility_type\": \"%s\",\
-            \"throw_x\": %f,\
-            \"throw_y\": %f,\
-            \"throw_z\": %f,\
-            \"air_time\": %f,\
-            \"velocity_x\": %f,\
-            \"velocity_y\": %f,\
-            \"velocity_z\": %f,\
-            \"steam_id\": \"%s\",\
-            \"path\": \"%s\"\
-        }",
-        g_aLastUtilityId[client], g_aStartPositions[client][0], g_aStartPositions[client][1],
-        g_aStartPositions[client][2], g_aEndspotPositions[client][0],
-        g_aEndspotPositions[client][1], g_aEndspotPositions[client][2],
-        g_aStartAngles[client][0], g_aStartAngles[client][1],
-        wikiAction[e_wRun], wikiAction[e_wWalk], wikiAction[e_wJump],
-        wikiAction[e_wDuck], wikiAction[e_wLeftclick], wikiAction[e_wRightclick],
-        g_sCurrentMap, tickTag, utTinyName, g_aThrowPositions[client][0],
-        g_aThrowPositions[client][1], g_aThrowPositions[client][2], g_aUtilityAirtime[client],
-        g_aUtilityVelocity[client][0], g_aUtilityVelocity[client][1], g_aUtilityVelocity[client][2], steamid, str
-    )
-    httpRequest.Any = client;
-    httpRequest.POST();
 
-    delete httpRequest;
+    JSONObject postData = new JSONObject();
+    postData.SetString("utility_id", g_aLastUtilityId[client]);
+    postData.SetString("steam_id", steamid);
+    postData.SetFloat("start_x", g_aStartPositions[client][0]);
+    postData.SetFloat("start_y", g_aStartPositions[client][1]);
+    postData.SetFloat("start_z", g_aStartPositions[client][2]);
+    postData.SetFloat("end_x", g_aEndspotPositions[client][0]);
+    postData.SetFloat("end_y", g_aEndspotPositions[client][1]);
+    postData.SetFloat("end_z", g_aEndspotPositions[client][2]);
+    postData.SetFloat("aim_pitch", g_aStartAngles[client][0]);
+    postData.SetFloat("aim_yaw", g_aStartAngles[client][1]);
+    postData.SetBool("is_run", view_as<bool>(wikiAction[e_wRun]));
+    postData.SetBool("is_walk", view_as<bool>(wikiAction[e_wWalk]));
+    postData.SetBool("is_jump", view_as<bool>(wikiAction[e_wJump]));
+    postData.SetBool("is_duck", view_as<bool>(wikiAction[e_wDuck]));
+    postData.SetBool("is_left", view_as<bool>(wikiAction[e_wLeftclick]));
+    postData.SetBool("is_right", view_as<bool>(wikiAction[e_wRightclick]));
+    postData.SetString("map_belong", g_sCurrentMap);
+    postData.SetString("tickrate", tickTag);
+    postData.SetString("utility_type", utTinyName);
+    postData.SetFloat("throw_x", g_aThrowPositions[client][0]);
+    postData.SetFloat("throw_y", g_aThrowPositions[client][1]);
+    postData.SetFloat("throw_z", g_aThrowPositions[client][2]);
+    postData.SetFloat("air_time", g_aUtilityAirtime[client]);
+    postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
+    postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
+    postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
+    postData.Set("path", g_aPlayerUtilityPath[client]);
+
+    httpRequest.Post(postData, WikiModifyResponseCallback, client);
+
+    delete postData;
 }
 
-public VelocityResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
-        json_obj.GetString("status", status, LENGTH_STATUS);
-        if (StrEqual(status, "ok")) {
-            PrintToChat(client, "%s \x04已修改道具初始速度", PREFIX);
-        }
-        else {
-            char[] message = new char[LENGTH_NAME];
-            json_obj.GetString("message", message, LENGTH_NAME);
-            PrintToChat(client, "%s \x02%s", PREFIX, message);
-        }
-        json_cleanup_and_delete(json_obj);
-    }
-    else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败", PREFIX);
-    }
-}
-
-public WikiModifyResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    new client = request.Any;
-    if (success) {
-        char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
+void WikiModifyResponseCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject json_obj = view_as<JSONObject>(response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             ShowModifyResult(client);
         }
         else {
-            char[] message = new char[LENGTH_NAME];
+            char message[LENGTH_NAME];
             json_obj.GetString("detail", message, LENGTH_NAME);
             PrintToChat(client, "%s error: \x02%s", PREFIX, message);
-            PrintToChat(client, "%s", content);
         }
-        json_cleanup_and_delete(json_obj);
+        delete json_obj;
     }
     else {
-        PrintToChat(client, "%s error:\x02连接至mycsgolab失败", PREFIX);
+        PrintToChat(client, "%s error:\x02连接至mycsgolab失败 %s", PREFIX, response.Data);
     }
     ResetSingleClientSubmitState(client);
 }

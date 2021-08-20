@@ -266,15 +266,15 @@ void ResetReqLock(pclient = -1) {
 
 
 // ----------------- server monitor json generator -------
-JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
-    JSON_Array monitor_json = new JSON_Array();
+JSONArray encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
+    JSONArray monitor_json = new JSONArray();
     if (inctoken) {
         char token[LENGTH_TOKEN];
         GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
         monitor_json.PushString(token);
     }
     if (exclient == -1) {
-        monitor_json.PushObject(new JSON_Array());
+        monitor_json.Push(new JSONArray());
         return monitor_json;
     }
     if (incmap) {
@@ -292,14 +292,14 @@ JSON_Array encode_json_server_monitor(int exclient, bool inctoken=true, bool aut
         float latency = GetClientAvgLatency(client_id, NetFlow_Both);
         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
         // json encode
-        JSON_Array client_arr = new JSON_Array();
+        JSONArray client_arr = new JSONArray();
         if (incid) {
             client_arr.PushInt(client_id);
         }
         client_arr.PushString(client_name);
         client_arr.PushString(steamid);
         client_arr.PushString(str_ping);
-        monitor_json.PushObject(client_arr);
+        monitor_json.Push(client_arr);
     }
     return monitor_json;
 }
@@ -321,39 +321,23 @@ void PluginVersionHint(client) {
 
 void PluginVersionCheck(client = -1) {
     GetPluginInfo(INVALID_HANDLE, PlInfo_Version, g_sCurrentVersion, LENGTH_VERSION);
-    System2HTTPRequest PluginVersionCheckRequest = new System2HTTPRequest (
-        PluginVersionCheckCallback, 
+    HTTPRequest PluginVersionCheckRequest = new HTTPRequest(
         "https://api.github.com/repos/hx-w/CSGOWiki-Plugins/releases/latest"
     );
     PluginVersionCheckRequest.SetHeader("User-Agent", "request");
-    PluginVersionCheckRequest.Any = client;
-    PluginVersionCheckRequest.GET();
-    delete PluginVersionCheckRequest;
+    PluginVersionCheckRequest.Get(PluginVersionCheckCallback, client);
 }
 
-public PluginVersionCheckCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        int statusCode = response.StatusCode;
-        if (statusCode != 200) {
-            Format(g_sLatestInfo, sizeof(g_sLatestInfo), "github-api访问失败：状态码<%d>", statusCode);
-        }
-        else {
-            response.GetContent(content, response.ContentLength + 1);
-            if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
-                PrintToServer("%s Version check \x02服务器异常：%s", PREFIX, content);
-                return;
-            }
-            JSON_Object resp_json = json_decode(content);
-            resp_json.GetString("tag_name", g_sLatestVersion, sizeof(g_sLatestVersion));
-            resp_json.GetString("name", g_sLatestInfo, sizeof(g_sLatestInfo));
-            json_cleanup_and_delete(resp_json);
-        }
+void PluginVersionCheckCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
+        JSONObject resp_json = view_as<JSONObject>(response.Data);
+        resp_json.GetString("tag_name", g_sLatestVersion, sizeof(g_sLatestVersion));
+        resp_json.GetString("name", g_sLatestInfo, sizeof(g_sLatestInfo));
+        delete resp_json;
     }
     else {
         g_sLatestInfo = "github-api访问失败";
     }
-    new client = request.Any;
     if (client != -1) {
         PluginVersionHint(client);
     }

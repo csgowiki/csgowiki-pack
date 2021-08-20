@@ -52,7 +52,7 @@ void Menu_UtilityWiki_v2(client, char[] utTinyName) {
 
     int typeCount = 0;
     for (new idx = 0; idx < g_jaUtilityCollection.Length; idx++) {
-        JSON_Array arrval = view_as<JSON_Array>(g_jaUtilityCollection.GetObject(idx));
+        JSONArray arrval = view_as<JSONArray>(g_jaUtilityCollection.Get(idx));
         char utId[LENGTH_UTILITY_ID], utTitle[LENGTH_NAME], utType[LENGTH_UTILITY_TINY];
         int specFlag = 0;
         arrval.GetString(0, utId, LENGTH_UTILITY_ID);
@@ -117,23 +117,21 @@ void Menu_UtilityWiki_v3(client) {
     SetMenuTitle(menuhandle, "=== 查询到的道具 ===");
 
     for (new idx = 0; idx < g_aUtFilterCollection[client].Length; idx ++) {
-        if (g_aUtFilterCollection[client].GetKeyType(idx) == JSON_Type_Object) {
-            JSON_Array arrval = view_as<JSON_Array>(g_aUtFilterCollection[client].GetObject(idx));
-            char utId[LENGTH_UTILITY_ID], utTitle[LENGTH_NAME], utType[LENGTH_UTILITY_TINY];
-            int specFlag = 0;
-            char utNameZh[LENGTH_UTILITY_ZH];
-            arrval.GetString(0, utId, LENGTH_UTILITY_ID);
-            arrval.GetString(1, utTitle, LENGTH_NAME);
-            arrval.GetString(2, utType, LENGTH_UTILITY_TINY);
-            specFlag = arrval.GetInt(3);
-            Utility_TinyName2Zh(utType, "%s", utNameZh);
-            char msg[LENGTH_NAME + LENGTH_UTILITY_ZH + 8];
-            Format(msg, sizeof(msg), "[%s] %s", utNameZh, utTitle);
-            if (specFlag == 1) Format(msg, sizeof(msg), "%s *走投*", msg);
-            else if (specFlag == 2) Format(msg, sizeof(msg), "%s *跑投*", msg);
-            AddMenuItem(menuhandle, utId, msg);
-            json_cleanup_and_delete(arrval);
-        }
+        JSONArray arrval = view_as<JSONArray>(g_aUtFilterCollection[client].Get(idx));
+        char utId[LENGTH_UTILITY_ID], utTitle[LENGTH_NAME], utType[LENGTH_UTILITY_TINY];
+        int specFlag = 0;
+        char utNameZh[LENGTH_UTILITY_ZH];
+        arrval.GetString(0, utId, LENGTH_UTILITY_ID);
+        arrval.GetString(1, utTitle, LENGTH_NAME);
+        arrval.GetString(2, utType, LENGTH_UTILITY_TINY);
+        specFlag = arrval.GetInt(3);
+        Utility_TinyName2Zh(utType, "%s", utNameZh);
+        char msg[LENGTH_NAME + LENGTH_UTILITY_ZH + 8];
+        Format(msg, sizeof(msg), "[%s] %s", utNameZh, utTitle);
+        if (specFlag == 1) Format(msg, sizeof(msg), "%s *走投*", msg);
+        else if (specFlag == 2) Format(msg, sizeof(msg), "%s *跑投*", msg);
+        AddMenuItem(menuhandle, utId, msg);
+        delete arrval;
     }
     SetMenuPagination(menuhandle, 7);
     SetMenuExitBackButton(menuhandle, true);

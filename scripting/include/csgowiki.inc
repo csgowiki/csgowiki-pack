@@ -2,8 +2,7 @@
 #include <csutils>
 #include <sdktools>
 #include <cstrike>
-#include <system2>
-#include <json>
+#include <ripext>
 #include <socket>
 #include <botmimic_csgowiki>
 
@@ -58,7 +57,7 @@ char g_sLatestInfo[LENGTH_MESSAGE];
 // 道具路径
 const int g_iUtilityPathInterval = 2; // 间隔Frame采样
 int g_iPlayerUtilityPathFrameCount[MAXPLAYERS + 1];
-JSON_Array g_aPlayerUtilityPath[MAXPLAYERS + 1];
+JSONArray g_aPlayerUtilityPath[MAXPLAYERS + 1];
 
 // --------- steam_bind.sp define -----------
 enum StateBind {
@@ -113,15 +112,15 @@ int g_aActionRecord[MAXPLAYERS + 1];    // encoded
 
 
 // ------------- wikipro.sp define ----------------
-JSON_Array g_aProMatchInfo;
-JSON_Array g_aProMatchDetail[MAXPLAYERS + 1];
+JSONArray g_aProMatchInfo;
+JSONArray g_aProMatchDetail[MAXPLAYERS + 1];
 int g_aProMatchIndex[MAXPLAYERS + 1];
 
 // ------------- utility_wiki.sp define -----------
-JSON_Array g_jaUtilityCollection;
+JSONArray g_jaUtilityCollection;
 
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
-JSON_Array g_aUtFilterCollection[MAXPLAYERS + 1];
+JSONArray g_aUtFilterCollection[MAXPLAYERS + 1];
 bool g_aReqLock[MAXPLAYERS + 1];
 
 // ------------- utility_modify.sp define ------------
