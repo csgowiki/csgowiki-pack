@@ -161,7 +161,7 @@ void TriggerWikiPost(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
-    // char path[202400];
+    char path[302400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
@@ -171,15 +171,16 @@ void TriggerWikiPost(client) {
     // g_aPlayerUtilityPath[client].Encode(path, sizeof(path));
 
     // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
+    g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
+    PrintToChat(client, "len: %d", strlen(path));
 
     // request
     char url[LENGTH_MESSAGE];
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/submit", apiHost);
+    Format(url, sizeof(url), "%s/utility/utility/submit/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
-    httpRequest.AppendQueryParam("token", token);
     JSONObject postData = new JSONObject();
     // post data
     postData.SetString("steam_id", steamid);
@@ -207,6 +208,9 @@ void TriggerWikiPost(client) {
     postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
+    postData.SetString("path", path);
+
+    postData.ToFile("addons/sourcemod/csgowiki-pack-dev/post-body.json");
 
     httpRequest.Post(postData, WikiPostResponseCallback, client);
     delete postData;
@@ -218,7 +222,6 @@ void WikiPostResponseCallback(HTTPResponse response, int client) {
         char status[LENGTH_STATUS];
         JSONObject json_obj = view_as<JSONObject>(response.Data);
 
-        PrintToChat(client, "Debug: %s", response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "ok")) {
             char utId[LENGTH_UTILITY_ID];
@@ -233,7 +236,7 @@ void WikiPostResponseCallback(HTTPResponse response, int client) {
         delete json_obj;
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败", PREFIX);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败 %d", PREFIX, response.Status);
     }
     ResetSingleClientSubmitState(client);
 }

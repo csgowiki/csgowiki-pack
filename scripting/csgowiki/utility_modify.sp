@@ -52,7 +52,6 @@ void TriggerWikiModify(client) {
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
     char steamid[LENGTH_STEAMID64] = "";
-    // char str[302400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
@@ -60,15 +59,13 @@ void TriggerWikiModify(client) {
     TicktagGenerate(tickTag, wikiAction);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
 
-    PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
+    // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
     // request
     char url[LENGTH_MESSAGE];
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/modify", apiHost);
+    Format(url, sizeof(url), "%s/utility/utility/modify/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
-    httpRequest.AppendQueryParam("token", token);
-
     httpRequest.SetHeader("Content-Type", "application/json");
 
     JSONObject postData = new JSONObject();
@@ -98,7 +95,10 @@ void TriggerWikiModify(client) {
     postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
-    postData.Set("path", g_aPlayerUtilityPath[client]);
+    char path[302400];
+    g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
+    PrintToChat(client, "len: %d", strlen(path));
+    postData.SetString("path", path);
 
     httpRequest.Post(postData, WikiModifyResponseCallback, client);
 
@@ -121,7 +121,7 @@ void WikiModifyResponseCallback(HTTPResponse response, int client) {
         delete json_obj;
     }
     else {
-        PrintToChat(client, "%s error:\x02连接至mycsgolab失败 %s", PREFIX, response.Data);
+        PrintToChat(client, "%s error：\x02连接至mycsgolab失败 %d", PREFIX, response.Status);
     }
     ResetSingleClientSubmitState(client);
 }

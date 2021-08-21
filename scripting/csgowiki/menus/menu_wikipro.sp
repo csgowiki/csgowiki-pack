@@ -86,7 +86,7 @@ void ProRoundResponseCallback(HTTPResponse response, DataPack pack) {
         CreateProDetailMenu(client, round_str);
     }
     else {
-        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%s", PREFIX, response.Data);
+        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);
     }
 }
 

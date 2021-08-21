@@ -168,8 +168,8 @@ void AllCollectionResponseCallback(HTTPResponse response, int client) {
         // need delete?
     }
     else {
-        if (client == -1) PrintToChatAll("%s \x02连接至mycsgolab失败：%s", PREFIX, response.Data);
-        else PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, response.Data);
+        if (client == -1) PrintToChatAll("%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
+        else PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
@@ -205,7 +205,7 @@ void FilterCollectionResponseCallback(HTTPResponse response, int client) {
         delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, response.Data);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
@@ -227,14 +227,14 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
         delete resp_json;
     }
     else {
-        PrintToChat(client, "%s \x02连接至mycsgolab失败：%s", PREFIX, response.Data);
+        PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
     }
 }
 
 
 void WikiPlayerTriggerResponseCallback(HTTPResponse response, any data) {
     if (response.Status != HTTPStatus_OK) {
-        PrintToServer("wiki-player trigger error: %s", response.Data);
+        PrintToServer("wiki-player trigger error: %d", response.Status);
     }
 }
 
