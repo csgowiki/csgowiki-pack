@@ -8,7 +8,7 @@
 
 插件的正常运作需要csgowiki的账号，如果你没有，那么请先前往网站注册。
 
-插件文档库请移步：[**csgowiki帮助中心**](https://docs.csgowiki.top/plugins)
+插件文档库请移步：[**csgowiki帮助中心**](https://docs.csgowiki.top/csgowiki-pack)
 
 文档库正在完善中。
 
