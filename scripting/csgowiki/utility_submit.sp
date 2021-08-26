@@ -210,7 +210,7 @@ void TriggerWikiPost(client) {
             \"air_time\": %f,\
             \"velocity_x\": %f,\
             \"velocity_y\": %f,\
-            \"velocity_z\": %f,\
+            \"velocity_z\": %f\
         }",
         steamid, g_aStartPositions[client][0], g_aStartPositions[client][1],
         g_aStartPositions[client][2], g_aEndspotPositions[client][0],
