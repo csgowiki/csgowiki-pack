@@ -50,9 +50,7 @@ void GetAllCollection(client=-1) {
     // pro
     Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
     HTTPRequest ProCollectionRequest = new HTTPRequest(url);
-    if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
-        ProCollectionRequest.Get(ProCollectionResponseCallback);
-    }
+    ProCollectionRequest.Get(ProCollectionResponseCallback);
     delete ProCollectionRequest;
 }
 

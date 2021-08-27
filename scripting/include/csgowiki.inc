@@ -35,11 +35,6 @@ Handle g_hOnUtilitySubmit = INVALID_HANDLE;
 Handle g_hOnUtilityWiki = INVALID_HANDLE;
 Handle g_hWikiReqLimit = INVALID_HANDLE;
 Handle g_hWikiAutoKicker = INVALID_HANDLE;
-Handle g_hChannelEnable = INVALID_HANDLE;
-Handle g_hChannelServerRemark = INVALID_HANDLE;
-Handle g_hChannelQQgroup = INVALID_HANDLE;
-Handle g_hChannelSvPort = INVALID_HANDLE;
-Handle g_hChannelSvHost = INVALID_HANDLE;
 // wiki token
 Handle g_hCSGOWikiToken;
 // api host
@@ -128,6 +123,5 @@ char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
 
 // ------------- option.sp define ------------------
 bool g_bAutoThrow[MAXPLAYERS + 1];
-bool g_bQQTrigger[MAXPLAYERS + 1]; // 0=>!qq  1=>raw
 
 bool g_bBotMimicLoaded = false;

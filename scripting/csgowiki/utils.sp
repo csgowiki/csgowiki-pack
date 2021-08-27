@@ -44,9 +44,6 @@ void HookOpConVarChange() {
     HookConVarChange(g_hCSGOWikiEnable, ConVar_CSGOWikiEnableChange);
     HookConVarChange(g_hOnUtilitySubmit, ConVar_OnUtilitySubmitChange);
     HookConVarChange(g_hOnUtilityWiki, ConVar_OnUtilityWikiChange);
-    HookConVarChange(g_hChannelEnable, ConVar_ChannelEnableChange);
-    HookConVarChange(g_hChannelQQgroup, ConVar_ChannelQQgroupChange);
-    HookConVarChange(g_hChannelServerRemark, ConVar_ChannelRemarkChange);
 }
 
 public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
@@ -75,39 +72,6 @@ public ConVar_OnUtilityWikiChange(Handle:convar, const String:oldValue[], const 
         PrintToChatAll("%s \x09道具学习功能\x01 => \x02已关闭", PREFIX);
     }
 }
-
-public ConVar_ChannelEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    if (GetConVarBool(g_hChannelEnable)) {
-        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x04已开启", PREFIX);
-        TcpCreate();
-    }
-    else {
-        PrintToChatAll("%s \x09QQ聊天功能\x01 => \x02已关闭", PREFIX);
-        TcpClose();
-    }
-}
-
-public ConVar_ChannelQQgroupChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("qq group change, new: %s", newValue);
-}
-
-public ConVar_ChannelRemarkChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-    PrintToServer("server remark change, new: %s", newValue);
-}
-
-void GetServerHost(char []str, int size) {
-    GetConVarString(g_hChannelSvHost, str, size);
-    if (strlen(str) != 0) {
-        return;
-    }
-    Handle hServerHost = INVALID_HANDLE;
-    if(hServerHost == INVALID_HANDLE) {
-        if( (hServerHost = FindConVar("net_public_adr")) == INVALID_HANDLE) {
-            return;
-        }
-    }
-    GetConVarString(hServerHost, str, size);
-} 
 
 // utils for utility submit
 void GrenadeType_2_Tinyname(GrenadeType utCode, char[] utTinyName) {
@@ -266,43 +230,43 @@ void ResetReqLock(pclient = -1) {
 
 
 // ----------------- server monitor json generator -------
-JSONArray encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
-    JSONArray monitor_json = new JSONArray();
-    if (inctoken) {
-        char token[LENGTH_TOKEN];
-        GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-        monitor_json.PushString(token);
-    }
-    if (exclient == -1) {
-        monitor_json.Push(new JSONArray());
-        return monitor_json;
-    }
-    if (incmap) {
-        monitor_json.PushString(g_sCurrentMap);
-    }
-    for (int client_id = 0; client_id <= MaxClients; client_id++) {
-        if(!IsPlayer(client_id) || client_id == exclient) continue;
-        char client_name[LENGTH_NAME], steamid[LENGTH_STEAMID64], str_ping[4];
-        GetClientName(client_id, client_name, LENGTH_NAME);
-        if (authType) {
-            GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
-        } else {
-            GetClientAuthId(client_id, AuthId_Steam2, steamid, LENGTH_STEAMID64)
-        }
-        float latency = GetClientAvgLatency(client_id, NetFlow_Both);
-        IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
-        // json encode
-        JSONArray client_arr = new JSONArray();
-        if (incid) {
-            client_arr.PushInt(client_id);
-        }
-        client_arr.PushString(client_name);
-        client_arr.PushString(steamid);
-        client_arr.PushString(str_ping);
-        monitor_json.Push(client_arr);
-    }
-    return monitor_json;
-}
+// JSONArray encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
+//     JSONArray monitor_json = new JSONArray();
+//     if (inctoken) {
+//         char token[LENGTH_TOKEN];
+//         GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+//         monitor_json.PushString(token);
+//     }
+//     if (exclient == -1) {
+//         monitor_json.Push(new JSONArray());
+//         return monitor_json;
+//     }
+//     if (incmap) {
+//         monitor_json.PushString(g_sCurrentMap);
+//     }
+//     for (int client_id = 0; client_id <= MaxClients; client_id++) {
+//         if(!IsPlayer(client_id) || client_id == exclient) continue;
+//         char client_name[LENGTH_NAME], steamid[LENGTH_STEAMID64], str_ping[4];
+//         GetClientName(client_id, client_name, LENGTH_NAME);
+//         if (authType) {
+//             GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
+//         } else {
+//             GetClientAuthId(client_id, AuthId_Steam2, steamid, LENGTH_STEAMID64)
+//         }
+//         float latency = GetClientAvgLatency(client_id, NetFlow_Both);
+//         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
+//         // json encode
+//         JSONArray client_arr = new JSONArray();
+//         if (incid) {
+//             client_arr.PushInt(client_id);
+//         }
+//         client_arr.PushString(client_name);
+//         client_arr.PushString(steamid);
+//         client_arr.PushString(str_ping);
+//         monitor_json.Push(client_arr);
+//     }
+//     return monitor_json;
+// }
 
 // ----------------- check version ----------------------
 void PluginVersionHint(client) {

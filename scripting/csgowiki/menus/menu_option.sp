@@ -60,13 +60,9 @@ public Action:Command_Option(client, args) {
         panel.DrawItem("道具开启自动投掷：关");
     }
     panel.DrawItem("快捷道具上传(双击E)：关", ITEMDRAW_DISABLED);
-    if (g_bQQTrigger[client]) {
-        panel.DrawItem("qq聊天触发方式：打字触发");
-    }
-    else {
-        panel.DrawItem("qq聊天触发方式：指令触发");
-    }
+ 
     panel.DrawItem("职业道具场次选择");
+    panel.DrawItem("   ", ITEMDRAW_SPACER);
     panel.DrawItem("   ", ITEMDRAW_SPACER);
     panel.DrawItem("   ", ITEMDRAW_SPACER);
     panel.DrawItem("返回", ITEMDRAW_CONTROL);
@@ -83,8 +79,7 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
         switch(Position) {
             case 1: g_bAutoThrow[client] = !g_bAutoThrow[client], PrintToChat(client, "%s \x04设置已更改", PREFIX), ClientCommand(client, "sm_option");
             case 2: PrintToChat(client, "%s \x0E功能未开放，敬请期待...", PREFIX), ClientCommand(client, "sm_option");
-            case 3: g_bQQTrigger[client] = !g_bQQTrigger[client], PrintToChat(client, "%s \x04设置已更改", PREFIX), ClientCommand(client, "sm_option");
-            case 4: GetAllProMatchStat(client);
+            case 3: GetAllProMatchStat(client);
             case 7: ClientCommand(client, "sm_m");
             case 8: CloseHandle(menu);
         }
@@ -93,5 +88,4 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
 
 void ResetDefaultOption(client) {
     g_bAutoThrow[client] = true;
-    g_bQQTrigger[client] = false;
 }
