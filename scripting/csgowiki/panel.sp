@@ -1,9 +1,9 @@
 // menu collect
 
-#include "csgowiki/menus/menu_wiki.sp"
-#include "csgowiki/menus/menu_wikiop.sp"
 #include "csgowiki/menus/menu_option.sp"
 #include "csgowiki/menus/menu_wikipro.sp"
+#include "csgowiki/menus/menu_wiki.sp"
+#include "csgowiki/menus/menu_wikiop.sp"
 
 public Action:Command_Panel(client, args) {
     if (!IsPlayer(client)) return Plugin_Handled;

@@ -172,7 +172,6 @@ void TriggerWikiPost(client) {
 
     // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
     g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
-    PrintToChat(client, "len: %d", strlen(path));
 
     // request
     char url[LENGTH_MESSAGE];
@@ -209,8 +208,6 @@ void TriggerWikiPost(client) {
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
     postData.SetString("path", path);
-
-    postData.ToFile("addons/sourcemod/csgowiki-pack-dev/post-body.json");
 
     httpRequest.Post(postData, WikiPostResponseCallback, client);
     delete postData;

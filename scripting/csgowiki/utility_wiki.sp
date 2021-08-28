@@ -48,10 +48,12 @@ void GetAllCollection(client=-1) {
     AllCollectionRequest.Get(AllCollectionResponseCallback, client);
 
     // pro
-    Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
-    HTTPRequest ProCollectionRequest = new HTTPRequest(url);
-    ProCollectionRequest.Get(ProCollectionResponseCallback);
-    delete ProCollectionRequest;
+    // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
+        Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
+        HTTPRequest ProCollectionRequest = new HTTPRequest(url);
+        ProCollectionRequest.SetHeader("Content-Type", "application/json");
+        ProCollectionRequest.Get(ProCollectionResponseCallback, client);
+    // }
 }
 
 void GetFilterCollection(client, char[] method) {
@@ -160,7 +162,7 @@ void AllCollectionResponseCallback(HTTPResponse response, int client) {
         }
         g_jaUtilityCollection = view_as<JSONArray>(resp_json.Get("utility_collection"));
         // show menu for Command_Wiki
-        if (client != -1) {
+        if (IsPlayer(client)) {
             Menu_UtilityWiki_v1(client);
         }
         // need delete?
@@ -173,8 +175,17 @@ void AllCollectionResponseCallback(HTTPResponse response, int client) {
 
 
 void ProCollectionResponseCallback(HTTPResponse response, int client) {
+    if (IsPlayer(client)) {
+        PrintToChat(client, "%s 职业比赛道具获取：%d", PREFIX, response.Status);
+    }
     if (response.Status == HTTPStatus_OK) {
-        g_aProMatchInfo = view_as<JSONArray>(response.Data);
+        JSONArray resp_json = view_as<JSONArray>(response.Data);
+        g_aProMatchInfo = new JSONArray();
+        for (int idx = 0; idx < resp_json.Length; idx++) {
+            JSONObject arrval = view_as<JSONObject>(resp_json.Get(idx));
+            g_aProMatchInfo.Push(arrval);
+        }
+        // g_aProMatchInfo = view_as<JSONArray>(response.Data);
     }
     else {
         PrintToChatAll("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);

@@ -95,6 +95,10 @@ public OnMapStart() {
     EnforceDirExists("data/csgowiki/replays");
 }
 
+public OnMapEnd() {
+    // delete g_aProMatchInfo;
+}
+
 public OnConfigsExecuted() {
     PluginVersionCheck();
 }

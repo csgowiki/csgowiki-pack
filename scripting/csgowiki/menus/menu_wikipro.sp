@@ -82,7 +82,14 @@ void ProRoundResponseCallback(HTTPResponse response, DataPack pack) {
     char round_str[4];
     pack.ReadString(round_str, sizeof(round_str));
     if (response.Status == HTTPStatus_OK) {
-        g_aProMatchDetail[client] = view_as<JSONArray>(response.Data);
+        delete g_aProMatchDetail[client];
+        g_aProMatchDetail[client] = new JSONArray();
+        JSONArray resp_json = view_as<JSONArray>(response.Data);
+        for (int idx = 0; idx < resp_json.Length; idx++) {
+            JSONObject arrval = view_as<JSONObject>(resp_json.Get(idx));
+            g_aProMatchDetail[client].Push(arrval);
+        }
+        // g_aProMatchDetail[client] = view_as<JSONArray>(response.Data);
         CreateProDetailMenu(client, round_str);
     }
     else {
