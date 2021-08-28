@@ -39,31 +39,25 @@ void MessageToQQ(int client, char[] name, char[] words, int msg_type=0) {
     GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
     GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
 
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        MessageToQQCallback,
-        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/to_qq"
-    );
+    HTTPRequest httpRequest = new HTTPRequest("https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/to_qq");
+    JSONObject postData = new JSONObject();
+    postData.SetString("sv_remark", remark);
+    postData.SetString("qq_group", qqgroup);
+    postData.SetString("sender", name);
+    postData.SetString("message", words);
+    postData.SetString("sv_host", svHost);
+    postData.SetString("token", token);
+    postData.SetInt("sv_port", svPort);
+    postData.SetInt("msg_type", msg_type);
 
-    httpRequest.SetData(
-        "sv_remark=%s&qq_group=%s&sender=%s&message=%s&msg_type=%d&sv_host=%s&sv_port=%d&token=%s",
-        remark, qqgroup, name, words, msg_type, svHost, svPort, token
-    );
-    httpRequest.Any = client;
-    httpRequest.POST();
-    delete httpRequest;
+    httpRequest.Post(postData, MessageToQQCallback, client);
+    delete postData;
 }
 
-public MessageToQQCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        int client = request.Any;
+void MessageToQQCallback(HTTPResponse response, int client) {
+    if (response.Status == HTTPStatus_OK) {
         char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
+        JSONObject json_obj = view_as<JSONObject>(response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (!StrEqual(status, "ok")) {
             if (IsPlayer(client)) {
@@ -75,7 +69,10 @@ public MessageToQQCallback(bool success, const char[] error, System2HTTPRequest 
                 PrintToChat(client, "%s \x06消息发送成功", PREFIX);
             }
         }
-        json_cleanup_and_delete(json_obj);
+        delete json_obj;
+    }
+    else {
+        PrintToChat(client, "%s \x02服务器状态异常：%d", PREFIX, response.Status);
     }
 }
 
@@ -108,28 +105,23 @@ void TcpCreate() {
         return;
     }
 
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        TcpCreateCallback,
-        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_create"
-    );
-    httpRequest.SetData(
-        "sv_remark=%s&qq_group=%s&sv_host=%s&sv_port=%d&token=%s",
-        remark, qqgroup, svHost, svPort, token
-    );
-    httpRequest.POST();
-    delete httpRequest;
+    HTTPRequest httpRequest = new HTTPRequest("https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_create");
+    
+    JSONObject postData = new JSONObject();
+    postData.SetString("sv_remark", remark);
+    postData.SetString("qq_group", qqgroup);
+    postData.SetString("sv_host", svHost);
+    postData.SetString("token", token);
+    postData.SetInt("sv_port", svPort);
+
+    httpRequest.Post(postData, TcpCreateCallback);
+    delete postData;
 }
 
-public TcpCreateCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
+void TcpCreateCallback(HTTPResponse response, any data) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject json_obj = view_as<JSONObject>(response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChatAll("%s \x02消息通道建立失败", PREFIX);
@@ -138,7 +130,10 @@ public TcpCreateCallback(bool success, const char[] error, System2HTTPRequest re
         else if (StrEqual(status, "ok")){
             PrintToServer("%s \x06消息通道建立成功", PREFIX);
         }
-        json_cleanup_and_delete(json_obj);
+        delete json_obj;
+    }
+    else {
+        PrintToServer("%s 消息通道服务器连接失败：%d", PREFIX, response.Status);
     }
 }
 
@@ -152,29 +147,22 @@ void TcpClose() {
     GetConVarString(g_hChannelQQgroup, qqgroup, sizeof(qqgroup));
     GetConVarString(g_hCSGOWikiToken, token, sizeof(token))
 
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        TcpCloseCallback,
-        "https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_close"
-    );
+    HTTPRequest httpRequest = new HTTPRequest("https://service-mxw8pitd-1256946954.cd.apigw.tencentcs.com/release/api/tcp_close");
+    
+    JSONObject postData = new JSONObject();
+    postData.SetString("sv_remark", remark);
+    postData.SetString("qq_group", qqgroup);
+    postData.SetString("sv_host", svHost);
+    postData.SetString("token", token);
 
-    httpRequest.SetData(
-        "sv_remark=%s&qq_group=%s&sv_host=%s&token=%s",
-        remark, qqgroup, svHost, token
-    );
-    httpRequest.POST();
-    delete httpRequest;
+    httpRequest.Post(postData, TcpCloseCallback);
+    delete postData;
 }
 
-public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    if (success) {
-        char[] status = new char[LENGTH_STATUS];
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || content[0] != '{') {
-            PrintToServer("%s \x02服务器异常：%s", PREFIX, content);
-            return;
-        }
-        JSON_Object json_obj = json_decode(content);
+void TcpCloseCallback(HTTPResponse response, any data) {
+    if (response.Status == HTTPStatus_OK) {
+        char status[LENGTH_STATUS];
+        JSONObject json_obj = view_as<JSONObject>(response.Data);
         json_obj.GetString("status", status, LENGTH_STATUS);
         if (StrEqual(status, "error")) {
             PrintToChatAll("%s \x02消息通道关闭失败", PREFIX);
@@ -182,7 +170,7 @@ public TcpCloseCallback(bool success, const char[] error, System2HTTPRequest req
         else if (StrEqual(status, "ok")){
             PrintToServer("%s \x06消息通道关闭成功", PREFIX);
         }
-        json_cleanup_and_delete(json_obj);
+        delete json_obj;
     }
 }
 
@@ -212,7 +200,7 @@ public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int 
         PrintToServer("[Socket] receive error: %s", receiveData);
         return;
     }
-    JSON_Object json_obj = json_decode(receiveData);
+    JSONObject json_obj = JSONObject.FromString(receiveData);
     char sender[LENGTH_NAME];
     char message[LENGTH_MESSAGE];
     int msg_type = json_obj.GetInt("msg_type");
@@ -225,17 +213,17 @@ public Action OnChildSocketReceive(Handle socket, char[] receiveData, const int 
     }
     else if (msg_type == 1) {
         char monitor_str[LENGTH_SERVER_MONITOR];
-        JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true);
-        monitor_json.Encode(monitor_str, LENGTH_SERVER_MONITOR);
+        JSONArray monitor_json = encode_json_server_monitor(-2, false, false, true);
+        monitor_json.ToString(monitor_str, LENGTH_SERVER_MONITOR);
         MessageToQQ(-1, "Bot", monitor_str, 1);
     }
     else if (msg_type == 2) {
         char monitor_str[LENGTH_SERVER_MONITOR];
-        JSON_Array monitor_json = encode_json_server_monitor(-2, false, false, true, true);
-        monitor_json.Encode(monitor_str, LENGTH_SERVER_MONITOR);
+        JSONArray monitor_json = encode_json_server_monitor(-2, false, false, true, true);
+        monitor_json.ToString(monitor_str, LENGTH_SERVER_MONITOR);
         SocketSend(socket, monitor_str);
     }
-    json_cleanup_and_delete(json_obj);
+    delete json_obj;
 	// SocketSend(socket, receiveData);
 	// close the connection/socket/handle if it matches quit
 	// if (strncmp(receiveData, "quit", 4) == 0) CloseHandle(socket);

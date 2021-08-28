@@ -120,7 +120,7 @@ public HltvApiResultCallBack(bool success, const char[] error, System2HTTPReques
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
-        JSON_Array arr = view_as<JSON_Array>(json_decode(content));
+        JSONArray arr = view_as<JSONArray>(json_decode(content));
         for (int idx = 0; idx < RESULTSCACHE; idx++) {
             g_jResults[idx] = arr.GetObject(idx);
         }
@@ -136,7 +136,7 @@ public HltvApiProRecordCallBack(bool success, const char[] error, System2HTTPReq
     if (success) {
         char[] content = new char[response.ContentLength + 1];
         response.GetContent(content, response.ContentLength + 1);
-        JSON_Array proRecord = view_as<JSON_Array>(json_decode(content));
+        JSONArray proRecord = view_as<JSONArray>(json_decode(content));
         printOutProRecord(client, proRecord);
     }
     else {
@@ -148,7 +148,7 @@ public Action:TimerCallBack(Handle timer) {
     queryResults();
 }
 
-void printOutProRecord(client, JSON_Array proRecord) {
+void printOutProRecord(client, JSONArray proRecord) {
     PrintToChat(client, "\x01[\x05CSGO Wiki\x01] \x01|\x0E    选手    \x01|\x09 击杀 \x01|\x09 死亡 \x01|\x09 ADR \x01|\x09 KAST \x01|\x10 Rating \x01|")
     for (int idx = 0; idx < 10; idx ++) {  // 默认10人 可能有例外
         JSON_Object pro = proRecord.GetObject(idx);

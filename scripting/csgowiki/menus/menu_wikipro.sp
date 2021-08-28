@@ -16,10 +16,10 @@ public Action:Command_WikiPro(client, args) {
 }
 
 void CreateProRoundMenu(client) {
-    JSON_Object picked_info = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
+    JSONObject picked_info = view_as<JSONObject>(g_aProMatchInfo.Get(g_aProMatchIndex[client]));
     char team1[LENGTH_NAME], team2[LENGTH_NAME];
-    JSON_Object teamInfo_1 = picked_info.GetObject("team1");
-    JSON_Object teamInfo_2 = picked_info.GetObject("team2");
+    JSONObject teamInfo_1 = view_as<JSONObject>(picked_info.Get("team1"));
+    JSONObject teamInfo_2 = view_as<JSONObject>(picked_info.Get("team2"));
     teamInfo_1.GetString("name", team1, sizeof(team1));
     teamInfo_2.GetString("name", team2, sizeof(team2));
     int score1 = teamInfo_1.GetInt("result");
@@ -65,39 +65,35 @@ void ShowProListInRound(client, char round_str[4]) {
         return;
     }
     char _matchId[LENGTH_NAME];
-    JSON_Object arrval = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
+    char url[LENGTH_MESSAGE];
+    JSONObject arrval = view_as<JSONObject>(g_aProMatchInfo.Get(g_aProMatchIndex[client]));
     arrval.GetString("matchId", _matchId, sizeof(_matchId));
-    System2HTTPRequest ProDetailRequest = new System2HTTPRequest(
-        ProRoundResponseCallback, 
-        "https://api.hx-w.top/%s/%s/round%s",
-        g_sCurrentMap, _matchId, round_str
-    );
+    Format(url, sizeof(url), "https://api.hx-w.top/%s/%s/round%s", g_sCurrentMap, _matchId, round_str);
+    HTTPRequest ProDetailRequest = new HTTPRequest(url);
     DataPack pack = new DataPack();
     pack.WriteCell(client);
     pack.WriteString(round_str);
-    ProDetailRequest.Any = pack;
-    ProDetailRequest.GET();
-    delete ProDetailRequest;
+    ProDetailRequest.Get(ProRoundResponseCallback, pack);
 }
 
-public ProRoundResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    DataPack pack = request.Any;
+void ProRoundResponseCallback(HTTPResponse response, DataPack pack) {
     pack.Reset();
     int client = pack.ReadCell();
     char round_str[4];
     pack.ReadString(round_str, sizeof(round_str));
-    if (success) {
-        char[] content = new char[response.ContentLength + 1];
-        response.GetContent(content, response.ContentLength + 1);
-        if (response.ContentLength <= 1 || (content[0] != '{' && content[0] != '[')) {
-            PrintToChat(client, "%s \x02服务器异常：%s", PREFIX, content);
-            return;
+    if (response.Status == HTTPStatus_OK) {
+        delete g_aProMatchDetail[client];
+        g_aProMatchDetail[client] = new JSONArray();
+        JSONArray resp_json = view_as<JSONArray>(response.Data);
+        for (int idx = 0; idx < resp_json.Length; idx++) {
+            JSONObject arrval = view_as<JSONObject>(resp_json.Get(idx));
+            g_aProMatchDetail[client].Push(arrval);
         }
-        g_aProMatchDetail[client] = view_as<JSON_Array>(json_decode(content));
+        // g_aProMatchDetail[client] = view_as<JSONArray>(response.Data);
         CreateProDetailMenu(client, round_str);
     }
     else {
-        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%s", PREFIX, error);
+        PrintToChatAll("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);
     }
 }
 
@@ -120,7 +116,7 @@ void CreateProDetailMenu(client, char round_str[4]) {
     char item[LENGTH_NAME * 4];
     char utId[LENGTH_UTILITY_ID];
     for (new idx = 0; idx < g_aProMatchDetail[client].Length; idx++) {
-        JSON_Array curr = view_as<JSON_Array>(g_aProMatchDetail[client].GetObject(idx));
+        JSONArray curr = view_as<JSONArray>(g_aProMatchDetail[client].Get(idx));
         curr.GetString(11, playerName, sizeof(playerName));
         curr.GetString(17, utFullName, sizeof(utFullName));
         int round_throw_time = RoundFloat(curr.GetFloat(10));
@@ -156,8 +152,8 @@ void ShowProUtilityDetail(client, int utId) {
     float throwPos[DATA_DIM], startAngle[DATA_DIM], velocity[DATA_DIM];
     float entityPos[DATA_DIM];
 
-    JSON_Array detail_json = view_as<JSON_Array>(g_aProMatchDetail[client].GetObject(utId));
-    JSON_Object match_json = g_aProMatchInfo.GetObject(g_aProMatchIndex[client]);
+    JSONArray detail_json = view_as<JSONArray>(g_aProMatchDetail[client].Get(utId));
+    JSONObject match_json = view_as<JSONObject>(g_aProMatchInfo.Get(g_aProMatchIndex[client]));
 
     detail_json.GetString(17, utType, sizeof(utType));
     detail_json.GetString(11, playerName, sizeof(playerName));

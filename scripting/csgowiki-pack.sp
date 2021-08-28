@@ -1,6 +1,5 @@
 // 
 #include <csgowiki>
-#include <socket>
 
 #include "csgowiki/utils.sp"
 #include "csgowiki/panel.sp"
@@ -10,7 +9,6 @@
 #include "csgowiki/utility_wiki.sp"
 #include "csgowiki/utility_modify.sp"
 #include "csgowiki/kicker.sp"
-#include "csgowiki/qqchat.sp"
 #include "csgowiki/replay.sp"
 
 
@@ -18,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
     description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
-    version = "v1.4.2-fix1",
+    version = "v1.4.3",
     url = "https://docs.csgowiki.top/plugins"
 };
 
@@ -40,7 +38,6 @@ public OnPluginStart() {
 
     RegConsoleCmd("sm_m", Command_Panel);
 
-    RegConsoleCmd("sm_qq", Command_QQchat);
     RegConsoleCmd("sm_option", Command_Option);
     RegConsoleCmd("sm_wikipro", Command_WikiPro);
 
@@ -49,7 +46,6 @@ public OnPluginStart() {
     RegAdminCmd("sm_modify", Command_Modify, ADMFLAG_CHEATS);
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
-    RegAdminCmd("sm_init_qq", Command_InitQQ, ADMFLAG_CHEATS);
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -63,25 +59,15 @@ public OnPluginStart() {
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
     g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid", -1.0, -1.0, true);
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
-    g_hChannelEnable = FindOrCreateConvar("sm_qqchat_enable", "0", "Set wether enable qqchat or not, use `!qq <msg>` trigger qqchat when convar set 1");
-    g_hChannelQQgroup = FindOrCreateConvar("sm_qqchat_qqgroup", "", "Bind qqgroup id to this server. ONE qqgroup only");
-    g_hChannelServerRemark = FindOrCreateConvar("sm_qqchat_remark", "", "Set server name shown in qqchat");
-    g_hChannelSvPort = FindOrCreateConvar("sm_qqchat_sv_port", "50000", "Accept socket connect from channel. Remember to open this port");
-    g_hChannelSvHost = FindOrCreateConvar("sm_qqchat_sv_host", "", "Set host of the current server. `net_public_adr` will be used if this convar set empty");
     g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "https://apiproxy.mycsgolab.com:5555", "Alternative option for this setting is `https://api.mycsgolab.com` which source in Hongkong");
 
     HookOpConVarChange();
-
-	g_hSocket = SocketCreate(SOCKET_TCP, OnSocketError);
-	SocketBind(g_hSocket, "0.0.0.0", GetConVarInt(g_hChannelSvPort));
-	SocketListen(g_hSocket, OnSocketIncoming);
 
     AutoExecConfig(true, "csgowiki-pack");
 }
 
 public OnPluginEnd() {
     // close socket
-    TcpClose();
     CloseHandle(g_hSocket);
 }
 
@@ -105,16 +91,15 @@ public OnMapStart() {
     // init collection
     GetAllCollection();
 
-    if (GetConVarBool(g_hChannelEnable)) {
-        CreateTimer(1200.0, TcpHeartBeat, _, TIMER_REPEAT);
-    }
-
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
 }
 
+public OnMapEnd() {
+    // delete g_aProMatchInfo;
+}
+
 public OnConfigsExecuted() {
-    TcpCreate();
     PluginVersionCheck();
 }
 
@@ -187,16 +172,16 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
             return Plugin_Handled;
         }
     }
-    if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
-        if (strlen(sArgs) <= 0 || sArgs[0] == '!' || sArgs[0] == '.' || sArgs[0] == '/') {
-            return Plugin_Continue;
-        }
-        char name[LENGTH_NAME];
-        GetClientName(client, name, sizeof(name));
-        char words[LENGTH_MESSAGE];
-        strcopy(words, sizeof(words), sArgs);
-        StripQuotes(words);
-        MessageToQQ(client, name, words);
-    }
+    // if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
+    //     if (strlen(sArgs) <= 0 || sArgs[0] == '!' || sArgs[0] == '.' || sArgs[0] == '/') {
+    //         return Plugin_Continue;
+    //     }
+    //     char name[LENGTH_NAME];
+    //     GetClientName(client, name, sizeof(name));
+    //     char words[LENGTH_MESSAGE];
+    //     strcopy(words, sizeof(words), sArgs);
+    //     StripQuotes(words);
+    //     MessageToQQ(client, name, words);
+    // }
     return Plugin_Continue;
 }
