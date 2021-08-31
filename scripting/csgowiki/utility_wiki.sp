@@ -170,12 +170,6 @@ void AllCollectionResponseCallback(HTTPResponse response, int client) {
         }
 
         g_jaUtilityCollection = view_as<JSONArray>(resp_json.Get("utility_collection"));
-        // g_jaUtilityCollection = new JSONArray();
-        // JSONArray arr = view_as<JSONArray>(resp_json.Get("utility_collection"));
-        // for (int idx = 0; idx < arr.Length; idx++) {
-        //     JSONObject t = view_as<JSONObject>(arr.Get(idx));
-        //     g_jaUtilityCollection.Push(t);
-        // }
         // show menu for Command_Wiki
         if (IsPlayer(client)) {
             Menu_UtilityWiki_v1(client);

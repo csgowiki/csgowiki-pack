@@ -19,7 +19,13 @@ public Action:Command_Modify(client, args) {
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cM_ThrowReady;
-    g_aPlayerUtilityPath[client] = new JSONArray();
+    if (g_aPlayerUtilityPath[client] == null) {
+        g_aPlayerUtilityPath[client] = new ArrayList();
+    }
+    if (g_aPlayerUtilityPath[client] == null) {
+        g_aPlayerUtilityPath[client] = new ArrayList();
+    }
+    g_aPlayerUtilityPath[client].Clear();
 }
 
 public Action:Command_Velocity(client, args) {
@@ -95,10 +101,6 @@ void TriggerWikiModify(client) {
     postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
-    // char path[302400];
-    // g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
-    // PrintToChat(client, "len: %d", strlen(path));
-    // postData.SetString("path", path);
 
     httpRequest.Post(postData, WikiModifyResponseCallback, client);
 

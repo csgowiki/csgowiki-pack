@@ -53,7 +53,7 @@ char g_sLatestInfo[LENGTH_MESSAGE];
 // 道具路径
 const int g_iUtilityPathInterval = 2; // 间隔Frame采样
 int g_iPlayerUtilityPathFrameCount[MAXPLAYERS + 1];
-JSONArray g_aPlayerUtilityPath[MAXPLAYERS + 1];
+ArrayList g_aPlayerUtilityPath[MAXPLAYERS + 1];
 
 // --------- steam_bind.sp define -----------
 enum StateBind {

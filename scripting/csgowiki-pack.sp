@@ -93,6 +93,7 @@ public OnMapStart() {
 
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
+    EnforceDirExists("data/csgowiki/path");
 }
 
 public OnMapEnd() {
