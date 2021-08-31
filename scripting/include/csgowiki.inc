@@ -24,6 +24,7 @@
 #define LENGTH_UTILITY_BRIEF 41
 #define LENGTH_MESSAGE 128
 #define DATA_DIM 3
+#define LENGTH_URL 256
 
 #define CSGO_ACTION_NUM 9
 #define CSGOWIKI_ACTION_NUM 7
@@ -114,7 +115,9 @@ int g_aProMatchIndex[MAXPLAYERS + 1];
 // ------------- utility_wiki.sp define -----------
 JSONArray g_jaUtilityCollection;
 
+char g_aLastArticleId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
 char g_aLastUtilityId[MAXPLAYERS + 1][LENGTH_UTILITY_ID];
+
 JSONArray g_aUtFilterCollection[MAXPLAYERS + 1];
 bool g_aReqLock[MAXPLAYERS + 1];
 

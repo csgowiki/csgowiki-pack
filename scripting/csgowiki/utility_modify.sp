@@ -7,14 +7,14 @@ public Action:Command_Modify(client, args) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;
     }
-    if (strlen(g_aLastUtilityId[client]) == 0) {
+    if (strlen(g_aLastArticleId[client]) == 0) {
         PrintToChat(client, "%s \x02没有缓存的道具可以修改", PREFIX);
         return;
     }
     GetCmdArgString(g_aPlayerToken[client], LENGTH_TOKEN);
     TrimString(g_aPlayerToken[client]);
     PrintToChat(client, "%s \x06道具修改功能开启", PREFIX);
-    PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastUtilityId[client]);
+    PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastArticleId[client]);
     PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
@@ -31,12 +31,12 @@ public Action:Command_Velocity(client, args) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;
     }
-    if (strlen(g_aLastUtilityId[client]) == 0) {
+    if (strlen(g_aLastArticleId[client]) == 0) {
         PrintToChat(client, "%s \x02没有缓存的道具可以修改", PREFIX);
         return;
     }
     PrintToChat(client, "%s \x06道具速度添加功能开启", PREFIX);
-    PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastUtilityId[client]);
+    PrintToChat(client, "%s 你正在修改道具<\x04%s\x01>", PREFIX, g_aLastArticleId[client]);
     PrintToChat(client, "%s 输入\x04!abort\x01终止上传", PREFIX);
     g_aPlayerStatus[client] = e_cV_ThrowReady;
 }
@@ -64,12 +64,12 @@ void TriggerWikiModify(client) {
     char url[LENGTH_MESSAGE];
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/modify/?token=%s", apiHost, token);
+    Format(url, sizeof(url), "%s/v2/utility/modify/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
 
     JSONObject postData = new JSONObject();
-    postData.SetString("utility_id", g_aLastUtilityId[client]);
+    postData.SetString("article_id", g_aLastArticleId[client]);
     postData.SetString("steam_id", steamid);
     postData.SetFloat("start_x", g_aStartPositions[client][0]);
     postData.SetFloat("start_y", g_aStartPositions[client][1]);
@@ -95,10 +95,10 @@ void TriggerWikiModify(client) {
     postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
-    char path[302400];
-    g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
-    PrintToChat(client, "len: %d", strlen(path));
-    postData.SetString("path", path);
+    // char path[302400];
+    // g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
+    // PrintToChat(client, "len: %d", strlen(path));
+    // postData.SetString("path", path);
 
     httpRequest.Post(postData, WikiModifyResponseCallback, client);
 

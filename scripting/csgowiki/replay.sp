@@ -1,4 +1,4 @@
-#include <system2>
+// #include <system2>
 
 public Action Command_Record(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
@@ -31,101 +31,121 @@ public Action Command_StopRecord(client, args) {
     }
     PrintToChat(client, "%s \x02停止录像", PREFIX);
     if (strlen(g_aLastUtilityId[client]) != 0) {
+        PrintToChat(client, "[DEBUG] %s", g_aLastUtilityId[client]);
         BotMimic_StopRecording(client, true, g_aLastUtilityId[client]);
-        char command[256];
-        Format(command, sizeof(command), "mv /home/csgo/steamcmd/games/csgo/csgo/addons/sourcemod/data/botmimic/csgowiki/%s/%s.rec /home/csgo/csgowiki-cache/files/", g_sCurrentMap, g_aLastUtilityId[client]);
-        System2_ExecuteThreaded(ExecuteCallback, command);
+        
+        UploadPlayBack(client, g_aLastUtilityId[client]);
     }
     else {
         BotMimic_StopRecording(client, false);
     }
 }
 
-public void ExecuteCallback(bool success, const char[] command, System2ExecuteOutput output, any data) {
-    if (!success || output.ExitStatus != 0) {
-        PrintToChatAll("Couldn't execute commands successfully");
-    } else {
-        char outputString[128];
-        output.GetOutput(outputString, sizeof(outputString));
-        PrintToChatAll("Output of the command: %s", outputString);
-    }
-} 
-
-bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID]) {
-    if (!IsPlayer(client)) return false;
-    char filepath[84];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utility_id);
-    if (FileExists(filepath)) { // bug
-        PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
-        StartReplay(client, utility_id);
-        return false;
+void UploadPlayBack(int client, char utid[LENGTH_UTILITY_ID]) {
+    char filepath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/botmimic/csgowiki/%s/%s.rec", g_sCurrentMap, utid);
+    if (!FileExists(filepath)) {
+        PrintToChat(client, "%s \x02待上传文件不存在", PREFIX);
+        return;
     }
 
-    System2HTTPRequest httpRequest = new System2HTTPRequest(
-        BotMimicResponseCallback,
-        "http://ci.csgowiki.top:2333/botmimic/query/?utility_id=%s",
-        utility_id
-    );
+    char apiHost[LENGTH_TOKEN];
+    char token[LENGTH_TOKEN];
+    char url[LENGTH_URL];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+    PrintToChat(client, "%s \x04开始上传录像：%s", PREFIX, utid);
+
+    Format(url, sizeof(url), "%s/v2/utility/upload-playback-put/%s/?token=%s", apiHost, utid, token);
+    HTTPRequest request = new HTTPRequest(url);
     DataPack pack = new DataPack();
     pack.WriteCell(client);
-    pack.WriteString(utility_id);
-    httpRequest.Any = pack;
-    httpRequest.GET(); 
-    return true;
+    pack.WriteString(utid);
+    request.UploadFile(filepath, BotMimicUploadCallback, pack);
+    
 }
 
-public BotMimicResponseCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    DataPack pack = request.Any;
-    pack.Reset();
-    int client = pack.ReadCell();
-    if (success) {
-        if (response.StatusCode == 200 && DirExists("addons/sourcemod/data/csgowiki/replays")) {
-            char url[84], utid[LENGTH_UTILITY_ID];
-            request.GetURL(url, sizeof(url));
-            ReplaceString(url, sizeof(url), "query", "download");
-            // strcopy(utid, sizeof(utid), url[strlen(url) - sizeof(utid) + 2]);
-            pack.ReadString(utid, sizeof(utid));
-            System2HTTPRequest httpRequest = new System2HTTPRequest(BotMimicDownloadCallback, url);
-            Format(url, sizeof(url), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
-            httpRequest.SetOutputFile(url);
-            httpRequest.Any = pack;
-            httpRequest.GET();
-            if (IsPlayer(client))
-                PrintToChat(client, "%s \x09正在请求录像文件...", PREFIX);
-        }
-        else if (response.StatusCode != 200) {
-            PrintToChat(client, "%s \x0A该道具的录像文件不存在，请联系管理员上传", PREFIX);
-        }
-    }
-    else {
-        PrintToServer("%s botmimic resp error：%s", PREFIX, error);
-    }
-}
-
-public BotMimicDownloadCallback(bool success, const char[] error, System2HTTPRequest request, System2HTTPResponse response, HTTPRequestMethod method) {
-    DataPack pack = request.Any;
+void BotMimicUploadCallback(HTTPStatus status, DataPack pack) {
     pack.Reset();
     int client = pack.ReadCell();
     char utid[LENGTH_UTILITY_ID];
     pack.ReadString(utid, sizeof(utid));
-    delete pack;
-    if (!IsPlayer(client)) {  // remove if client disconnected
+    if (status != HTTPStatus_OK) {
+        // Upload failed
+        PrintToChat(client, "%s \x02录像文件上传失败：%d", PREFIX, status);
+        DeleteReplayFileFromUtid(utid, false);
+        return;
+    }
+    PrintToChat(client, "%s \x0A录像文件已上传CSGOLab", PREFIX);
+    DeleteReplayFileFromUtid(utid, false);
+} 
+
+// public void ExecuteCallback(bool success, const char[] command, System2ExecuteOutput output, any data) {
+//     if (!success || output.ExitStatus != 0) {
+//         PrintToChatAll("Couldn't execute commands successfully");
+//     } else {
+//         char outputString[128];
+//         output.GetOutput(outputString, sizeof(outputString));
+//         PrintToChatAll("Output of the command: %s", outputString);
+//     }
+// } 
+
+bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID], char utid[LENGTH_UTILITY_ID]) {
+    if (!IsPlayer(client)) return false;
+    char filepath[84];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
+    if (FileExists(filepath)) { // bug
+        PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
+        StartReplay(client, utid);
+        return false;
+    }
+    if (IsPlayer(client))
+        PrintToChat(client, "%s \x09正在请求录像文件...", PREFIX);
+
+    char apiHost[LENGTH_TOKEN];
+    char token[LENGTH_TOKEN];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+    char url[LENGTH_URL];
+    Format(url, sizeof(url), "%s/v2/utility/download-playback/?token=%s&article_id=%s", apiHost, token, utility_id);
+    HTTPRequest request = new HTTPRequest(url);
+    // request.AppendQueryParam("article_id", utility_id);
+    DataPack pack = new DataPack();
+    pack.WriteCell(client);
+    pack.WriteString(utid);
+    request.DownloadFile(filepath, BotMimicDownloadCallback, pack);
+    return true;
+}
+
+void BotMimicDownloadCallback(HTTPStatus status, DataPack pack) {
+    pack.Reset();
+    int client = pack.ReadCell();
+    char utid[LENGTH_UTILITY_ID];
+    pack.ReadString(utid, sizeof(utid));
+
+    if (!IsPlayer(client)) {
+        // client disconnected
         DeleteReplayFileFromUtid(utid);
         return;
     }
-    if (success && response.StatusCode == 200) {
-        PrintToChat(client, "%s \x04录像文件获取成功", PREFIX);
-        if (BotMimic_IsPlayerMimicing(client)) {
-            PrintToChat(client, "%s \x02请等待当前回放结束", client);
-        }
-        else {
-            StartReplay(client, utid);
-        }
+    if (status == HTTPStatus_NotFound || status == HTTPStatus_InternalServerError) {
+        DeleteReplayFileFromUtid(utid);
+        PrintToChat(client, "%s \x0A该道具的录像文件不存在，请联系管理员上传", PREFIX);
+        return;
+    }
+    if (status != HTTPStatus_OK) {
+        // Download failed
+        DeleteReplayFileFromUtid(utid);
+        PrintToChat(client, "%s \x02录像文件下载失败：%d", PREFIX, status);
+        PrintToServer("%s \x04录像文件下载失败：%d", PREFIX, status);
+        return;
+    }
+    PrintToChat(client, "%s \x04录像文件获取成功", PREFIX);
+    if (BotMimic_IsPlayerMimicing(client)) {
+        PrintToChat(client, "%s \x02请等待当前回放结束", client);
     }
     else {
-        PrintToChat(client, "%s \x02录像文件下载失败", PREFIX);
-        PrintToServer("%s \x04录像文件下载失败", PREFIX);
-        DeleteReplayFileFromUtid(utid);
+        StartReplay(client, utid);
     }
 }
 
@@ -137,15 +157,19 @@ public void StartReplay(int client, char utid[LENGTH_UTILITY_ID]) {
     DataPack fpack = new DataPack();
     fpack.WriteCell(client);
     char filepath[84];
-    Format(filepath, sizeof(filepath), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
     fpack.WriteString(filepath);
     RequestFrame(BotMimicStartReplay, fpack);
 }
 
-public void DeleteReplayFileFromUtid(char utid[LENGTH_UTILITY_ID]) {
+void DeleteReplayFileFromUtid(char utid[LENGTH_UTILITY_ID], bool type=true) {
     char filepath[84];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
-    // Format(filepath, sizeof(filepath), "addons/sourcemod/data/csgowiki/replays/%s.rec", utid);
+    if (type) {
+        BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
+    }
+    else {
+        BuildPath(Path_SM, filepath, sizeof(filepath), "data/botmimic/csgowiki/%s/%s.rec", g_sCurrentMap, utid);
+    }
     if (FileExists(filepath)) {
         DeleteFile(filepath);
     }
