@@ -161,7 +161,7 @@ void TriggerWikiPost(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
-    char path[302400];
+    // char path[302400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
@@ -171,13 +171,13 @@ void TriggerWikiPost(client) {
     // g_aPlayerUtilityPath[client].Encode(path, sizeof(path));
 
     // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
-    g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
+    // g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
 
     // request
     char url[LENGTH_MESSAGE];
     char apiHost[LENGTH_TOKEN];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/submit/?token=%s", apiHost, token);
+    Format(url, sizeof(url), "%s/v2/utility/submit/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
     JSONObject postData = new JSONObject();
@@ -207,7 +207,7 @@ void TriggerWikiPost(client) {
     postData.SetFloat("velocity_x", g_aUtilityVelocity[client][0]);
     postData.SetFloat("velocity_y", g_aUtilityVelocity[client][1]);
     postData.SetFloat("velocity_z", g_aUtilityVelocity[client][2]);
-    postData.SetString("path", path);
+    // postData.SetString("path", path);
 
     httpRequest.Post(postData, WikiPostResponseCallback, client);
     delete postData;

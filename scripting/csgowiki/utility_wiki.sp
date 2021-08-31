@@ -39,20 +39,20 @@ void GetAllCollection(client=-1) {
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
 
     char url[LENGTH_MESSAGE];
-    Format(url, sizeof(url), "%s/utility/utility/collection", apiHost);
+    Format(url, sizeof(url), "%s/v2/utility/filter", apiHost);
     HTTPRequest AllCollectionRequest = new HTTPRequest(url);
     AllCollectionRequest.AppendQueryParam("token", token);
-    AllCollectionRequest.AppendQueryParam("current_map", g_sCurrentMap);
+    AllCollectionRequest.AppendQueryParam("mapname", g_sCurrentMap);
     AllCollectionRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
 
     AllCollectionRequest.Get(AllCollectionResponseCallback, client);
 
     // pro
     // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
-        Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
-        HTTPRequest ProCollectionRequest = new HTTPRequest(url);
-        ProCollectionRequest.SetHeader("Content-Type", "application/json");
-        ProCollectionRequest.Get(ProCollectionResponseCallback, client);
+    Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
+    HTTPRequest ProCollectionRequest = new HTTPRequest(url);
+    ProCollectionRequest.SetHeader("Content-Type", "application/json");
+    ProCollectionRequest.Get(ProCollectionResponseCallback, client);
     // }
 }
 
@@ -65,15 +65,21 @@ void GetFilterCollection(client, char[] method) {
     char apiHost[LENGTH_TOKEN];
     char url[LENGTH_MESSAGE];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    Format(url, sizeof(url), "%s/utility/utility/filter", apiHost);
+    Format(url, sizeof(url), "%s/v2/utility/filter", apiHost);
 
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.AppendQueryParam("token", token);
-    httpRequest.AppendQueryParam("map", g_sCurrentMap);
+    httpRequest.AppendQueryParam("mapname", g_sCurrentMap);
     httpRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
-    httpRequest.AppendQueryParam("method", method);
-    httpRequest.AppendQueryParam("x", "%f", playerPos[0]);
-    httpRequest.AppendQueryParam("y", "%f", playerPos[1]);
+    // httpRequest.AppendQueryParam("method", method);
+    if (StrEqual(method, "start")) {
+        httpRequest.AppendQueryParam("start_x", "%f", playerPos[0]);
+        httpRequest.AppendQueryParam("start_y", "%f", playerPos[1]);
+    }
+    else if (StrEqual(method, "end")) {
+        httpRequest.AppendQueryParam("end_x", "%f", playerPos[0]);
+        httpRequest.AppendQueryParam("end_y", "%f", playerPos[1]);
+    }
     httpRequest.Get(FilterCollectionResponseCallback, client);
 }
 
@@ -104,11 +110,11 @@ void GetUtilityDetail(client, char[] utId) {
     char player_name[LENGTH_NAME];
     GetClientName(client, player_name, sizeof(player_name));
     char url[LENGTH_MESSAGE];
-    Format(url, sizeof(url), "%s/utility/utility/detail", apiHost);
+    Format(url, sizeof(url), "%s/v2/utility/detail", apiHost);
 
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.AppendQueryParam("token", token);
-    httpRequest.AppendQueryParam("utility_id", utId);
+    httpRequest.AppendQueryParam("article_id", utId);
     httpRequest.Get(UtilityDetailResponseCallback, client);
 
     // =====================================================
@@ -125,6 +131,7 @@ void GetUtilityDetail(client, char[] utId) {
 }
 
 void ResetSingleClientWikiState(client, bool force_del=false) {
+    if (strlen(g_aLastArticleId[client]) == 0) return;
     if (strlen(g_aLastUtilityId[client]) == 0) return;
     if (force_del) {
         DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
@@ -142,6 +149,7 @@ void ResetSingleClientWikiState(client, bool force_del=false) {
         }
     }
     strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, "");
+    strcopy(g_aLastArticleId[client], LENGTH_UTILITY_ID, "");
 }
 
 void ResetUtilityWikiState() {
@@ -160,7 +168,14 @@ void AllCollectionResponseCallback(HTTPResponse response, int client) {
             else PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
             return;
         }
+
         g_jaUtilityCollection = view_as<JSONArray>(resp_json.Get("utility_collection"));
+        // g_jaUtilityCollection = new JSONArray();
+        // JSONArray arr = view_as<JSONArray>(resp_json.Get("utility_collection"));
+        // for (int idx = 0; idx < arr.Length; idx++) {
+        //     JSONObject t = view_as<JSONObject>(arr.Get(idx));
+        //     g_jaUtilityCollection.Push(t);
+        // }
         // show menu for Command_Wiki
         if (IsPlayer(client)) {
             Menu_UtilityWiki_v1(client);
@@ -223,6 +238,8 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
         char status[LENGTH_STATUS];
         JSONObject resp_json = view_as<JSONObject>(response.Data);
         resp_json.GetString("status", status, LENGTH_STATUS);
+        char detail[1024];
+        resp_json.ToString(detail, sizeof(detail));
         if (StrEqual(status, "error")) {
             PrintToChat(client, "%s \x02服务器数据请求失败，可能是token无效", PREFIX);
         }
@@ -255,8 +272,10 @@ void ShowUtilityDetail(client, JSONObject detail_json) {
     char actionBody[LENGTH_UTILITY_ZH], actionMouse[LENGTH_UTILITY_ZH];
     float startPos[DATA_DIM], startAngle[DATA_DIM], velocity[DATA_DIM];
     float throwPos[DATA_DIM];
+    char trueUtId[LENGTH_UTILITY_ID];
 
     detail_json.GetString("id", utId, sizeof(utId));
+    detail_json.GetString("utility_id", trueUtId, sizeof(trueUtId));
     detail_json.GetString("type", utType, sizeof(utType));
     detail_json.GetString("title", utTitle, sizeof(utTitle));
     detail_json.GetString("brief", utBrief, sizeof(utBrief));
@@ -278,7 +297,7 @@ void ShowUtilityDetail(client, JSONObject detail_json) {
 
     // set last ut record
     // clear pre-recfile
-    if (!StrEqual(g_aLastUtilityId[client], utId)) {
+    if (!StrEqual(g_aLastUtilityId[client], trueUtId)) {
         bool candelete = true;
         for (int i = 0; i <= MaxClients; i++) {
             if (IsPlayer(i) && i != client && StrEqual(g_aLastUtilityId[client], g_aLastUtilityId[i])) {
@@ -289,7 +308,11 @@ void ShowUtilityDetail(client, JSONObject detail_json) {
         if (candelete) {
             DeleteReplayFileFromUtid(g_aLastUtilityId[client]);
         }
-        strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, utId);
+        strcopy(g_aLastUtilityId[client], LENGTH_UTILITY_ID, trueUtId);
+    }
+
+    if (!StrEqual(g_aLastArticleId[client], utId)) {
+        strcopy(g_aLastArticleId[client], LENGTH_UTILITY_ID, utId);
     }
     // decode ut name
     char utNameZh[LENGTH_UTILITY_ZH], utWeaponCmd[LENGTH_UTILITY_ZH];
@@ -303,7 +326,7 @@ void ShowUtilityDetail(client, JSONObject detail_json) {
     FakeClientCommand(client, utWeaponCmd);
     // auto throw
     if (g_bAutoThrow[client]) {
-        if (!StartRequestReplayFile(client, utId)) {
+        if (!StartRequestReplayFile(client, utId, trueUtId)) {
             if (velocity[0] == 0.0 && velocity[1] == 0.0 && velocity[2] == 0.0) {
                 PrintToChat(client, "%s \x06当前道具没有记录初始速度，无法自动投掷", PREFIX);
             }
