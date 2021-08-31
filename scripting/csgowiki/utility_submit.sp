@@ -16,7 +16,11 @@ public Action:Command_Submit(client, args) {
     GetClientAbsOrigin(client, g_aStartPositions[client]);
     GetClientEyeAngles(client, g_aStartAngles[client]);
     g_aPlayerStatus[client] = e_cThrowReady;
-    g_aPlayerUtilityPath[client] = new JSONArray();
+    
+    if (g_aPlayerUtilityPath[client] == null) {
+        g_aPlayerUtilityPath[client] = new ArrayList();
+    }
+    g_aPlayerUtilityPath[client].Clear();
 }
 
 public Action:Command_SubmitAbort(client, args) {
@@ -48,15 +52,10 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
     if (e_cAlreadyThrown == g_aPlayerStatus[client] || e_cM_AlreadyThrown == g_aPlayerStatus[client]) {
         if (g_iUtilityEntityId[client] != 0 && g_iPlayerUtilityPathFrameCount[client] % g_iUtilityPathInterval == 0) {
             float position[3];
-            JSONArray pos = new JSONArray();
             GetEntPropVector(g_iUtilityEntityId[client], Prop_Send, "m_vecOrigin", position);
-            // pos.PushFloat(float_reserve(position[0]));
-            // pos.PushFloat(float_reserve(position[1]));
-            // pos.PushFloat(float_reserve(position[2]));
-            pos.PushFloat(position[0]);
-            pos.PushFloat(position[1]);
-            pos.PushFloat(position[2]);
-            g_aPlayerUtilityPath[client].Push(pos);
+            g_aPlayerUtilityPath[client].Push(position[0]);
+            g_aPlayerUtilityPath[client].Push(position[1]);
+            g_aPlayerUtilityPath[client].Push(position[2]);
         }
         g_iPlayerUtilityPathFrameCount[client] ++;
     }
@@ -117,7 +116,10 @@ void ResetSingleClientSubmitState(client) {
     g_aActionRecord[client] = 0;
     g_iPlayerUtilityPathFrameCount[client] = 0;
     g_iUtilityEntityId[client] = 0;
-    delete g_aPlayerUtilityPath[client];
+    if (g_aPlayerUtilityPath[client] == null) {
+        g_aPlayerUtilityPath[client] = new ArrayList();
+    }
+    g_aPlayerUtilityPath[client].Clear();
 }
 
 void ResetUtilitySubmitState() {
@@ -147,13 +149,15 @@ void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
         }
         g_iPlayerUtilityPathFrameCount[client] = 0;
         g_iUtilityEntityId[client] = 0;
-        delete g_aPlayerUtilityPath[client];
+        if (g_aPlayerUtilityPath[client] == null) {
+        g_aPlayerUtilityPath[client] = new ArrayList();
+    }
+        g_aPlayerUtilityPath[client].Clear();
     }
 }
 
 void TriggerWikiPost(client) {
     // post api
-    // url = "https://api.csgowiki.top/api/utility/submit/"
 
     // param define
     char token[LENGTH_TOKEN] = "";
@@ -161,17 +165,12 @@ void TriggerWikiPost(client) {
     char utTinyName[LENGTH_UTILITY_TINY] = "";
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};  // init all false
     char tickTag[LENGTH_STATUS] = "";
-    // char path[302400];
     // param fix
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     GetClientAuthId(client, AuthId_SteamID64, steamid, LENGTH_STEAMID64);
     GrenadeType_2_Tinyname(g_aUtilityType[client], utTinyName);
     Action_Int2Array(client, wikiAction);
     TicktagGenerate(tickTag, wikiAction);
-    // g_aPlayerUtilityPath[client].Encode(path, sizeof(path));
-
-    // PrintToChat(client, "total frame: %d; sampled frame: %d", g_iPlayerUtilityPathFrameCount[client], g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval);
-    // g_aPlayerUtilityPath[client].ToString(path, sizeof(path));
 
     // request
     char url[LENGTH_MESSAGE];
@@ -223,6 +222,10 @@ void WikiPostResponseCallback(HTTPResponse response, int client) {
         if (StrEqual(status, "ok")) {
             char utId[LENGTH_UTILITY_ID];
             json_obj.GetString("code", utId, LENGTH_UTILITY_ID);
+            // upload path
+            SaveUtilityPath(client, utId);
+            UploadUtilityPath(client, utId);
+
             ShowResult(client, utId);
         }
         else {
@@ -251,4 +254,76 @@ void ShowResult(client, char[] utId) {
     PrintToChat(client, "%s 该道具记录的唯一标识为<\x04%s\x01>", PREFIX, utId);
     PrintToChat(client, "%s 请在\x02尽快\x01登陆网站补全道具信息(图片和文字描述)", PREFIX);
     PrintToChat(client, "\x09 ------------------------------------- ");
+}
+
+void SaveUtilityPath(int client, char filename[LENGTH_UTILITY_ID]) {
+    // 检查count
+    if (g_aPlayerUtilityPath[client].Length / 3 != g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval) {
+        PrintToChat(client, "%s \x02道具路径数据记录错误：理论采样数 %d / 实际采样数 %d", PREFIX, g_iPlayerUtilityPathFrameCount[client] / g_iUtilityPathInterval, g_aPlayerUtilityPath[client].Length / 3);
+        return;
+    }
+    
+    char filepath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", filename);
+    File hFile = OpenFile(filepath, "wb");
+	if(hFile == null) {
+		LogError("Can't open the record file for writing! (%s)", filepath);
+		return;
+	}
+    hFile.WriteInt32(g_aPlayerUtilityPath[client].Length / 3);
+
+    float pos[3];
+    for (int idx = 0; idx < g_aPlayerUtilityPath[client].Length; idx++) {
+        pos[idx % 3] = view_as<float>(g_aPlayerUtilityPath[client].Get(idx));
+        if (idx % 3 == 2) {
+            hFile.Write(pos, 3, 4);
+        }
+    }
+
+    delete hFile;
+}
+
+void UploadUtilityPath(int client, char utid[LENGTH_UTILITY_ID]) {
+    char filepath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+    if (!FileExists(filepath)) {
+        PrintToChat(client, "%s \x02待上传文件不存在", PREFIX);
+        return;
+    }
+
+    char apiHost[LENGTH_TOKEN];
+    char token[LENGTH_TOKEN];
+    char url[LENGTH_URL];
+    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+    PrintToChat(client, "%s \x04开始上传路径文件：%s", PREFIX, utid);
+    Format(url, sizeof(url), "%s/v2/utility/upload-path-put/%s/?token=%s", apiHost, utid, token);
+    HTTPRequest request = new HTTPRequest(url);
+
+    DataPack pack = new DataPack();
+    pack.WriteCell(client);
+    pack.WriteString(utid);
+
+    request.UploadFile(filepath, UploadUtilityPathCallback, pack);
+}
+
+void UploadUtilityPathCallback(HTTPStatus status, DataPack pack) {
+    pack.Reset();
+    int client = pack.ReadCell();
+    char utid[LENGTH_UTILITY_ID];
+    pack.ReadString(utid, sizeof(utid));
+
+    // filepath
+    char filepath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+
+    if (status != HTTPStatus_OK) {
+        PrintToChat(client, "%s \x02路径文件上传失败：%d", PREFIX, status);
+    }
+    else {
+        PrintToChat(client, "%s \x0A路径文件已上传CSGOLab", PREFIX);
+    }
+    if (FileExists(filepath)) {
+        DeleteFile(filepath);
+    }
 }
