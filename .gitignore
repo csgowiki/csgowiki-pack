@@ -3,7 +3,7 @@
 botreplay/
 !csgowiki.inc
 !socket.inc
-!botmimic_csgowiki.inc
+!botmimic_fix.inc
 spcomp
 spcomp64
 compiled/

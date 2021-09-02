@@ -4,7 +4,7 @@
 #include <cstrike>
 #include <ripext>
 #include <socket>
-#include <botmimic_csgowiki>
+#include <botmimic_fix>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
 #pragma dynamic 1310720
