@@ -72,11 +72,11 @@ public OnPluginEnd() {
 }
 
 public void OnLibraryAdded(const char[] name) {
-    g_bBotMimicLoaded = LibraryExists("botmimic_csgowiki");
+    g_bBotMimicLoaded = LibraryExists("botmimic_fix");
 }
 
 public void OnLibraryRemoved(const char[] name) {
-    g_bBotMimicLoaded = LibraryExists("botmimic_csgowiki");
+    g_bBotMimicLoaded = LibraryExists("botmimic_fix");
 }
 
 public OnMapStart() {

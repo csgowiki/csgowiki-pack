@@ -351,8 +351,8 @@ stock void BotMimic_GetErrorString(BMError error, char[] str, int maxlen)
 
 public SharedPlugin __pl_botmimic = 
 {
-	name = "botmimic_csgowiki",
-	file = "botmimic_csgowiki.smx",
+	name = "botmimic_fix",
+	file = "botmimic_fix.smx",
 #if defined REQUIRE_PLUGIN
 	required = 1
 #else
