@@ -6,7 +6,7 @@ public Action:Command_Submit(client, args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         return;
     }
-    if (BotMimic_IsPlayerMimicing(client)) {
+    if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
     }
@@ -29,8 +29,8 @@ public Action:Command_SubmitAbort(client, args) {
         ResetSingleClientSubmitState(client);
         PrintToChat(client, "%s 已终止上传流程", PREFIX);
     }
-    if (BotMimic_IsPlayerMimicing(client)) {
-        BotMimic_StopPlayerMimic(client);
+    if (BotMimicFix_IsPlayerMimicing(client)) {
+        BotMimicFix_StopPlayerMimic(client);
     }
 }
 
@@ -63,7 +63,7 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
 
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
-        if (BotMimic_IsPlayerMimicing(client)) {
+        if (BotMimicFix_IsPlayerMimicing(client)) {
             AcceptEntityInput(entity, "Kill");
 
             if (g_aUtilityVelocity[client][0] + g_aUtilityVelocity[client][1] + g_aUtilityVelocity[client][2] == 0.0) {

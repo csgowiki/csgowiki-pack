@@ -3,7 +3,7 @@ public Action:Command_WikiPro(client, args) {
         return;
     }
 
-    if (BotMimic_IsPlayerMimicing(client)) {
+    if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
     }
@@ -60,7 +60,7 @@ void ShowProListInRound(client, char round_str[4]) {
     if (g_aProMatchIndex[client] == -1) {
         return;
     }
-    if (BotMimic_IsPlayerMimicing(client)) {
+    if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
     }

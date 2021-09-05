@@ -9,35 +9,35 @@ public Action Command_Record(client, args) {
         PrintToChat(client, "%s \x02没有缓存的道具可以修改", PREFIX);
         return;
     }
-    if (BotMimic_IsPlayerMimicing(client)) {
+    if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
     }
-    if (BotMimic_IsPlayerRecording(client)) {
+    if (BotMimicFix_IsPlayerRecording(client)) {
         PrintToChat(client, "%s \x02正在录像", PREFIX);
         return;
     }
     PrintToChat(client, "%s \x04开始录像", PREFIX);
-    BotMimic_StartRecording(client, g_aLastUtilityId[client], "csgowiki");
+    BotMimicFix_StartRecording(client, g_aLastUtilityId[client], "csgowiki");
 }
 
 public Action Command_StopRecord(client, args) {
     if (!IsPlayer(client)) {
         return;
     }
-    if (!BotMimic_IsPlayerRecording(client)) {
+    if (!BotMimicFix_IsPlayerRecording(client)) {
         PrintToChat(client, "%s \x02还未开始录像", PREFIX);
         return;
     }
     PrintToChat(client, "%s \x02停止录像", PREFIX);
     if (strlen(g_aLastUtilityId[client]) != 0) {
         PrintToChat(client, "[DEBUG] %s", g_aLastUtilityId[client]);
-        BotMimic_StopRecording(client, true, g_aLastUtilityId[client]);
+        BotMimicFix_StopRecording(client, true, g_aLastUtilityId[client]);
         
         UploadPlayBack(client, g_aLastUtilityId[client]);
     }
     else {
-        BotMimic_StopRecording(client, false);
+        BotMimicFix_StopRecording(client, false);
     }
 }
 
@@ -141,7 +141,7 @@ void BotMimicDownloadCallback(HTTPStatus status, DataPack pack) {
         return;
     }
     PrintToChat(client, "%s \x04录像文件获取成功", PREFIX);
-    if (BotMimic_IsPlayerMimicing(client)) {
+    if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02请等待当前回放结束", client);
     }
     else {
@@ -181,16 +181,16 @@ public void BotMimicStartReplay(DataPack pack) {
     char filepath[84];
     pack.ReadString(filepath, sizeof(filepath));
 
-    BMError err = BotMimic_PlayRecordFromFile(client, filepath);
+    BMError err = BotMimicFix_PlayRecordFromFile(client, filepath);
     if (err != BM_NoError) {
         char errString[128];
-        BotMimic_GetErrorString(err, errString, sizeof(errString));
+        BotMimicFix_GetErrorString(err, errString, sizeof(errString));
         LogError("Error playing record %s on client %d: %s", filepath, client, errString);
     }
     delete pack;
 }
 
-public void BotMimic_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
+public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
     if (IsPlayer(client)) {
         TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
     }
