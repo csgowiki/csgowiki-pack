@@ -67,8 +67,6 @@ public OnPluginStart() {
 }
 
 public OnPluginEnd() {
-    // close socket
-    CloseHandle(g_hSocket);
 }
 
 public void OnLibraryAdded(const char[] name) {
