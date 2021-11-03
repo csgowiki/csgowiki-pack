@@ -3,7 +3,6 @@
 #include <sdktools>
 #include <cstrike>
 #include <ripext>
-#include <socket>
 #include <botmimic_fix>
 
 #define PREFIX "\x01[\x05CSGOWiki\x01]"
@@ -29,7 +28,6 @@
 #define CSGO_ACTION_NUM 9
 #define CSGOWIKI_ACTION_NUM 7
 
-Handle g_hSocket = INVALID_HANDLE;
 // 功能开关  steambind 不能关闭
 Handle g_hCSGOWikiEnable = INVALID_HANDLE;
 Handle g_hOnUtilitySubmit = INVALID_HANDLE;
