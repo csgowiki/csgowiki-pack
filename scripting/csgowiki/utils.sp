@@ -229,45 +229,6 @@ void ResetReqLock(pclient = -1) {
 }
 
 
-// ----------------- server monitor json generator -------
-// JSONArray encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
-//     JSONArray monitor_json = new JSONArray();
-//     if (inctoken) {
-//         char token[LENGTH_TOKEN];
-//         GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-//         monitor_json.PushString(token);
-//     }
-//     if (exclient == -1) {
-//         monitor_json.Push(new JSONArray());
-//         return monitor_json;
-//     }
-//     if (incmap) {
-//         monitor_json.PushString(g_sCurrentMap);
-//     }
-//     for (int client_id = 0; client_id <= MaxClients; client_id++) {
-//         if(!IsPlayer(client_id) || client_id == exclient) continue;
-//         char client_name[LENGTH_NAME], steamid[LENGTH_STEAMID64], str_ping[4];
-//         GetClientName(client_id, client_name, LENGTH_NAME);
-//         if (authType) {
-//             GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
-//         } else {
-//             GetClientAuthId(client_id, AuthId_Steam2, steamid, LENGTH_STEAMID64)
-//         }
-//         float latency = GetClientAvgLatency(client_id, NetFlow_Both);
-//         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
-//         // json encode
-//         JSONArray client_arr = new JSONArray();
-//         if (incid) {
-//             client_arr.PushInt(client_id);
-//         }
-//         client_arr.PushString(client_name);
-//         client_arr.PushString(steamid);
-//         client_arr.PushString(str_ping);
-//         monitor_json.Push(client_arr);
-//     }
-//     return monitor_json;
-// }
-
 // ----------------- check version ----------------------
 void PluginVersionHint(client) {
     if (StrEqual(g_sLatestVersion, "")) {
