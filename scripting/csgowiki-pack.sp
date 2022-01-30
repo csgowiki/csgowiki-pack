@@ -59,11 +59,23 @@ public OnPluginStart() {
     g_hOnUtilityWiki = FindOrCreateConvar("sm_utility_wiki_on", "1", "Set module: <utility_wiki> on/off.");
     g_hCSGOWikiToken = FindOrCreateConvar("sm_csgowiki_token", "", "Make sure csgowiki token valid. Some modules will be disabled if csgowiki token invalid", -1.0, -1.0, true);
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
-    g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "https://apiproxy.mycsgolab.com:5555", "Alternative option for this setting is `https://api.mycsgolab.com` which source in Hongkong");
+    g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "http://121.40.123.93:2333", "Alternative option for this setting is `https://api.mycsgolab.com` which source in Hongkong");
+	g_hLocalCacheEnable = FindOrCreateConvar("sm_csgowiki_cache_enable", "1", "Enable local cache.");
+	
+
 
     HookOpConVarChange();
 
     AutoExecConfig(true, "csgowiki-pack");
+	
+	// initialize cache
+	char path[256];
+	if (check_function_on(g_hLocalCacheEnable,"")) {
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/");
+		if (!DirExists(path)) {
+			CreateDirectory(path, 511);
+		}
+	}
 }
 
 public OnPluginEnd() {
