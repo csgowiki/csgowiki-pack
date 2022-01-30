@@ -34,8 +34,11 @@ Handle g_hOnUtilitySubmit = INVALID_HANDLE;
 Handle g_hOnUtilityWiki = INVALID_HANDLE;
 Handle g_hWikiReqLimit = INVALID_HANDLE;
 Handle g_hWikiAutoKicker = INVALID_HANDLE;
+Handle g_hLocalCacheEnable = INVALID_HANDLE;
+
 // wiki token
 Handle g_hCSGOWikiToken;
+
 // api host
 Handle g_hApiHost = INVALID_HANDLE;
 

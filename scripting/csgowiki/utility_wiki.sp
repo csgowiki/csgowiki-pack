@@ -46,6 +46,7 @@ void GetAllCollection(client=-1) {
     AllCollectionRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
 
     AllCollectionRequest.Get(AllCollectionResponseCallback, client);
+	PrintToServer(url);
 
     // pro
     // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
@@ -100,34 +101,49 @@ void GetUtilityDetail(client, char[] utId) {
             CreateTimer(fWikiLimit, ReqLockTimerCallback, client);
         }
     }
+	
+	if (check_function_on(g_hLocalCacheEnable,"")) {
+		char path[256];
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/%s.txt", utId);
+		if (FileExists(path)) {
+			Handle hFile = OpenFile(path, "r");
+			char content[1024];
+			ReadFileString(hFile, content, sizeof(content));
+			JSONObject resp_json = JSONObject.FromString(content);
+			JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
+            ShowUtilityDetail(client, json_obj);
+			CloseHandle(hFile);
+			return;
+		}
+	}
 
-    char token[LENGTH_TOKEN];
-    GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-    char apiHost[LENGTH_TOKEN];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
-    char steamid_[LENGTH_STEAMID64];
-    GetClientAuthId(client, AuthId_SteamID64, steamid_, LENGTH_STEAMID64);
-    char player_name[LENGTH_NAME];
-    GetClientName(client, player_name, sizeof(player_name));
-    char url[LENGTH_MESSAGE];
-    Format(url, sizeof(url), "%s/v2/utility/detail", apiHost);
+	char token[LENGTH_TOKEN];
+	GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
+	char apiHost[LENGTH_TOKEN];
+	GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+	char steamid_[LENGTH_STEAMID64];
+	GetClientAuthId(client, AuthId_SteamID64, steamid_, LENGTH_STEAMID64);
+	char player_name[LENGTH_NAME];
+	GetClientName(client, player_name, sizeof(player_name));
+	char url[LENGTH_MESSAGE];
+	Format(url, sizeof(url), "%s/v2/utility/detail", apiHost);
+	
+	HTTPRequest httpRequest = new HTTPRequest(url);
+	httpRequest.AppendQueryParam("token", token);
+	httpRequest.AppendQueryParam("article_id", utId);
+	httpRequest.Get(UtilityDetailResponseCallback, client);
 
-    HTTPRequest httpRequest = new HTTPRequest(url);
-    httpRequest.AppendQueryParam("token", token);
-    httpRequest.AppendQueryParam("article_id", utId);
-    httpRequest.Get(UtilityDetailResponseCallback, client);
+	// =====================================================
+	// HTTPRequest postRequest = new HTTPRequest("http://ci.csgowiki.top:2333/trigger/wiki-player");
+	// postRequest.SetHeader("Content-Type", "application/json");
 
-    // =====================================================
-    // HTTPRequest postRequest = new HTTPRequest("http://ci.csgowiki.top:2333/trigger/wiki-player");
-    // postRequest.SetHeader("Content-Type", "application/json");
-
-    // JSONObject postData = new JSONObject();
-    // postData.SetString("map_name", g_sCurrentMap);
-    // postData.SetString("steamid", steamid_);
-    // postData.SetString("player_name", player_name);
-    
-    // postRequest.Post(postData, WikiPlayerTriggerResponseCallback);
-    // delete postData;
+	// JSONObject postData = new JSONObject();
+	// postData.SetString("map_name", g_sCurrentMap);
+	// postData.SetString("steamid", steamid_);
+	// postData.SetString("player_name", player_name);
+		
+	// postRequest.Post(postData, WikiPlayerTriggerResponseCallback);
+	// delete postData;
 }
 
 void ResetSingleClientWikiState(client, bool force_del=false) {
@@ -243,6 +259,21 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
         else if (StrEqual(status, "ok")) {
             JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
             ShowUtilityDetail(client, json_obj);
+			
+			if (check_function_on(g_hLocalCacheEnable,"")) {
+				char utId[LENGTH_UTILITY_ID];
+				json_obj.GetString("id", utId, sizeof(utId));
+				char path[256];
+			
+				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/%s.txt", utId);
+				Handle hFile = OpenFile(path,"w");
+				PrintToServer(path);
+				WriteFileString(hFile,detail,false);
+				PrintToServer(detail);
+				CloseHandle(hFile);
+				
+			}
+			
         }
         delete resp_json;
     }
