@@ -46,7 +46,6 @@ void GetAllCollection(client=-1) {
     AllCollectionRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
 
     AllCollectionRequest.Get(AllCollectionResponseCallback, client);
-	PrintToServer(url);
 
     // pro
     // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
@@ -104,7 +103,7 @@ void GetUtilityDetail(client, char[] utId) {
 	
 	if (check_function_on(g_hLocalCacheEnable,"")) {
 		char path[256];
-		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/%s.txt", utId);
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.txt", utId);
 		if (FileExists(path)) {
 			Handle hFile = OpenFile(path, "r");
 			char content[1024];
@@ -265,11 +264,9 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
 				json_obj.GetString("id", utId, sizeof(utId));
 				char path[256];
 			
-				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/%s.txt", utId);
+				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.txt", utId);
 				Handle hFile = OpenFile(path,"w");
-				PrintToServer(path);
 				WriteFileString(hFile,detail,false);
-				PrintToServer(detail);
 				CloseHandle(hFile);
 				
 			}

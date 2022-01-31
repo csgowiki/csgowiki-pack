@@ -71,7 +71,7 @@ public OnPluginStart() {
 	// initialize cache
 	char path[256];
 	if (check_function_on(g_hLocalCacheEnable,"")) {
-		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/detail/");
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/");
 		if (!DirExists(path)) {
 			CreateDirectory(path, 511);
 		}
