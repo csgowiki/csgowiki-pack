@@ -183,5 +183,17 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
             return Plugin_Handled;
         }
     }
+	    // if (GetConVarBool(g_hChannelEnable) && g_bQQTrigger[client]) {
+    //     if (strlen(sArgs) <= 0 || sArgs[0] == '!' || sArgs[0] == '.' || sArgs[0] == '/') {
+    //         return Plugin_Continue;
+    //     }
+    //     char name[LENGTH_NAME];
+    //     GetClientName(client, name, sizeof(name));
+    //     char words[LENGTH_MESSAGE];
+    //     strcopy(words, sizeof(words), sArgs);
+    //     StripQuotes(words);
+    //     MessageToQQ(client, name, words);
+    // }
+	
     return Plugin_Continue;
 }
