@@ -61,7 +61,7 @@ public OnPluginStart() {
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
     g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "http://121.40.123.93:2333", "Alternative option for this setting is `https://api.mycsgolab.com` which source in Hongkong");
 	g_hLocalCacheEnable = FindOrCreateConvar("sm_csgowiki_cache_enable", "1", "Enable local cache.");
-	
+	g_hLocalCacheFileLimit = FindOrCreateConvar("sm_csgowiki_cache_limit","500","Set the limit of the cache files. set -1 for unlimit.");
 
 
     HookOpConVarChange();
@@ -72,6 +72,10 @@ public OnPluginStart() {
 	char path[256];
 	if (check_function_on(g_hLocalCacheEnable,"")) {
 		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/");
+		if (!DirExists(path)) {
+			CreateDirectory(path, 511);
+		}
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/replays/");
 		if (!DirExists(path)) {
 			CreateDirectory(path, 511);
 		}

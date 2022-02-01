@@ -103,7 +103,7 @@ void GetUtilityDetail(client, char[] utId) {
 	
 	if (check_function_on(g_hLocalCacheEnable,"")) {
 		char path[256];
-		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.txt", utId);
+		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.json", utId);
 		if (FileExists(path)) {
 			Handle hFile = OpenFile(path, "r");
 			char content[1024];
@@ -112,7 +112,7 @@ void GetUtilityDetail(client, char[] utId) {
 
 			// timestamp
 			int currentTimestamp = GetTime();
-			int timestamp = resp_json.GetInt("timestamp");
+			int timestamp = GetFileTime(path, FileTime_Created);
 			
 			if ( (currentTimestamp - timestamp) < 432000 ) { // 5 days
 				JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
@@ -272,17 +272,43 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
 				char utId[LENGTH_UTILITY_ID];
 				json_obj.GetString("id", utId, sizeof(utId));
 				char path[256];
-				
-				int timestamp = GetTime();
-				resp_json.SetInt("timestamp",timestamp);
-				resp_json.ToString(detail, sizeof(detail));
-				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.txt", utId);
+				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.json", utId);
 				Handle hFile = OpenFile(path,"w");
 				WriteFileString(hFile,detail,false);
 				CloseHandle(hFile);
 				
+				// LRU
+				char directoryPath[84];
+				char filepath[84];
+				BuildPath(Path_SM, directoryPath, sizeof(directoryPath), "data/csgowiki/cache/detail");
+        
+		        int limit = GetConVarInt(g_hLocalCacheFileLimit);
+		   	 	if (limit != -1) {
+		   	 		DirectoryListing dL = OpenDirectory(directoryPath);
+		   	 		char buffer[64];
+		   	 		char fileName[64];
+		   	 		dL.GetNext(buffer, sizeof(buffer));
+		   	 		dL.GetNext(buffer, sizeof(buffer));
+		   	 		int timestamp = 0;
+		   	 		int fileCounter = 0;
+		   	 		while(dL.GetNext(buffer, sizeof(buffer))) {
+		   	 			char path[84];
+		   	 			BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s", buffer);
+		   	 			int currentTimestamp = GetFileTime(path, FileTime_Created);
+		   	 			if (fileCounter == 0) {timestamp = currentTimestamp;}
+		   	 			else if (currentTimestamp < timestamp) {
+		   	 				timestamp = currentTimestamp;
+		   	 				fileName = buffer;
+		   	 			}
+		   	 			fileCounter++;
+		   	 		}
+   	 		
+		   	 		if (fileCounter >= limit) {
+		   	 			BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/detail/%s", fileName);
+		   	 			DeleteFile(filepath);
+		   	 		}
+   	 			}
 			}
-			
         }
         delete resp_json;
     }
