@@ -109,10 +109,19 @@ void GetUtilityDetail(client, char[] utId) {
 			char content[1024];
 			ReadFileString(hFile, content, sizeof(content));
 			JSONObject resp_json = JSONObject.FromString(content);
-			JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
-            ShowUtilityDetail(client, json_obj);
-			CloseHandle(hFile);
-			return;
+
+			// timestamp
+			int currentTimestamp = GetTime();
+			int timestamp = resp_json.GetInt("timestamp");
+			
+			if ( (currentTimestamp - timestamp) < 432000 ) { // 5 days
+				JSONObject json_obj = view_as<JSONObject>(resp_json.Get("utility_detail"));
+            	ShowUtilityDetail(client, json_obj);
+				CloseHandle(hFile);
+				return;
+			} else {
+				DeleteFile(path);
+			}
 		}
 	}
 
@@ -263,7 +272,10 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
 				char utId[LENGTH_UTILITY_ID];
 				json_obj.GetString("id", utId, sizeof(utId));
 				char path[256];
-			
+				
+				int timestamp = GetTime();
+				resp_json.SetInt("timestamp",timestamp);
+				resp_json.ToString(detail, sizeof(detail));
 				BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/%s.txt", utId);
 				Handle hFile = OpenFile(path,"w");
 				WriteFileString(hFile,detail,false);
