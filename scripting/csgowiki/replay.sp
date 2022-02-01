@@ -93,7 +93,7 @@ void BotMimicUploadCallback(HTTPStatus status, DataPack pack) {
 bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID], char utid[LENGTH_UTILITY_ID]) {
     if (!IsPlayer(client)) return false;
     char filepath[84];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/replays/%s.rec", utid);
     if (FileExists(filepath)) { // bug
         PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
         StartReplay(client, utid);
@@ -157,22 +157,53 @@ public void StartReplay(int client, char utid[LENGTH_UTILITY_ID]) {
     DataPack fpack = new DataPack();
     fpack.WriteCell(client);
     char filepath[84];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/replays/%s.rec", utid);
     fpack.WriteString(filepath);
     RequestFrame(BotMimicStartReplay, fpack);
 }
 
 void DeleteReplayFileFromUtid(char utid[LENGTH_UTILITY_ID], bool type=true) {
     char filepath[84];
+    char directoryPath[84];
     if (type) {
-        BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/replays/%s.rec", utid);
+        BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/replays/%s.rec", utid);
+        BuildPath(Path_SM, directoryPath, sizeof(directoryPath), "data/csgowiki/cache/replays");
+        
+        int limit = GetConVarInt(g_hLocalCacheFileLimit);
+   	 	if (limit != -1) {
+   	 		DirectoryListing dL = OpenDirectory(directoryPath);
+   	 		char buffer[64];
+   	 		char fileName[64];
+   	 		dL.GetNext(buffer, sizeof(buffer));
+   	 		dL.GetNext(buffer, sizeof(buffer));
+   	 		int timestamp = 0;
+   	 		int fileCounter = 0;
+   	 		while(dL.GetNext(buffer, sizeof(buffer))) {
+   	 			char path[84];
+   	 			BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/replays/%s", buffer);
+   	 			int currentTimestamp = GetFileTime(path, FileTime_Created);
+   	 			if (fileCounter == 0) {timestamp = currentTimestamp;}
+   	 			else if (currentTimestamp < timestamp) {
+   	 				timestamp = currentTimestamp;
+   	 				fileName = buffer;
+   	 			}
+   	 			fileCounter++;
+   	 		}
+   	 		
+   	 		if (fileCounter >= limit) {
+   	 			BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/replays/%s", fileName);
+   	 			DeleteFile(filepath);
+   	 		}
+   	 		
+   	 	}
     }
     else {
         BuildPath(Path_SM, filepath, sizeof(filepath), "data/botmimic/csgowiki/%s/%s.rec", g_sCurrentMap, utid);
-    }
-    if (FileExists(filepath)) {
         DeleteFile(filepath);
     }
+   
+    
+    
 }
 
 public void BotMimicStartReplay(DataPack pack) {
