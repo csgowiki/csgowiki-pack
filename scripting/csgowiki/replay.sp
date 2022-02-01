@@ -95,9 +95,16 @@ bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID], char
     char filepath[84];
     BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/replays/%s.rec", utid);
     if (FileExists(filepath)) { // bug
-        PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
-        StartReplay(client, utid);
-        return false;
+    	int timestamp = GetFileTime(filepath, FileTime_Created);
+    	int currentTimestamp = GetTime();
+    	
+    	if ((currentTimestamp - timestamp) < 432000) {
+    		PrintToChat(client, "%s \x04命中缓存，开始播放录像", PREFIX);
+        	StartReplay(client, utid);
+        	return false;
+    	} else {
+    		DeleteFile(filepath);
+    	}
     }
     if (IsPlayer(client))
         PrintToChat(client, "%s \x09正在请求录像文件...", PREFIX);
