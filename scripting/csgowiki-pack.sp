@@ -93,9 +93,11 @@ public OnMapStart() {
     GetAllCollection();
 
 	// initialize cache
+    EnforceDirExists("data/csgowiki");
+    EnforceDirExists("data/csgowiki/cache");
     EnforceDirExists("data/csgowiki/cache/replays");
     EnforceDirExists("data/csgowiki/cache/path");
-	if (check_function_on(g_hLocalCacheEnable,"")) {
+	if (check_function_on(g_hLocalCacheEnable, "")) {
         EnforceDirExists("data/csgowiki/cache/detail");
 	}
 }
