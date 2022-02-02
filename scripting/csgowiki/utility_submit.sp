@@ -264,7 +264,7 @@ void SaveUtilityPath(int client, char filename[LENGTH_UTILITY_ID]) {
     }
     
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", filename);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", filename);
     File hFile = OpenFile(filepath, "wb");
 	if(hFile == null) {
 		LogError("Can't open the record file for writing! (%s)", filepath);
@@ -285,7 +285,7 @@ void SaveUtilityPath(int client, char filename[LENGTH_UTILITY_ID]) {
 
 void UploadUtilityPath(int client, char utid[LENGTH_UTILITY_ID]) {
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", utid);
     if (!FileExists(filepath)) {
         PrintToChat(client, "%s \x02待上传文件不存在", PREFIX);
         return;
@@ -315,7 +315,7 @@ void UploadUtilityPathCallback(HTTPStatus status, DataPack pack) {
 
     // filepath
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", utid);
 
     if (status != HTTPStatus_OK) {
         PrintToChat(client, "%s \x02路径文件上传失败：%d", PREFIX, status);
