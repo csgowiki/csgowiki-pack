@@ -61,7 +61,7 @@ public OnPluginStart() {
     g_hWikiReqLimit = FindOrCreateConvar("sm_wiki_request_limit", "1", "Limit cooling time(second) for each player's `!wiki` request. Set 0 to unlimit", 0.0, 10.0);
     g_hApiHost = FindOrCreateConvar("sm_csgowiki_apihost", "http://121.40.123.93:2333", "Alternative option for this setting is `https://api.mycsgolab.com` which source in Hongkong");
 	g_hLocalCacheEnable = FindOrCreateConvar("sm_csgowiki_cache_enable", "1", "Enable local cache.");
-	g_hLocalCacheFileLimit = FindOrCreateConvar("sm_csgowiki_cache_limit","500","Set the limit of the cache files. set -1 for unlimit.");
+	g_hLocalCacheFileLimit = FindOrCreateConvar("sm_csgowiki_cache_limit","10","Set the limit of the cache files. set -1 for unlimit.");
 
 
     HookOpConVarChange();
