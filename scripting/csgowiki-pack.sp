@@ -16,7 +16,7 @@ public Plugin:myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
     description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
-    version = "v1.4.3",
+    version = "v1.4.4",
     url = "https://docs.csgowiki.top/plugins"
 };
 
@@ -67,19 +67,6 @@ public OnPluginStart() {
     HookOpConVarChange();
 
     AutoExecConfig(true, "csgowiki-pack");
-	
-	// initialize cache
-	char path[256];
-	if (check_function_on(g_hLocalCacheEnable,"")) {
-		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/detail/");
-		if (!DirExists(path)) {
-			CreateDirectory(path, 511);
-		}
-		BuildPath(Path_SM, path, sizeof(path), "data/csgowiki/cache/replays/");
-		if (!DirExists(path)) {
-			CreateDirectory(path, 511);
-		}
-	}
 }
 
 public OnPluginEnd() {
@@ -105,9 +92,12 @@ public OnMapStart() {
     // init collection
     GetAllCollection();
 
-    EnforceDirExists("data/csgowiki");
-    EnforceDirExists("data/csgowiki/replays");
-    EnforceDirExists("data/csgowiki/path");
+	// initialize cache
+    EnforceDirExists("data/csgowiki/cache/replays");
+    EnforceDirExists("data/csgowiki/cache/path");
+	if (check_function_on(g_hLocalCacheEnable,"")) {
+        EnforceDirExists("data/csgowiki/cache/detail");
+	}
 }
 
 public OnMapEnd() {

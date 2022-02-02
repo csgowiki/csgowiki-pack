@@ -318,11 +318,11 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
 }
 
 
-void WikiPlayerTriggerResponseCallback(HTTPResponse response, any data) {
-    if (response.Status != HTTPStatus_OK) {
-        PrintToServer("wiki-player trigger error: %d", response.Status);
-    }
-}
+// void WikiPlayerTriggerResponseCallback(HTTPResponse response, any data) {
+//     if (response.Status != HTTPStatus_OK) {
+//         PrintToServer("wiki-player trigger error: %d", response.Status);
+//     }
+// }
 
 void ShowUtilityDetail(client, JSONObject detail_json) {
     if (!IsPlayer(client)) return;
