@@ -174,8 +174,8 @@ void TriggerWikiPost(client) {
 
     // request
     char url[LENGTH_MESSAGE];
-    char apiHost[LENGTH_TOKEN];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     Format(url, sizeof(url), "%s/v2/utility/submit/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
@@ -264,7 +264,7 @@ void SaveUtilityPath(int client, char filename[LENGTH_UTILITY_ID]) {
     }
     
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", filename);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", filename);
     File hFile = OpenFile(filepath, "wb");
 	if(hFile == null) {
 		LogError("Can't open the record file for writing! (%s)", filepath);
@@ -285,19 +285,19 @@ void SaveUtilityPath(int client, char filename[LENGTH_UTILITY_ID]) {
 
 void UploadUtilityPath(int client, char utid[LENGTH_UTILITY_ID]) {
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", utid);
     if (!FileExists(filepath)) {
         PrintToChat(client, "%s \x02待上传文件不存在", PREFIX);
         return;
     }
 
-    char apiHost[LENGTH_TOKEN];
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
     char token[LENGTH_TOKEN];
     char url[LENGTH_URL];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     PrintToChat(client, "%s \x04开始上传路径文件：%s", PREFIX, utid);
-    Format(url, sizeof(url), "%s/v2/utility/upload-path-put/%s/?token=%s", apiHost, utid, token);
+    Format(url, sizeof(url), "%s/v2/utility/upload-path/%s/?token=%s", apiHost, utid, token);
     HTTPRequest request = new HTTPRequest(url);
 
     DataPack pack = new DataPack();
@@ -315,7 +315,7 @@ void UploadUtilityPathCallback(HTTPStatus status, DataPack pack) {
 
     // filepath
     char filepath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/path/%s.path", utid);
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/cache/path/%s.path", utid);
 
     if (status != HTTPStatus_OK) {
         PrintToChat(client, "%s \x02路径文件上传失败：%d", PREFIX, status);

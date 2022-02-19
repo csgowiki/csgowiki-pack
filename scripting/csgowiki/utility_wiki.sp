@@ -41,6 +41,7 @@ void GetAllCollection(client=-1) {
     char url[LENGTH_MESSAGE];
     Format(url, sizeof(url), "%s/v2/utility/filter", apiHost);
     HTTPRequest AllCollectionRequest = new HTTPRequest(url);
+    AllCollectionRequest.SetHeader("Content-Type", "application/json");
     AllCollectionRequest.AppendQueryParam("token", token);
     AllCollectionRequest.AppendQueryParam("mapname", g_sCurrentMap);
     AllCollectionRequest.AppendQueryParam("tickrate", "%d", g_iServerTickrate);
