@@ -174,8 +174,8 @@ void TriggerWikiPost(client) {
 
     // request
     char url[LENGTH_MESSAGE];
-    char apiHost[LENGTH_TOKEN];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     Format(url, sizeof(url), "%s/v2/utility/submit/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
@@ -291,13 +291,13 @@ void UploadUtilityPath(int client, char utid[LENGTH_UTILITY_ID]) {
         return;
     }
 
-    char apiHost[LENGTH_TOKEN];
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
     char token[LENGTH_TOKEN];
     char url[LENGTH_URL];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     PrintToChat(client, "%s \x04开始上传路径文件：%s", PREFIX, utid);
-    Format(url, sizeof(url), "%s/v2/utility/upload-path-put/%s/?token=%s", apiHost, utid, token);
+    Format(url, sizeof(url), "%s/v2/utility/upload-path/%s/?token=%s", apiHost, utid, token);
     HTTPRequest request = new HTTPRequest(url);
 
     DataPack pack = new DataPack();
