@@ -49,14 +49,14 @@ void UploadPlayBack(int client, char utid[LENGTH_UTILITY_ID]) {
         return;
     }
 
-    char apiHost[LENGTH_TOKEN];
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
     char token[LENGTH_TOKEN];
     char url[LENGTH_URL];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     PrintToChat(client, "%s \x04开始上传录像：%s", PREFIX, utid);
 
-    Format(url, sizeof(url), "%s/v2/utility/upload-playback-put/%s/?token=%s", apiHost, utid, token);
+    Format(url, sizeof(url), "%s/v2/utility/upload-playback/%s/?token=%s", apiHost, utid, token);
     HTTPRequest request = new HTTPRequest(url);
     DataPack pack = new DataPack();
     pack.WriteCell(client);
