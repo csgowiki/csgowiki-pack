@@ -116,18 +116,6 @@ void GetUtilityDetail(client, char[] utId) {
     httpRequest.AppendQueryParam("token", token);
     httpRequest.AppendQueryParam("article_id", utId);
     httpRequest.Get(UtilityDetailResponseCallback, client);
-
-    // =====================================================
-    // HTTPRequest postRequest = new HTTPRequest("http://ci.csgowiki.top:2333/trigger/wiki-player");
-    // postRequest.SetHeader("Content-Type", "application/json");
-
-    // JSONObject postData = new JSONObject();
-    // postData.SetString("map_name", g_sCurrentMap);
-    // postData.SetString("steamid", steamid_);
-    // postData.SetString("player_name", player_name);
-    
-    // postRequest.Post(postData, WikiPlayerTriggerResponseCallback);
-    // delete postData;
 }
 
 void ResetSingleClientWikiState(client, bool force_del=false) {
@@ -248,13 +236,6 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
     }
     else {
         PrintToChat(client, "%s \x02连接至mycsgolab失败：%d", PREFIX, response.Status);
-    }
-}
-
-
-void WikiPlayerTriggerResponseCallback(HTTPResponse response, any data) {
-    if (response.Status != HTTPStatus_OK) {
-        PrintToServer("wiki-player trigger error: %d", response.Status);
     }
 }
 
