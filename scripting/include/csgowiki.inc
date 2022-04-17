@@ -24,6 +24,8 @@
 #define LENGTH_MESSAGE 128
 #define DATA_DIM 3
 #define LENGTH_URL 256
+#define LENGTH_PATH 128
+#define MAX_REPLAY_CLIENTS 12
 
 #define CSGO_ACTION_NUM 9
 #define CSGOWIKI_ACTION_NUM 7
@@ -126,3 +128,12 @@ char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
 bool g_bAutoThrow[MAXPLAYERS + 1];
 
 bool g_bBotMimicLoaded = false;
+
+// ------------- minidemo define --------------------
+char g_sMinidemoDirBase[LENGTH_PATH];
+char g_sMinidemoName[MAX_REPLAY_CLIENTS][LENGTH_PATH];
+int g_iMinidemoBots[MAX_REPLAY_CLIENTS];
+int g_iMinidemoCount = 0;
+bool g_bMinidemoOn = false;
+int g_iMinidemoStatus = -1; // (1 << 0) T, (1 << 1) CT, (1 << 0 | 1 << 1) Both
+bool g_bMinidemoBotsOn[MAX_REPLAY_CLIENTS];

@@ -1,5 +1,3 @@
-// #include <system2>
-
 public Action Command_Record(int client, any args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
@@ -80,15 +78,6 @@ void BotMimicUploadCallback(HTTPStatus status, DataPack pack) {
     DeleteReplayFileFromUtid(utid, false);
 } 
 
-// public void ExecuteCallback(bool success, const char[] command, System2ExecuteOutput output, any data) {
-//     if (!success || output.ExitStatus != 0) {
-//         PrintToChatAll("Couldn't execute commands successfully");
-//     } else {
-//         char outputString[128];
-//         output.GetOutput(outputString, sizeof(outputString));
-//         PrintToChatAll("Output of the command: %s", outputString);
-//     }
-// } 
 
 bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID], char utid[LENGTH_UTILITY_ID]) {
     if (!IsPlayer(client)) return false;
@@ -193,5 +182,29 @@ public void BotMimicStartReplay(DataPack pack) {
 public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
     if (IsPlayer(client)) {
         TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
+    }
+    if (isMinidemoBot(client)) {
+        PrintToChatAll("%s bot %d 停止播放", PREFIX, client);
+        g_bMinidemoOn = false;
+
+        int idx_client = -1;
+        for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+            if (g_iMinidemoBots[idx] == client) {
+                idx_client = idx;
+                break;
+            }
+        }
+
+        g_bMinidemoBotsOn[idx_client] = false;
+        KillBot(client);
+        for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+            if (g_iMinidemoBots[idx] < 0) {
+                continue;
+            }
+            g_bMinidemoOn |= g_bMinidemoBotsOn[idx];
+        }
+        if (!g_bMinidemoOn) {
+            ServerCommand("bot_kick");
+        }
     }
 }

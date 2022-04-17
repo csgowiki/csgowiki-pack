@@ -1,5 +1,5 @@
 /**
- * CSGOWiki - A funtools for the game Counter-Strike: Global Offensive
+ * CSGOWiki - A utility study plugin for CS:GO
  * by CarOL
  * website: https://github.com/csgowiki/csgowiki-pack
  */
@@ -18,6 +18,8 @@
 #include "csgowiki/utility_modify.sp"
 #include "csgowiki/kicker.sp"
 #include "csgowiki/replay.sp"
+
+#include "csgowiki/minidemo.sp"
 
 
 public Plugin myinfo = {
@@ -54,6 +56,12 @@ public void OnPluginStart() {
     RegAdminCmd("sm_modify", Command_Modify, ADMFLAG_CHEATS);
     RegAdminCmd("sm_wikiop", Command_Wikiop, ADMFLAG_CHEATS);
     RegAdminCmd("sm_vel", Command_Velocity, ADMFLAG_GENERIC);
+
+    // minidemo
+    {
+        RegAdminCmd("sm_minidemo", Command_Minidemo, ADMFLAG_CHEATS);
+        RegAdminCmd("sm_debug", Command_Debug, ADMFLAG_CHEATS);
+    }
 
     // post fix
     g_iServerTickrate = GetServerTickrate();
@@ -100,6 +108,7 @@ public void OnMapStart() {
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
     EnforceDirExists("data/csgowiki/path");
+    EnforceDirExists("data/csgowiki/minidemo");
 }
 
 public void OnMapEnd() {
@@ -140,6 +149,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[D
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }
+
 }
 
 public Action Event_HegrenadeDetonate(Handle event, const char[] name, bool dontBroadcast) {
