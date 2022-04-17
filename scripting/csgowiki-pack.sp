@@ -1,4 +1,8 @@
-
+/**
+ * CSGOWiki - A funtools for the game Counter-Strike: Global Offensive
+ * by CarOL
+ * website: https://github.com/csgowiki/csgowiki-pack
+ */
 #pragma newdecls required
 #pragma semicolon 1
 #pragma tabsize 4
@@ -20,8 +24,8 @@ public Plugin myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
     description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
-    version = "v1.4.3",
-    url = "https://docs.csgowiki.top/plugins"
+    version = "v1.4.4",
+    url = "https://docs.csgowiki.top/csgowiki-pack/index"
 };
 
 public void OnPluginStart() {
