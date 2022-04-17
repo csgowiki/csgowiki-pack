@@ -1,9 +1,9 @@
 // implement menus
 
 // 道具分类  第一层menu
-void Menu_UtilityWiki_v1(client) {
+void Menu_UtilityWiki_v1(int client) {
     if (!IsPlayer(client)) return;
-    new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_v1_CallBack);
+    Handle menuhandle = CreateMenu(Menu_UtilityWiki_v1_CallBack);
     SetMenuTitle(menuhandle, "CSGOWiki道具分类");
 
     AddMenuItem(menuhandle, "smoke", "烟雾弹");
@@ -20,10 +20,10 @@ void Menu_UtilityWiki_v1(client) {
 }
 
 
-public Menu_UtilityWiki_v1_CallBack(Handle:menuhandle, MenuAction:action, client, Position) {
+public int Menu_UtilityWiki_v1_CallBack(Handle menuhandle, MenuAction action, int client, int Position) {
     if (!IsPlayer(client)) return;
     if (action == MenuAction_Select) {
-        decl String:Item[10];
+        char Item[10];
         GetMenuItem(menuhandle, Position, Item, sizeof(Item));
         if (StrEqual(Item, "endspot")) {
             GetFilterCollection(client, "end");
@@ -41,9 +41,9 @@ public Menu_UtilityWiki_v1_CallBack(Handle:menuhandle, MenuAction:action, client
 }
 
 // 单个道具汇总菜单
-void Menu_UtilityWiki_v2(client, char[] utTinyName) {
+void Menu_UtilityWiki_v2(int client, char[] utTinyName) {
     if (!IsPlayer(client)) return;
-    new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_v2_CallBack);
+    Handle menuhandle = CreateMenu(Menu_UtilityWiki_v2_CallBack);
     char utNameZh[LENGTH_UTILITY_ZH];
     char menuTitle[LENGTH_UTILITY_ZH];
     Utility_TinyName2Zh(utTinyName, "%s", utNameZh);
@@ -51,7 +51,7 @@ void Menu_UtilityWiki_v2(client, char[] utTinyName) {
     SetMenuTitle(menuhandle, menuTitle);
 
     int typeCount = 0;
-    for (new idx = 0; idx < g_jaUtilityCollection.Length; idx++) {
+    for (int idx = 0; idx < g_jaUtilityCollection.Length; idx++) {
         JSONObject arrval = view_as<JSONObject>(g_jaUtilityCollection.Get(idx));
         char utId[LENGTH_UTILITY_ID], utTitle[LENGTH_NAME], utType[LENGTH_UTILITY_TINY];
         // int specFlag = 0;
@@ -83,10 +83,10 @@ void Menu_UtilityWiki_v2(client, char[] utTinyName) {
 }
 
 
-public Menu_UtilityWiki_v2_CallBack(Handle:menuhandle, MenuAction:action, client, Position) {
+public int Menu_UtilityWiki_v2_CallBack(Handle menuhandle, MenuAction action, int client, int Position) {
     if (!IsPlayer(client)) return;
     if (MenuAction_Select == action) {
-        decl String:utId[LENGTH_UTILITY_ID];
+        char utId[LENGTH_UTILITY_ID];
         GetMenuItem(menuhandle, Position, utId, LENGTH_UTILITY_ID);
 
         if (e_cDefault != g_aPlayerStatus[client]) {
@@ -101,12 +101,12 @@ public Menu_UtilityWiki_v2_CallBack(Handle:menuhandle, MenuAction:action, client
     }
 }
 
-public Action:ReqLockTimerCallback(Handle:timer, client) {
+public Action ReqLockTimerCallback(Handle timer, int client) {
     g_aReqLock[client] = false;
 }
 
 // 用户搜索结果菜单
-void Menu_UtilityWiki_v3(client) {
+void Menu_UtilityWiki_v3(int client) {
     if (!IsPlayer(client)) return;
     if (g_aUtFilterCollection[client].Length == 0) {
         PrintToChat(client, "%s \x10你所在区域没有找到道具记录", PREFIX);
@@ -114,10 +114,10 @@ void Menu_UtilityWiki_v3(client) {
         return;
     }
 
-    new Handle:menuhandle = CreateMenu(Menu_UtilityWiki_v3_CallBack);
+    Handle menuhandle = CreateMenu(Menu_UtilityWiki_v3_CallBack);
     SetMenuTitle(menuhandle, "=== 查询到的道具 ===");
 
-    for (new idx = 0; idx < g_aUtFilterCollection[client].Length; idx ++) {
+    for (int idx = 0; idx < g_aUtFilterCollection[client].Length; idx++) {
         JSONObject arrval = view_as<JSONObject>(g_aUtFilterCollection[client].Get(idx));
         char utId[LENGTH_UTILITY_ID], utTitle[LENGTH_NAME], utType[LENGTH_UTILITY_TINY];
         char utNameZh[LENGTH_UTILITY_ZH];
@@ -136,10 +136,10 @@ void Menu_UtilityWiki_v3(client) {
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
-public Menu_UtilityWiki_v3_CallBack(Handle:menuhandle, MenuAction:action, client, Position) {
+public int Menu_UtilityWiki_v3_CallBack(Handle menuhandle, MenuAction action, int client, int Position) {
     if (!IsPlayer(client)) return;
     if (MenuAction_Select == action) {
-        decl String:utId[LENGTH_UTILITY_ID];
+        char utId[LENGTH_UTILITY_ID];
         GetMenuItem(menuhandle, Position, utId, LENGTH_UTILITY_ID);
         GetUtilityDetail(client, utId);
         DisplayMenuAtItem(menuhandle, client, GetMenuSelectionPosition(), MENU_TIME_FOREVER);

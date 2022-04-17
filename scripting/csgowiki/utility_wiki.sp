@@ -1,6 +1,6 @@
 // implement wiki
 
-public Action:Command_Wiki(client, args) {
+public Action Command_Wiki(int client, any args) {
     PluginVersionHint(client);
 
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
@@ -26,11 +26,11 @@ public Action:Command_Wiki(client, args) {
     }
 }
 
-public Action:Command_Refresh(client, args) {
+public Action Command_Refresh(int client, any args) {
     GetAllCollection(client);
 }
 
-void GetAllCollection(client=-1) {
+void GetAllCollection(int client=-1) {
     if (!check_function_on(g_hOnUtilityWiki, "")) return;
     char token[LENGTH_TOKEN];
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
@@ -56,7 +56,7 @@ void GetAllCollection(client=-1) {
     // }
 }
 
-void GetFilterCollection(client, char[] method) {
+void GetFilterCollection(int client, char[] method) {
     float playerPos[DATA_DIM];
     char token[LENGTH_TOKEN];
     GetClientAbsOrigin(client, playerPos);
@@ -83,7 +83,7 @@ void GetFilterCollection(client, char[] method) {
     httpRequest.Get(FilterCollectionResponseCallback, client);
 }
 
-void GetUtilityDetail(client, char[] utId) {
+void GetUtilityDetail(int client, char[] utId) {
     // lock
     float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
     if (BotMimicFix_IsPlayerMimicing(client)) {
@@ -118,7 +118,7 @@ void GetUtilityDetail(client, char[] utId) {
     httpRequest.Get(UtilityDetailResponseCallback, client);
 }
 
-void ResetSingleClientWikiState(client, bool force_del=false) {
+void ResetSingleClientWikiState(int client, bool force_del=false) {
     if (strlen(g_aLastArticleId[client]) == 0) return;
     if (strlen(g_aLastUtilityId[client]) == 0) return;
     if (force_del) {
@@ -141,7 +141,7 @@ void ResetSingleClientWikiState(client, bool force_del=false) {
 }
 
 void ResetUtilityWikiState() {
-    for (new client = 0; client <= MAXPLAYERS; client++) {
+    for (int client = 0; client <= MAXPLAYERS; client++) {
         ResetSingleClientWikiState(client, true);
     }
 }
@@ -239,7 +239,7 @@ void UtilityDetailResponseCallback(HTTPResponse response, int client) {
     }
 }
 
-void ShowUtilityDetail(client, JSONObject detail_json) {
+void ShowUtilityDetail(int client, JSONObject detail_json) {
     if (!IsPlayer(client)) return;
     // var define
     char utId[LENGTH_UTILITY_ID], utType[LENGTH_UTILITY_TINY], utTitle[LENGTH_NAME];

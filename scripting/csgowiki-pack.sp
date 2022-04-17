@@ -1,4 +1,8 @@
-// 
+
+#pragma newdecls required
+#pragma semicolon 1
+#pragma tabsize 4
+
 #include <csgowiki>
 
 #include "csgowiki/utils.sp"
@@ -12,7 +16,7 @@
 #include "csgowiki/replay.sp"
 
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "[CSGOWiki] Plugin-Pack",
     author = "CarOL",
     description = "An Sourcemod Instance For [CSGOWiki-Web] Service",
@@ -20,7 +24,7 @@ public Plugin:myinfo = {
     url = "https://docs.csgowiki.top/plugins"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     // event
     HookEvent("hegrenade_detonate", Event_HegrenadeDetonate);
     HookEvent("flashbang_detonate", Event_FlashbangDetonate);
@@ -66,7 +70,7 @@ public OnPluginStart() {
     AutoExecConfig(true, "csgowiki-pack");
 }
 
-public OnPluginEnd() {
+public void OnPluginEnd() {
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -77,7 +81,7 @@ public void OnLibraryRemoved(const char[] name) {
     g_bBotMimicLoaded = LibraryExists("botmimic_fix");
 }
 
-public OnMapStart() {
+public void OnMapStart() {
     g_iServerTickrate = GetServerTickrate();
     GetCurrentMap(g_sCurrentMap, LENGTH_MAPNAME);
 
@@ -94,15 +98,15 @@ public OnMapStart() {
     EnforceDirExists("data/csgowiki/path");
 }
 
-public OnMapEnd() {
+public void OnMapEnd() {
     // delete g_aProMatchInfo;
 }
 
-public OnConfigsExecuted() {
+public void OnConfigsExecuted() {
     PluginVersionCheck();
 }
 
-public OnClientPutInServer(client) {
+public void OnClientPutInServer(int client) {
     // timer define
     if (IsPlayer(client) && GetConVarBool(g_hCSGOWikiEnable)) {
         CreateTimer(3.0, QuerySteamTimerCallback, client);
@@ -115,7 +119,7 @@ public OnClientPutInServer(client) {
     ResetDefaultOption(client);
 }
 
-public OnClientDisconnect(client) {
+public void OnClientDisconnect(int client) {
     ResetSingleClientWikiState(client);
     ResetSingleClientSubmitState(client);
     ClearPlayerToken(client);
@@ -126,7 +130,7 @@ public OnClientDisconnect(client) {
     ResetDefaultOption(client);
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Float:angles[DATA_DIM], &weapon) {
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[DATA_DIM], float angles[DATA_DIM], int &weapon) {
     // for utility submit
     // if (!buttons) return;
     if (GetConVarBool(g_hOnUtilitySubmit)) {
@@ -134,26 +138,26 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[DATA_DIM], Fl
     }
 }
 
-public Action:Event_HegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+public Action Event_HegrenadeDetonate(Handle event, const char[] name, bool dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_HegrenadeDetonateForUtilitySubmit(event);
     }
 }
 
-public Action:Event_FlashbangDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+public Action Event_FlashbangDetonate(Handle event, const char[] name, bool dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_FlashbangDetonateForUtilitySubmit(event);
     }
 }
 
-public Action:Event_SmokegrenadeDetonate(Handle:event, const String:name[], bool:dontBroadcast) {
+public Action Event_SmokegrenadeDetonate(Handle event, const char[] name, bool dontBroadcast) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_SmokegrenadeDetonateForUtilitySubmit(event);
     }
 }
 
 
-public Action:Event_MolotovDetonate(Handle:event, const String:name[], bool:dontBroadcast) { 
+public Action Event_MolotovDetonate(Handle event, const char[] name, bool dontBroadcast) { 
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         Event_MolotovDetonateForUtilitySubmit(event);
     }

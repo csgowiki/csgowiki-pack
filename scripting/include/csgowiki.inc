@@ -86,7 +86,7 @@ enum WikiAction {
 }
 
 
-new g_aCsgoActionMap[CSGO_ACTION_NUM] = {
+int g_aCsgoActionMap[CSGO_ACTION_NUM] = {
     IN_JUMP, IN_DUCK, IN_ATTACK, IN_ATTACK2, 
     IN_MOVELEFT, IN_MOVERIGHT, IN_FORWARD, IN_BACK, IN_SPEED
 };

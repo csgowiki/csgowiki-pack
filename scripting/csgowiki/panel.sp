@@ -5,11 +5,11 @@
 #include "csgowiki/menus/menu_wiki.sp"
 #include "csgowiki/menus/menu_wikiop.sp"
 
-public Action:Command_Panel(client, args) {
+public Action Command_Panel(int client, any args) {
     if (!IsPlayer(client)) return Plugin_Handled;
     Panel panel = new Panel();
 
-    panel.SetTitle("CSGOWiki操作面板")
+    panel.SetTitle("CSGOWiki操作面板");
 
     panel.DrawItem("社区道具合集[!wiki]");
     panel.DrawItem("职业道具合集[!wikipro]");
@@ -30,7 +30,7 @@ public Action:Command_Panel(client, args) {
     return Plugin_Handled;
 }
 
-public PanelHandler(Handle:menu, MenuAction:action, client, Position) {
+public int PanelHandler(Handle menu, MenuAction action, int client, int Position) {
     if (!IsPlayer(client)) return;
     if (action == MenuAction_Select) {
         switch(Position) {

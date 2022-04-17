@@ -1,6 +1,6 @@
 // #include <system2>
 
-public Action Command_Record(client, args) {
+public Action Command_Record(int client, any args) {
     if (e_cDefault != g_aPlayerStatus[client]) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;
@@ -21,7 +21,7 @@ public Action Command_Record(client, args) {
     BotMimicFix_StartRecording(client, g_aLastUtilityId[client], "csgowiki");
 }
 
-public Action Command_StopRecord(client, args) {
+public Action Command_StopRecord(int client, any args) {
     if (!IsPlayer(client)) {
         return;
     }
