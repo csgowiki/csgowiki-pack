@@ -247,7 +247,7 @@ void PluginVersionHint(int client) {
 void PluginVersionCheck(int client = -1) {
     GetPluginInfo(INVALID_HANDLE, PlInfo_Version, g_sCurrentVersion, LENGTH_VERSION);
     HTTPRequest PluginVersionCheckRequest = new HTTPRequest(
-        "https://api.github.com/repos/hx-w/CSGOWiki-Plugins/releases/latest"
+        "https://api.github.com/repos/csgowiki/csgowiki-pack/releases/latest"
     );
     PluginVersionCheckRequest.SetHeader("User-Agent", "request");
     PluginVersionCheckRequest.Get(PluginVersionCheckCallback, client);
