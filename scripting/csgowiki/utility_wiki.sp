@@ -1,6 +1,7 @@
 // implement wiki
 
 public Action Command_Wiki(int client, any args) {
+    if (client < 0) return;
     PluginVersionHint(client);
 
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
@@ -85,6 +86,7 @@ void GetFilterCollection(int client, char[] method) {
 
 void GetUtilityDetail(int client, char[] utId) {
     // lock
+    if (client < 0) return;
     float fWikiLimit = GetConVarFloat(g_hWikiReqLimit);
     if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);

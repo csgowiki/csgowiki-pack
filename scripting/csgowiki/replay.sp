@@ -1,4 +1,5 @@
 public Action Command_Record(int client, any args) {
+    if (client < 0) return;
     if (e_cDefault != g_aPlayerStatus[client]) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;

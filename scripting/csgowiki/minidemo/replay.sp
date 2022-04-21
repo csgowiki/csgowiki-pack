@@ -14,14 +14,14 @@ public Action Command_Minidemo(int client, int args) {
 
     g_iMinidemoCount = 0;
     if (StrContains(buffer, "/", false) == -1) { // play both side
-        g_iMinidemoStatus = (1 << 0) | (1 << 1);
+        g_iMinidemoSide = (1 << 0) | (1 << 1);
     }
     else if (StrContains(buffer, "/ct", false) != -1) {
-        g_iMinidemoStatus = 1 << 1;
+        g_iMinidemoSide = 1 << 1;
         ReplaceString(buffer, sizeof(buffer), "/ct", "", false);
     }
     else if (StrContains(buffer, "/t", false) != -1) {
-        g_iMinidemoStatus = 1 << 0;
+        g_iMinidemoSide = 1 << 0;
         ReplaceString(buffer, sizeof(buffer), "/t", "", false);
     }
     else {
@@ -38,7 +38,7 @@ public Action Command_Minidemo(int client, int args) {
     g_bMinidemoOn = true;
     int teamFlags[2] = {CS_TEAM_T, CS_TEAM_CT};
     for (int i = 0; i < 2; ++i) {
-        if (g_iMinidemoStatus & (1 << i)) {
+        if (g_iMinidemoSide & (1 << i)) {
             PlayOneSide(client, teamFlags[i]);          
         }
     }

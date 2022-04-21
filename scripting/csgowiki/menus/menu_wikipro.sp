@@ -2,7 +2,6 @@ public Action Command_WikiPro(int client, any args) {
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
-
     if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;

@@ -1,5 +1,6 @@
 // implement utility submit
 public Action Command_Submit(int client, any args) {
+    if (client < 0) return;
     if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
         return;
     }
@@ -24,7 +25,7 @@ public Action Command_Submit(int client, any args) {
 }
 
 public Action Command_SubmitAbort(int client, any args) {
-    if (e_cDefault != g_aPlayerStatus[client]) {
+    if (!IsPlayer(client) || e_cDefault != g_aPlayerStatus[client]) {
         g_aPlayerStatus[client] = e_cDefault;
         ResetSingleClientSubmitState(client);
         PrintToChat(client, "%s 已终止上传流程", PREFIX);
@@ -63,7 +64,7 @@ void OnPlayerRunCmdForUtilitySubmit(int client, int &buttons) {
 
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
-        if (BotMimicFix_IsPlayerMimicing(client)) {
+        if (!isMinidemoBot(client) && BotMimicFix_IsPlayerMimicing(client)) {
             AcceptEntityInput(entity, "Kill");
 
             if (g_aUtilityVelocity[client][0] + g_aUtilityVelocity[client][1] + g_aUtilityVelocity[client][2] == 0.0) {
