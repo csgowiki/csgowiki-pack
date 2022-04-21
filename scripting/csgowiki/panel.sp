@@ -14,7 +14,12 @@ public Action Command_Panel(int client, any args) {
 
     panel.DrawItem("社区道具合集[!wiki]");
     panel.DrawItem("职业道具合集[!wikipro]");
-    panel.DrawItem("职业demo回放[!demo]", ITEMDRAW_DISABLED);
+    if (CheckCommandAccess(client, "sm_demo", ADMFLAG_CHEATS)) {
+        panel.DrawItem("职业demo回放[!demo]");
+    }
+    else {
+        panel.DrawItem("职业demo回放[!demo]", ITEMDRAW_DISABLED);
+    }
     panel.DrawText("   ");
     panel.DrawItem("道具上传[!submit]");
     panel.DrawItem("道具反馈[!feedback]", ITEMDRAW_DISABLED);

@@ -53,8 +53,6 @@ void GetAllCollection(int client=-1) {
     HTTPRequest ProCollectionRequest = new HTTPRequest(url);
     ProCollectionRequest.SetHeader("Content-Type", "application/json");
     ProCollectionRequest.Get(ProCollectionResponseCallback, client);
-
-    
 }
 
 void GetFilterCollection(int client, char[] method) {
@@ -184,7 +182,6 @@ void ProCollectionResponseCallback(HTTPResponse response, int client) {
             JSONObject arrval = view_as<JSONObject>(resp_json.Get(idx));
             g_aProMatchInfo.Push(arrval);
         }
-        // g_aProMatchInfo = view_as<JSONArray>(response.Data);
     }
     else {
         PrintToChatAll("%s \x02连接至api.hx-w.top失败：%d", PREFIX, response.Status);

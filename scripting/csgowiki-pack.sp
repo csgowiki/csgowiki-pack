@@ -10,6 +10,7 @@
 #include <csgowiki>
 
 #include "csgowiki/utils.sp"
+#include "csgowiki/minidemo.sp"
 #include "csgowiki/panel.sp"
 
 #include "csgowiki/steam_bind.sp"
@@ -18,8 +19,6 @@
 #include "csgowiki/utility_modify.sp"
 #include "csgowiki/kicker.sp"
 #include "csgowiki/replay.sp"
-
-#include "csgowiki/minidemo.sp"
 
 
 public Plugin myinfo = {
@@ -63,6 +62,7 @@ public void OnPluginStart() {
         RegAdminCmd("sm_debug", Command_Debug, ADMFLAG_CHEATS);
 
         RegAdminCmd("sm_demo", Command_Demo, ADMFLAG_CHEATS);
+        RegAdminCmd("sm_demoround", Command_DemoRound, ADMFLAG_CHEATS);
     }
 
     // post fix
@@ -106,6 +106,7 @@ public void OnMapStart() {
 
     // init collection
     GetAllCollection();
+    GetDemoCollection();
 
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
@@ -151,7 +152,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[D
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }
-
+    OnPlayerRunCmdForMinidemo(client);
 }
 
 public Action Event_HegrenadeDetonate(Handle event, const char[] name, bool dontBroadcast) {

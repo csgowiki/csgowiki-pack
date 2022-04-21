@@ -8,3 +8,4 @@ spcomp
 spcomp64
 compiled/
 *.sh
+*.json

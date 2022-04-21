@@ -139,10 +139,17 @@ int g_iMinidemoSide = -1; // (1 << 0) T, (1 << 1) CT, (1 << 0 | 1 << 1) Both
 bool g_bMinidemoBotsOn[MAX_REPLAY_CLIENTS];
 
 enum MinidemoStatus {
-    e_Default = 0,
-    e_Downloading = 1,
-    e_Checking = 2,
-    e_Playing = 3
+    e_mDefault = 0,
+    e_mPicking = 1,
+    e_mDownloading = 2,
+    e_mChecking = 3,
+    e_mPlaying = 4
 };
 
-MinidemoStatus g_iMinidemoStatus = e_Default;
+MinidemoStatus g_iMinidemoStatus = e_mDefault;
+JSONObject g_MinidemoCollection; // minidemo index info
+int g_iDemoLeader = -1; // leader(client) of minidemo
+char g_sDemoPickedMatch[LENGTH_NAME];
+char g_sDemoPickedMatchName[LENGTH_NAME * 4];
+char g_iDemoPickedRound = -1; // start at 0
+
