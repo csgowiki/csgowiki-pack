@@ -4,6 +4,7 @@
 #include "csgowiki/menus/menu_wikipro.sp"
 #include "csgowiki/menus/menu_wiki.sp"
 #include "csgowiki/menus/menu_wikiop.sp"
+#include "csgowiki/menus/menu_demo.sp"
 
 public Action Command_Panel(int client, any args) {
     if (!IsPlayer(client)) return Plugin_Handled;
@@ -13,7 +14,7 @@ public Action Command_Panel(int client, any args) {
 
     panel.DrawItem("社区道具合集[!wiki]");
     panel.DrawItem("职业道具合集[!wikipro]");
-    panel.DrawItem("道具能力测试[!wikiquiz]", ITEMDRAW_DISABLED);
+    panel.DrawItem("职业demo回放[!demo]", ITEMDRAW_DISABLED);
     panel.DrawText("   ");
     panel.DrawItem("道具上传[!submit]");
     panel.DrawItem("道具反馈[!feedback]", ITEMDRAW_DISABLED);
@@ -36,7 +37,7 @@ public int PanelHandler(Handle menu, MenuAction action, int client, int Position
         switch(Position) {
             case 1: ClientCommand(client, "sm_wiki");
             case 2: ClientCommand(client, "sm_wikipro");
-            case 3: ClientCommand(client, "sm_wikitest");
+            case 3: ClientCommand(client, "sm_demo");
             case 4: ClientCommand(client, "sm_submit"), ClientCommand(client, "sm_m");
             case 5: ClientCommand(client, "sm_feedback");
             case 6: ClientCommand(client, "sm_wikidiy");

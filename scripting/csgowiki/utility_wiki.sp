@@ -49,12 +49,12 @@ void GetAllCollection(int client=-1) {
     AllCollectionRequest.Get(AllCollectionResponseCallback, client);
 
     // pro
-    // if (g_aProMatchInfo == INVALID_HANDLE || g_aProMatchInfo.Length < 1) {
     Format(url, sizeof(url), "https://api.hx-w.top/%s", g_sCurrentMap);
     HTTPRequest ProCollectionRequest = new HTTPRequest(url);
     ProCollectionRequest.SetHeader("Content-Type", "application/json");
     ProCollectionRequest.Get(ProCollectionResponseCallback, client);
-    // }
+
+    
 }
 
 void GetFilterCollection(int client, char[] method) {

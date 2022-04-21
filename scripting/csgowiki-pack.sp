@@ -61,6 +61,8 @@ public void OnPluginStart() {
     {
         RegAdminCmd("sm_minidemo", Command_Minidemo, ADMFLAG_CHEATS);
         RegAdminCmd("sm_debug", Command_Debug, ADMFLAG_CHEATS);
+
+        RegAdminCmd("sm_demo", Command_Demo, ADMFLAG_CHEATS);
     }
 
     // post fix
