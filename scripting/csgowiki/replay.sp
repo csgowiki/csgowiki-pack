@@ -181,13 +181,11 @@ public void BotMimicStartReplay(DataPack pack) {
 }
 
 public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
-    if (IsPlayer(client)) {
+    if (IsPlayer(client) && !IsMinidemoBot(client)) {
         TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
     }
-    if (isMinidemoBot(client)) {
+    if (IsMinidemoBot(client)) {
         PrintToChatAll("%s bot %d 停止播放", PREFIX, client);
-        g_bMinidemoOn = false;
-
         int idx_client = -1;
         for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
             if (g_iMinidemoBots[idx] == client) {
@@ -198,6 +196,7 @@ public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] ca
 
         g_bMinidemoBotsOn[idx_client] = false;
         KillBot(client);
+        g_bMinidemoOn = false;
         for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
             if (g_iMinidemoBots[idx] < 0) {
                 continue;

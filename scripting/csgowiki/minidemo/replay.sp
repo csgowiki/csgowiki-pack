@@ -82,7 +82,7 @@ public Action BotPrepareTimer(Handle timer, int vals) {
     int endCount = vals & ((1 << 5) - 1);
 
     for (int idx = startCount; idx < endCount; ++idx) {
-        if (!isMinidemoBot(g_iMinidemoBots[idx])) {
+        if (!IsMinidemoBot(g_iMinidemoBots[idx])) {
             g_iMinidemoBots[idx] = GetPreparedBot(idx, teamFlag);
             g_bMinidemoBotsOn[idx] = true;
         }
@@ -98,7 +98,7 @@ public Action BotReplayStartTimer(Handle timer, int vals) {
     int startCount = (vals >> 5) & ((1 << 5) - 1);
     int endCount = vals & ((1 << 5) - 1);
     for (int idx = startCount; idx < endCount; ++idx) {
-        if (!isMinidemoBot(g_iMinidemoBots[idx])) {
+        if (!IsMinidemoBot(g_iMinidemoBots[idx])) {
             continue;
         }
         CS_RespawnPlayer(g_iMinidemoBots[idx]);

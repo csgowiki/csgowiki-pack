@@ -15,7 +15,7 @@ public bool isPossibleMinidemoBot(int client) {
 }
 
 // if client is minidemo replay bot
-public bool isMinidemoBot(int client) {
+public bool IsMinidemoBot(int client) {
     if (!isPossibleMinidemoBot(client)) {
         return false;
     }
@@ -32,7 +32,7 @@ public int GetLargestBotUserId() {
     for (int i = 0; i <= MaxClients; ++i) {
         if (IsValidClient(i) && IsFakeClient(i) && !IsClientSourceTV(i)) {
             int userid = GetClientUserId(i);
-            if (userid > largestUserid && !isMinidemoBot(i)) {
+            if (userid > largestUserid && !IsMinidemoBot(i)) {
                 largestUserid = userid;
             }
         }
@@ -43,7 +43,8 @@ public int GetLargestBotUserId() {
 public void KillBot(int client) {
     float botOrigin[3] = {-7000.0, 0.0, 0.0};
     TeleportEntity(client, botOrigin, NULL_VECTOR, NULL_VECTOR);
-    ForcePlayerSuicide(client);
+    // ForcePlayerSuicide(client);
+    CS_SwitchTeam(client, CS_TEAM_SPECTATOR);
 }
 
 public int GetPreparedBot(int idx, int teamFlag) {

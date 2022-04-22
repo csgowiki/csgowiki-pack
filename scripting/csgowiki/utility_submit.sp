@@ -65,7 +65,7 @@ void OnPlayerRunCmdForUtilitySubmit(int client, int &buttons) {
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
         if (client < 0) return;
-        if (!isMinidemoBot(client) && BotMimicFix_IsPlayerMimicing(client)) {
+        if (!IsMinidemoBot(client) && BotMimicFix_IsPlayerMimicing(client)) {
             AcceptEntityInput(entity, "Kill");
 
             if (g_aUtilityVelocity[client][0] + g_aUtilityVelocity[client][1] + g_aUtilityVelocity[client][2] == 0.0) {
