@@ -1,8 +1,8 @@
 // provide api method for minidemo
+char BASE_URL[LENGTH_URL] = "https://minidemo-1256946954.cos.ap-chengdu.myqcloud.com";
 
 // Get minidemo index info by map
 void GetDemoCollection(int client=-1) {
-    char BASE_URL[LENGTH_URL] = "https://minidemo-1256946954.cos.ap-chengdu.myqcloud.com";
     char url[LENGTH_URL] = "";
     Format(url, sizeof(url), "%s/%s/index.json", BASE_URL, g_sCurrentMap);
     HTTPRequest DemoCollectionRequest = new HTTPRequest(url);
@@ -88,25 +88,91 @@ void DownloadMinidemoStart(int client) {
     else {
         PrintToChat(client, "%s \x02队伍信息获取失败", PREFIX);
     }
+    // ensure minidemo dir exists and clear ct/t dir
+    ClearMinidemoFiles();
+    g_iDemoDownloadBits = 0;
+    g_iDemoDownloadNum = team1_size + team2_size;
     // download every player's minidemo file
     for (int i = 0; i < team1_size; ++i) {
+        if (g_iMinidemoStatus != e_mDownloading) {
+            PrintToChatAll("%s \x02minidemo下载被中断", PREFIX);
+            break;
+        }
         char url[LENGTH_URL] = "";
         Format(url, sizeof(url), "%s/%s.rec", team1flag, team1names[i]);
-        DownloadOneMinidemo(client, url);
+        DownloadOneMinidemo(client, url, i);
     }
     for (int i = 0; i < team2_size; ++i) {
+        if (g_iMinidemoStatus != e_mDownloading) {
+            PrintToChatAll("%s \x02minidemo下载被中断", PREFIX);
+            break;
+        }
         char url[LENGTH_URL] = "";
         Format(url, sizeof(url), "%s/%s.rec", team2flag, team2names[i]);
-        DownloadOneMinidemo(client, url);
+        DownloadOneMinidemo(client, url, i + team1_size);
     }
-    g_iDemoLeader = -1;
-    g_iMinidemoStatus = e_mDefault;
-    
-    ClientCommand(client, "sm_demo");
 }
 
-void DownloadOneMinidemo(int client, char[] url_tail) {
-    char BASE_URL [LENGTH_URL] = "https://minidemo-1256946954.cos.ap-chengdu.myqcloud.com";
+void DownloadOneMinidemo(int client, char[] url_tail, int index) {
     char url[LENGTH_URL] = "";
     Format(url, sizeof(url), "%s/%s/%s/round%d/%s", BASE_URL, g_sCurrentMap, g_sDemoPickedMatch, g_iDemoPickedRound, url_tail);
+    char filepath[PLATFORM_MAX_PATH + 1];
+    BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/minidemo/%s", url_tail);
+    if (FileExists(filepath)) {
+        PrintToChat(client, "%s \x08%s已存在", PREFIX, url_tail);
+        g_iDemoDownloadBits |= (1 << index); // downloaded
+        return;
+    }
+    PrintToServer("%s \x02开始下载minidemo [%s]", PREFIX, url);
+    HTTPRequest request = new HTTPRequest(url);
+    DataPack pack = new DataPack();
+    pack.WriteCell(client);
+    pack.WriteCell(index);
+    request.DownloadFile(filepath, MinidemoDownloadCallback, pack);
+}
+
+void MinidemoDownloadCallback(HTTPStatus status, DataPack pack) {
+    pack.Reset();
+    int client = pack.ReadCell();
+    int index = pack.ReadCell();
+    if (!IsPlayer(client)) {
+        // client disconnected, quit minidemo, and clear minidemo files
+        g_iMinidemoStatus = e_mDefault;
+        g_iDemoLeader = -1;
+        g_iDemoDownloadNum = 0;
+        g_iDemoDownloadBits = 0;
+        ClearMinidemoFiles();
+        return;
+    }
+    if (status == HTTPStatus_NotFound || status == HTTPStatus_InternalServerError) {
+        PrintToChat(client, "%s \x02未找到minidemo: 编号%d", PREFIX, index);
+        PrintToServer("%s \x02未找到minidemo: 编号%d", PREFIX, index);
+        return;
+    }
+    if (status != HTTPStatus_OK) {
+        // Download failed
+        PrintToChat(client, "%s \x02minidemo下载失败: 编号%d", PREFIX, index);
+        PrintToServer("%s \x02minidemo下载失败: 编号%d", PREFIX, index);
+        return;
+    }
+    g_iDemoDownloadBits |= (1 << index); // downloaded
+    PrintToChat(client, "%s \x02minidemo下载完成: 编号%d", PREFIX, index);
+    PrintToServer("%s \x02minidemo下载完成: 编号%d", PREFIX, index);
+
+    // check if all minidemo files downloaded
+    if (g_iDemoDownloadBits == (1 << g_iDemoDownloadNum) - 1) {
+        // all minidemo files downloaded
+        g_iMinidemoStatus = e_mChecking;
+        PrintToChatAll("%s \x03minidemo下载完成", PREFIX);
+        PrintToServer("%s \x03minidemo下载完成", PREFIX);
+        // checking minidemo
+        // start playing minidemo
+        
+        g_iDemoDownloadBits = 0;
+        g_iDemoDownloadNum = 0;
+        g_iDemoLeader = -1;
+        g_iMinidemoStatus = e_mDefault;
+
+        ClientCommand(client, "sm_demo");
+    }
 }

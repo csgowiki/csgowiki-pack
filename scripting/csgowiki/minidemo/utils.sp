@@ -62,3 +62,16 @@ public int GetPreparedBot(int idx, int teamFlag) {
     KillBot(bot);
     return bot;
 }
+
+public void ClearMinidemoFiles() {
+    char ctdir[PLATFORM_MAX_PATH + 1];
+    char tdir[PLATFORM_MAX_PATH + 1];
+    BuildPath(Path_SM, ctdir, sizeof(ctdir), "data/csgowiki/minidemo/ct");
+    BuildPath(Path_SM, tdir, sizeof(tdir), "data/csgowiki/minidemo/t");
+    if (DirExists(ctdir)) {
+        RemoveDir(ctdir);
+    }
+    if (DirExists(tdir)) {
+        RemoveDir(tdir);
+    }
+}

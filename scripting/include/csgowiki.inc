@@ -152,4 +152,5 @@ int g_iDemoLeader = -1; // leader(client) of minidemo
 char g_sDemoPickedMatch[LENGTH_NAME];
 char g_sDemoPickedMatchName[LENGTH_NAME * 4];
 char g_iDemoPickedRound = -1; // start at 0
-
+int g_iDemoDownloadNum = 0; // download need
+int g_iDemoDownloadBits = 0; // download bits

@@ -108,6 +108,7 @@ public void OnMapStart() {
     GetAllCollection();
     GetDemoCollection();
 
+    ClearMinidemoFiles();
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
     EnforceDirExists("data/csgowiki/path");
