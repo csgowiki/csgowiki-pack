@@ -1,7 +1,7 @@
 // minidemo replay
 
 public Action Command_Minidemo(int client, int args) {
-    if (g_bMinidemoOn) {
+    if (g_bMinidemoPlaying) {
         PrintToChat(client, "%s 等待回放结束", PREFIX);
         return Plugin_Handled;
     }
@@ -35,7 +35,7 @@ public Action Command_Minidemo(int client, int args) {
         return Plugin_Handled;
     }
 
-    g_bMinidemoOn = true;
+    g_bMinidemoPlaying = true;
     int teamFlags[2] = {CS_TEAM_T, CS_TEAM_CT};
     for (int i = 0; i < 2; ++i) {
         if (g_iMinidemoSide & (1 << i)) {
@@ -50,6 +50,32 @@ public Action Command_Debug(int client, int args) {
     for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
         if (g_bMinidemoBotsOn[idx]) {
             PrintToChat(client, "%s bot %d still on", PREFIX, g_iMinidemoBots[idx]);
+        }
+    }
+}
+
+public void PlayerBothSide(int client) {
+    if (g_bMinidemoPlaying) {
+        PrintToChat(client, "%s 等待回放结束", PREFIX);
+        ResetMinidemoState();
+        ClientCommand(client, "sm_m");
+        return;
+    }
+    g_iMinidemoCount = 0;
+    g_iMinidemoSide = (1 << 0) | (1 << 1);
+    BuildPath(Path_SM, g_sMinidemoDirBase, sizeof(g_sMinidemoDirBase), "data/csgowiki/minidemo");
+    if (!DirExists(g_sMinidemoDirBase)) {
+        PrintToChat(client, "%s 路径错误", PREFIX);
+        ResetMinidemoState();
+        ClientCommand(client, "sm_m");
+        return;
+    }
+
+    g_bMinidemoPlaying = true;
+    int teamFlags[2] = {CS_TEAM_T, CS_TEAM_CT};
+    for (int i = 0; i < 2; ++i) {
+        if (g_iMinidemoSide & (1 << i)) {
+            PlayOneSide(client, teamFlags[i]);          
         }
     }
 }

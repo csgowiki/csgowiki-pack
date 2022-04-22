@@ -73,10 +73,11 @@ void DownloadMinidemoStart(int client) {
     }
     // confirm ct/t
     // ctRounds may be not correct
-    JSONArray team1ctRounds = view_as<JSONArray>(team1.Get("ctRounds"));
+    JSONArray team1ctRounds = view_as<JSONArray>(team2.Get("ctRounds"));
     int sample = team1ctRounds.GetInt(0);
     char team1flag[3] = "";
     char team2flag[3] = "";
+    PrintToChat(client, "sample: %d   pick: %d", sample, g_iDemoPickedRound);
     if ((sample < 15 && g_iDemoPickedRound < 15) || (sample >= 15 && g_iDemoPickedRound >= 15)) {
         strcopy(team1flag, sizeof(team1flag), "ct");
         strcopy(team2flag, sizeof(team2flag), "t");
@@ -156,21 +157,22 @@ void MinidemoDownloadCallback(HTTPStatus status, DataPack pack) {
 
 void SetOneFileDownloadCompleted(int client, int index) {
     g_iDemoDownloadBits |= (1 << index); // downloaded
-    PrintToChat(client, "%s \x04minidemo下载完成: 编号%d", PREFIX, index);
-    PrintToServer("%s minidemo下载完成: 编号%d", PREFIX, index);
+    // PrintToChat(client, "%s \x04minidemo下载完成: 编号%d", PREFIX, index);
+    // PrintToServer("%s minidemo下载完成: 编号%d", PREFIX, index);
 
     // check if all minidemo files downloaded
     if (g_iDemoDownloadBits == (1 << g_iDemoDownloadNum) - 1) {
         // all minidemo files downloaded
-        g_iMinidemoStatus = e_mChecking;
         PrintToChatAll("%s \x03minidemo下载完成", PREFIX);
         PrintToServer("%s \x03minidemo下载完成", PREFIX);
         // checking minidemo
         // TODO
-        
+        g_iMinidemoStatus = e_mChecking;
         // start playing minidemo
-        
-        ResetMinidemoState();
-        ClientCommand(client, "sm_demo");
+
+        g_iMinidemoStatus = e_mPlaying;
+
+        // ResetMinidemoState();
+        PlayerBothSide(client);
     }
 }

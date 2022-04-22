@@ -130,11 +130,11 @@ bool g_bAutoThrow[MAXPLAYERS + 1];
 bool g_bBotMimicLoaded = false;
 
 // ------------- minidemo define --------------------
-char g_sMinidemoDirBase[LENGTH_PATH];
+char g_sMinidemoDirBase[LENGTH_PATH] = "data/csgowiki/minidemo";
 char g_sMinidemoName[MAX_REPLAY_CLIENTS][LENGTH_PATH];
 int g_iMinidemoBots[MAX_REPLAY_CLIENTS];
 int g_iMinidemoCount = 0;
-bool g_bMinidemoOn = false;
+bool g_bMinidemoPlaying = false;
 int g_iMinidemoSide = -1; // (1 << 0) T, (1 << 1) CT, (1 << 0 | 1 << 1) Both
 bool g_bMinidemoBotsOn[MAX_REPLAY_CLIENTS];
 

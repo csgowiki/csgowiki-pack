@@ -196,15 +196,16 @@ public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] ca
 
         g_bMinidemoBotsOn[idx_client] = false;
         KillBot(client);
-        g_bMinidemoOn = false;
+        g_bMinidemoPlaying = false;
         for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
             if (g_iMinidemoBots[idx] < 0) {
                 continue;
             }
-            g_bMinidemoOn |= g_bMinidemoBotsOn[idx];
+            g_bMinidemoPlaying |= g_bMinidemoBotsOn[idx];
         }
-        if (!g_bMinidemoOn) {
+        if (!g_bMinidemoPlaying) {
             ServerCommand("bot_kick");
+            ResetMinidemoState();
         }
     }
 }

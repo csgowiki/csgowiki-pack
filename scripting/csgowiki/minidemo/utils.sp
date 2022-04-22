@@ -1,6 +1,6 @@
 // minidemo utils
 public void resetMinidemoBots() {
-    g_bMinidemoOn = false;
+    g_bMinidemoPlaying = false;
     for (int idx = 0; idx < MAX_REPLAY_CLIENTS; ++idx) {
         g_iMinidemoBots[idx] = -1;
         g_bMinidemoBotsOn[idx] = false;
@@ -41,10 +41,9 @@ public int GetLargestBotUserId() {
 }
 
 public void KillBot(int client) {
-    float botOrigin[3] = {-7000.0, 0.0, 0.0};
+    float botOrigin[3] = {-5000.0, 0.0, 0.0};
     TeleportEntity(client, botOrigin, NULL_VECTOR, NULL_VECTOR);
-    // ForcePlayerSuicide(client);
-    CS_SwitchTeam(client, CS_TEAM_SPECTATOR);
+    ForcePlayerSuicide(client);
 }
 
 public int GetPreparedBot(int idx, int teamFlag) {
