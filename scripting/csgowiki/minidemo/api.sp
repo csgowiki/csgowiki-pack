@@ -120,7 +120,7 @@ void DownloadOneMinidemo(int client, char[] url_tail, int index) {
     BuildPath(Path_SM, filepath, sizeof(filepath), "data/csgowiki/minidemo/%s", url_tail);
     if (FileExists(filepath)) {
         PrintToChat(client, "%s \x08%s已存在", PREFIX, url_tail);
-        g_iDemoDownloadBits |= (1 << index); // downloaded
+        SetOneFileDownloadCompleted(client, index);
         return;
     }
     PrintToServer("%s \x02开始下载minidemo [%s]", PREFIX, url);
@@ -137,27 +137,27 @@ void MinidemoDownloadCallback(HTTPStatus status, DataPack pack) {
     int index = pack.ReadCell();
     if (!IsPlayer(client)) {
         // client disconnected, quit minidemo, and clear minidemo files
-        g_iMinidemoStatus = e_mDefault;
-        g_iDemoLeader = -1;
-        g_iDemoDownloadNum = 0;
-        g_iDemoDownloadBits = 0;
-        ClearMinidemoFiles();
+        ResetMinidemoState();
         return;
     }
-    if (status == HTTPStatus_NotFound || status == HTTPStatus_InternalServerError) {
-        PrintToChat(client, "%s \x02未找到minidemo: 编号%d", PREFIX, index);
-        PrintToServer("%s \x02未找到minidemo: 编号%d", PREFIX, index);
-        return;
-    }
-    if (status != HTTPStatus_OK) {
-        // Download failed
-        PrintToChat(client, "%s \x02minidemo下载失败: 编号%d", PREFIX, index);
-        PrintToServer("%s \x02minidemo下载失败: 编号%d", PREFIX, index);
-        return;
-    }
+    // if (status == HTTPStatus_NotFound || status == HTTPStatus_InternalServerError) {
+    //     PrintToChat(client, "%s \x02未找到minidemo: 编号%d", PREFIX, index);
+    //     PrintToServer("%s \x02未找到minidemo: 编号%d", PREFIX, index);
+    //     return;
+    // }
+    // if (status != HTTPStatus_OK) {
+    //     // Download failed
+    //     PrintToChat(client, "%s \x02minidemo下载失败: 编号%d", PREFIX, index);
+    //     PrintToServer("%s \x02minidemo下载失败: 编号%d", PREFIX, index);
+    //     return;
+    // }
+    SetOneFileDownloadCompleted(client, index);
+}
+
+void SetOneFileDownloadCompleted(int client, int index) {
     g_iDemoDownloadBits |= (1 << index); // downloaded
-    PrintToChat(client, "%s \x02minidemo下载完成: 编号%d", PREFIX, index);
-    PrintToServer("%s \x02minidemo下载完成: 编号%d", PREFIX, index);
+    PrintToChat(client, "%s \x04minidemo下载完成: 编号%d", PREFIX, index);
+    PrintToServer("%s minidemo下载完成: 编号%d", PREFIX, index);
 
     // check if all minidemo files downloaded
     if (g_iDemoDownloadBits == (1 << g_iDemoDownloadNum) - 1) {
@@ -166,13 +166,11 @@ void MinidemoDownloadCallback(HTTPStatus status, DataPack pack) {
         PrintToChatAll("%s \x03minidemo下载完成", PREFIX);
         PrintToServer("%s \x03minidemo下载完成", PREFIX);
         // checking minidemo
+        // TODO
+        
         // start playing minidemo
         
-        g_iDemoDownloadBits = 0;
-        g_iDemoDownloadNum = 0;
-        g_iDemoLeader = -1;
-        g_iMinidemoStatus = e_mDefault;
-
+        ResetMinidemoState();
         ClientCommand(client, "sm_demo");
     }
 }

@@ -2,10 +2,12 @@ public Action Command_Demo(int client, any args) {
     if (!IsPlayer(client)) return;
     if (g_iDemoLeader != -1 && g_iDemoLeader != client) {
         PrintToChat(client, "%s \x02请等待当前demo操作玩家释放锁", PREFIX);
+        ClientCommand(client, "sm_m");
         return;
     }
     if (g_iMinidemoStatus != e_mDefault && g_iMinidemoStatus != e_mPicking) {
         PrintToChat(client, "%s \x02请等待demo回放结束", PREFIX);
+        ClientCommand(client, "sm_m");
         return;
     }
     if (g_MinidemoCollection == null) {
@@ -23,10 +25,12 @@ public Action Command_DemoRound(int client, any args) {
     if (!IsPlayer(client)) return;
     if (g_iDemoLeader != -1 && g_iDemoLeader != client) {
         PrintToChat(client, "%s \x02请等待当前demo操作玩家释放锁", PREFIX);
+        ClientCommand(client, "sm_m");
         return;
     }
     if (g_iMinidemoStatus != e_mPicking) {
         PrintToChat(client, "%s \x02请等待demo回放结束", PREFIX);
+        ClientCommand(client, "sm_m");
         return;
     }
     JSONObject info = view_as<JSONObject>(g_MinidemoCollection.Get(g_sDemoPickedMatch));

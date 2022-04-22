@@ -64,15 +64,39 @@ public int GetPreparedBot(int idx, int teamFlag) {
     return bot;
 }
 
+public void ResetMinidemoState() {
+    g_iDemoLeader = -1;
+    g_iDemoDownloadBits = 0;
+    g_iDemoDownloadNum = 0;
+    g_iMinidemoStatus = e_mDefault;
+    ClearMinidemoFiles();
+}
+
+public void DeleteFilesInDir(char []Path) {
+    if (!DirExists(Path)) {
+        return;
+    }
+    char filebuffer[PLATFORM_MAX_PATH + 1];
+    DirectoryListing dL = OpenDirectory(Path);
+    while (dL.GetNext(filebuffer, sizeof(filebuffer))) {
+        if (StrEqual(filebuffer, ".") || StrEqual(filebuffer, "..")) {
+            continue;
+        }
+        Format(filebuffer, sizeof(filebuffer), "%s/%s", Path, filebuffer);
+        DeleteFile(filebuffer);
+    }
+}
+
 public void ClearMinidemoFiles() {
     char ctdir[PLATFORM_MAX_PATH + 1];
     char tdir[PLATFORM_MAX_PATH + 1];
     BuildPath(Path_SM, ctdir, sizeof(ctdir), "data/csgowiki/minidemo/ct");
     BuildPath(Path_SM, tdir, sizeof(tdir), "data/csgowiki/minidemo/t");
-    if (DirExists(ctdir)) {
-        RemoveDir(ctdir);
-    }
-    if (DirExists(tdir)) {
-        RemoveDir(tdir);
-    }
+    // remove files in ctdir and tdir
+    DeleteFilesInDir(ctdir);
+    DeleteFilesInDir(tdir);
+
+    EnforceDirExists("data/csgowiki/minidemo");
+    EnforceDirExists("data/csgowiki/minidemo/ct");
+    EnforceDirExists("data/csgowiki/minidemo/t");
 }

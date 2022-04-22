@@ -108,11 +108,11 @@ public void OnMapStart() {
     GetAllCollection();
     GetDemoCollection();
 
+    ResetMinidemoState();
     ClearMinidemoFiles();
     EnforceDirExists("data/csgowiki");
     EnforceDirExists("data/csgowiki/replays");
     EnforceDirExists("data/csgowiki/path");
-    EnforceDirExists("data/csgowiki/minidemo");
 }
 
 public void OnMapEnd() {
