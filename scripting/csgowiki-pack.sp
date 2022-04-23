@@ -153,7 +153,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[D
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         OnPlayerRunCmdForUtilitySubmit(client, buttons);
     }
-    OnPlayerRunCmdForMinidemo(client);
+    OnPlayerRunCmdForMinidemo(client, buttons, angles);
 }
 
 public Action Event_HegrenadeDetonate(Handle event, const char[] name, bool dontBroadcast) {

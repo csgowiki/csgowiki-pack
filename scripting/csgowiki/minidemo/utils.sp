@@ -1,5 +1,5 @@
 // minidemo utils
-public void resetMinidemoBots() {
+public void ResetMinidemoBots() {
     g_bMinidemoPlaying = false;
     for (int idx = 0; idx < MAX_REPLAY_CLIENTS; ++idx) {
         g_iMinidemoBots[idx] = -1;
@@ -41,8 +41,8 @@ public int GetLargestBotUserId() {
 }
 
 public void KillBot(int client) {
-    float botOrigin[3] = {-5000.0, 0.0, 0.0};
-    TeleportEntity(client, botOrigin, NULL_VECTOR, NULL_VECTOR);
+    // float botOrigin[3] = {-5000.0, 0.0, 0.0};
+    // TeleportEntity(client, botOrigin, NULL_VECTOR, NULL_VECTOR);
     ForcePlayerSuicide(client);
 }
 

@@ -5,7 +5,7 @@ public Action Command_Minidemo(int client, int args) {
         PrintToChat(client, "%s 等待回放结束", PREFIX);
         return Plugin_Handled;
     }
-    resetMinidemoBots();
+    ResetMinidemoBots();
     ServerCommand("bot_quota_mode normal");
 
     char buffer[32]; // round2/ct
@@ -70,8 +70,9 @@ public void PlayerBothSide(int client) {
         ClientCommand(client, "sm_m");
         return;
     }
-
+    ResetMinidemoBots();
     g_bMinidemoPlaying = true;
+    // CreateTimer(0.2, BotHoldTimer, _, TIMER_REPEAT);
     int teamFlags[2] = {CS_TEAM_T, CS_TEAM_CT};
     for (int i = 0; i < 2; ++i) {
         if (g_iMinidemoSide & (1 << i)) {
@@ -97,7 +98,6 @@ stock void PlayOneSide(int client, int teamFlag) {
     for (int idx = startCount; idx < g_iMinidemoCount; ++idx) {
         ServerCommand("bot_add");
     }
-    PrintToServer("start-: %d, end-: %d", startCount, g_iMinidemoCount);
     CreateTimer(0.1, BotPrepareTimer, (teamFlag << 10) | (startCount << 5) | g_iMinidemoCount);
 }
 
@@ -114,7 +114,7 @@ public Action BotPrepareTimer(Handle timer, int vals) {
         }
     }
 
-    CreateTimer(0.5, BotReplayStartTimer, vals);
+    CreateTimer(10.0, BotReplayStartTimer, vals);
 
     return Plugin_Handled;
 }

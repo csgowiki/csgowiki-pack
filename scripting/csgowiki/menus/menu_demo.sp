@@ -127,7 +127,7 @@ public int DemoMatchRoundMenuCallback(Handle menuhandle, MenuAction action, int 
     }
 }
 
-public void OnPlayerRunCmdForMinidemo(int client) {
+public void OnPlayerRunCmdForMinidemo(int client, int& buttons, float angles[DATA_DIM]) {
     if (g_iMinidemoStatus == e_mDefault) return;
     char name[LENGTH_NAME];
     if (IsPlayer(g_iDemoLeader)) {
@@ -141,4 +141,16 @@ public void OnPlayerRunCmdForMinidemo(int client) {
         strlen(g_sDemoPickedMatchName) > 0 ? g_sDemoPickedMatchName : "未选择",
         g_iDemoPickedRound
     );
+    if (g_bMinidemoPlaying) {
+        for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+            if (!g_bMinidemoBotsOn[idx] && g_iMinidemoBots[idx] == client) {
+                SetEntityRenderColor(g_iMinidemoBots[idx], 255, 0, 0, 255);
+                SetEntityMoveType(g_iMinidemoBots[idx], MOVETYPE_NONE);
+                buttons = 0;
+                angles[0] = 0.0;
+                angles[1] = 0.0;
+                angles[2] = 0.0;
+            }
+        }
+    }
 }
