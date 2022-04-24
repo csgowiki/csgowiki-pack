@@ -1,5 +1,9 @@
 public Action Command_Demo(int client, any args) {
     if (!IsPlayer(client)) return;
+    if (g_iDemoLeader == client && g_iMinidemoStatus == e_mPlaying) {
+        CreateDemoControlMenu(client);
+        return;
+    }
     if (g_iDemoLeader != -1 && g_iDemoLeader != client) {
         PrintToChat(client, "%s \x02请等待当前demo操作玩家释放锁", PREFIX);
         ClientCommand(client, "sm_m");
@@ -157,6 +161,8 @@ public int DemoControlPanelHandler(Handle menu, MenuAction action, int client, i
     }
     if (action == MenuAction_Select) {
         switch (Position) {
+            case 0: DemoForwardOrRewind(client, -5.0);
+            case 1: DemoForwardOrRewind(client, 5.0);
             case 9: CloseHandle(menu);
         }
     }
