@@ -95,6 +95,7 @@ ArrayList g_hRecordingBookmarks[MAXPLAYERS+1];
 int g_iCurrentAdditionalTeleportIndex[MAXPLAYERS+1];
 // Is the recording currently paused?
 bool g_bRecordingPaused[MAXPLAYERS+1];
+bool g_bMimicingPaused[MAXPLAYERS+1];
 bool g_bSaveFullSnapshot[MAXPLAYERS+1];
 // How many calls to OnPlayerRunCmd were recorded?
 int g_iRecordedTicks[MAXPLAYERS+1];
@@ -179,6 +180,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("BotMimicFix_FastForwardPlayback", FastForwardPlayback);
 	CreateNative("BotMimicFix_RewindPlayback", RewindPlayback);
 	CreateNative("BotMimicFix_GetPlaybackPercentage", GetPlaybackPercentage);
+	CreateNative("BotMimicFix_PauseMimicing", PauseMimicing);
+	CreateNative("BotMimicFix_ResumeMimicing", ResumeMimicing);
 	
 	g_hfwdOnStartRecording = CreateGlobalForward("BotMimicFix_OnStartRecording", ET_Hook, Param_Cell, Param_String, Param_String, Param_String, Param_String);
 	g_hfwdOnRecordingPauseStateChanged = CreateGlobalForward("BotMimicFix_OnRecordingPauseStateChanged", ET_Ignore, Param_Cell, Param_Cell);
@@ -475,6 +478,14 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		g_iBotMimicTick[client] = 0;
 		g_iCurrentAdditionalTeleportIndex[client] = 0;
 		BotMimicFix_StopPlayerMimic(client); // for once
+		return Plugin_Continue;
+	}
+
+	if (g_bMimicingPaused[client]) {
+		buttons = 0;
+		angles[0] = 0.0;
+		angles[1] = 0.0;
+		angles[2] = 0.0;
 		return Plugin_Continue;
 	}
 
@@ -1321,6 +1332,7 @@ public int StopPlayerMimic(Handle plugin, int numParams)
 	g_bValidTeleportCall[client] = false;
 	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
 	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
+	g_bMimicingPaused[client] = false;
 	
 	FileHeader iFileHeader;
 	g_hLoadedRecords.GetArray(sPath, iFileHeader, sizeof(FileHeader));
@@ -2095,4 +2107,44 @@ public int GetPlaybackPercentage(Handle plugin, int numParams)
 	}
 
 	return view_as<int>(float(g_iBotMimicTick[client]) / g_iBotMimicRecordTickCount[client]);
+}
+
+public int PauseMimicing(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
+		return;
+	}
+	
+	if (!BotMimicFix_IsPlayerMimicing(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
+		return;
+	}
+	
+	g_bMimicingPaused[client] = true;
+	SetEntityMoveType(client, MOVETYPE_NONE);
+	return;
+}
+
+public int ResumeMimicing(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
+		return;
+	}
+	
+	if (!BotMimicFix_IsPlayerMimicing(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
+		return;
+	}
+
+	g_bMimicingPaused[client] = false;
+	SetEntityMoveType(client, MOVETYPE_WALK);
+	return;
 }

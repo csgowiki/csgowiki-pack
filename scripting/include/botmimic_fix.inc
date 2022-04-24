@@ -345,6 +345,23 @@ native BMError BotMimicFix_RewindPlayback(int client, int ticks, int interval);
 native float BotMimicFix_GetPlaybackPercentage(int client);
 
 /**
+ * Pause current mimicing(playback)
+ * 
+ * @param client	The mimicing client, which should pause mimicing.
+ * @error			Invalid client index
+ */
+native void BotMimicFix_PauseMimicing(int client);
+
+/**
+ * Resume current mimicing(playback)
+ * 
+ * @param client		The mimicing client, which should resume mimicing.
+ * @error				Invalid client index
+ */
+native void BotMimicFix_ResumeMimicing(int client);
+
+
+/**
  * Translate an error id to a human readable string
  * 
  * @param error		The error id
@@ -416,5 +433,7 @@ public void __pl_botmimic_SetNTVOptional()
 	MarkNativeAsOptional("BotMimicFix_FastForwardPlayback");
 	MarkNativeAsOptional("BotMimicFix_RewindPlayback");
 	MarkNativeAsOptional("BotMimicFix_GetPlaybackPercentage");
+	MarkNativeAsOptional("BotMimicFix_PauseMimicing");
+	MarkNativeAsOptional("BotMimicFix_ResumeMimicing");
 }
 #endif

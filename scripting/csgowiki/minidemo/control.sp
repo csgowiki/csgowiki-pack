@@ -24,3 +24,20 @@ void DemoForwardOrRewind(int client, float seconds) {
         }
     }
 }
+
+void DemoPauseOrResume(int client) {
+    if (!g_bMinidemoPlaying) {
+        PrintToChat(client, "%s 当前没有播放任何回放", PREFIX);
+        return;
+    }
+    g_bMinidemoPaused = !g_bMinidemoPaused;
+
+    for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+        if (g_bMinidemoBotsOn[idx] && g_bMinidemoPaused) {
+            BotMimicFix_PauseMimicing(g_iMinidemoBots[idx]);
+        }
+        else if (g_bMinidemoBotsOn[idx] && !g_bMinidemoPaused) {
+            BotMimicFix_ResumeMimicing(g_iMinidemoBots[idx]);
+        }
+    }
+}

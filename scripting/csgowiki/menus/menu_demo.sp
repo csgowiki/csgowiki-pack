@@ -161,8 +161,9 @@ public int DemoControlPanelHandler(Handle menu, MenuAction action, int client, i
     }
     if (action == MenuAction_Select) {
         switch (Position) {
-            case 0: DemoForwardOrRewind(client, -5.0);
-            case 1: DemoForwardOrRewind(client, 5.0);
+            case 1: DemoForwardOrRewind(client, -5.0), CreateDemoControlMenu(client);
+            case 2: DemoForwardOrRewind(client, 5.0), CreateDemoControlMenu(client);
+            case 3: DemoPauseOrResume(client), CreateDemoControlMenu(client);
             case 9: CloseHandle(menu);
         }
     }
