@@ -178,6 +178,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("BotMimicFix_GetRecordBookmarks", GetRecordBookmarks);
 	CreateNative("BotMimicFix_FastForwardPlayback", FastForwardPlayback);
 	CreateNative("BotMimicFix_RewindPlayback", RewindPlayback);
+	CreateNative("BotMimicFix_GetPlaybackPercentage", GetPlaybackPercentage);
 	
 	g_hfwdOnStartRecording = CreateGlobalForward("BotMimicFix_OnStartRecording", ET_Hook, Param_Cell, Param_String, Param_String, Param_String, Param_String);
 	g_hfwdOnRecordingPauseStateChanged = CreateGlobalForward("BotMimicFix_OnRecordingPauseStateChanged", ET_Ignore, Param_Cell, Param_Cell);
@@ -2076,4 +2077,22 @@ public int RewindPlayback(Handle plugin, int numParams)
 	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
 	UpdateNextBookmarkTick(client);
 	return view_as<int>(BM_NoError);
+}
+
+public int GetPlaybackPercentage(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
+		return -1.0;
+	}
+	
+	if (!BotMimicFix_IsPlayerMimicing(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
+		return -1.0;
+	}
+
+	return view_as<int>(float(g_iBotMimicTick[client]) / g_iBotMimicRecordTickCount[client]);
 }

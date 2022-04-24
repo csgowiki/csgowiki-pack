@@ -317,7 +317,7 @@ forward void BotMimicFix_OnPlayerMimicLoops(int client);
 forward void BotMimicFix_OnPlayerMimicBookmark(int client, const char[] bookmark);
 
 /**
- *  Fast forward player's playback `ticks`.
+ * Fast forward player's playback `ticks`.
  *
  * @param client	The mimicing client
  * @param ticks 	The number of ticks to fast forward.
@@ -327,7 +327,7 @@ forward void BotMimicFix_OnPlayerMimicBookmark(int client, const char[] bookmark
 native BMError BotMimicFix_FastForwardPlayback(int client, int ticks, int interval);
 
 /**
- *  Rewind player's playback `ticks`.
+ * Rewind player's playback `ticks`.
  *
  * @param client	The mimicing client
  * @param ticks 	The number of ticks to rewind.
@@ -335,6 +335,14 @@ native BMError BotMimicFix_FastForwardPlayback(int client, int ticks, int interv
  * @return			BM_NoError if all went smooth, BM_BadTicks if the ticks are invalid.
  */
 native BMError BotMimicFix_RewindPlayback(int client, int ticks, int interval);
+
+/**
+ * Get playerback process percentage.
+ *
+ * @param client	The mimicing client
+ * @return  		The percentage of the playback process in [0.0, 1.0]. -1 if error occurs
+ */
+native float BotMimicFix_GetPlaybackPercentage(int client);
 
 /**
  * Translate an error id to a human readable string
@@ -407,5 +415,6 @@ public void __pl_botmimic_SetNTVOptional()
 	MarkNativeAsOptional("BotMimicFix_GetRecordBookmarks");
 	MarkNativeAsOptional("BotMimicFix_FastForwardPlayback");
 	MarkNativeAsOptional("BotMimicFix_RewindPlayback");
+	MarkNativeAsOptional("BotMimicFix_GetPlaybackPercentage");
 }
 #endif
