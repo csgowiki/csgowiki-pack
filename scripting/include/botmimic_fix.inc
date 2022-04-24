@@ -317,22 +317,24 @@ forward void BotMimicFix_OnPlayerMimicLoops(int client);
 forward void BotMimicFix_OnPlayerMimicBookmark(int client, const char[] bookmark);
 
 /**
- * Get the header information of a record. This includes the record name.
+ *  Fast forward player's playback `ticks`.
  *
- * @param path	The path to the .rec record file
- * @param iFileHeader	An array to store the file header in.
- * @return			BM_NoError if all went smooth, see BMError definition.
+ * @param client	The mimicing client
+ * @param ticks 	The number of ticks to fast forward.
+ * @param invertal 	The interval of fullsnap.
+ * @return			BM_NoError if all went smooth, BM_BadTicks if the ticks are invalid.
  */
-native BMError BotMimicFix_FastForwardPlayback(int client, int ticks);
+native BMError BotMimicFix_FastForwardPlayback(int client, int ticks, int interval);
 
 /**
- * Get the header information of a record. This includes the record name.
+ *  Rewind player's playback `ticks`.
  *
- * @param path	The path to the .rec record file
- * @param iFileHeader	An array to store the file header in.
- * @return			BM_NoError if all went smooth, see BMError definition.
+ * @param client	The mimicing client
+ * @param ticks 	The number of ticks to rewind.
+ * @param invertal 	The interval of fullsnap.
+ * @return			BM_NoError if all went smooth, BM_BadTicks if the ticks are invalid.
  */
-native BMError BotMimicFix_RewindPlayback(int client, int ticks);
+native BMError BotMimicFix_RewindPlayback(int client, int ticks, int interval);
 
 /**
  * Translate an error id to a human readable string

@@ -1697,7 +1697,7 @@ void WriteRecordToDisk(const char[] sPath, FileHeader iFileHeader)
 BMError LoadRecordFromFile(const char[] path, const char[] sCategory, FileHeader headerInfo, bool onlyHeader, bool forceReload)
 {
 	if(!FileExists(path))
-		return BM_FileNotFound;
+		return view_as<int>(BM_FileNotFound);
 	
 	// Make sure the handle references are null in the input structure.
 	headerInfo.FH_frames = null;
@@ -1709,21 +1709,21 @@ BMError LoadRecordFromFile(const char[] path, const char[] sCategory, FileHeader
 	{
 		// Header already loaded.
 		if(onlyHeader && !forceReload)
-			return BM_NoError;
+			return view_as<int>(BM_NoError);
 		
 		bAlreadyLoaded = true;
 	}
 	
 	File hFile = OpenFile(path, "rb");
 	if(hFile == null)
-		return BM_FileNotFound;
+		return view_as<int>(BM_FileNotFound);
 	
 	int iMagic;
 	hFile.ReadInt32(iMagic);
 	if(iMagic != BM_MAGIC)
 	{
 		delete hFile;
-		return BM_BadFile;
+		return view_as<int>(BM_BadFile);
 	}
 	
 	int iBinaryFormatVersion;
@@ -1733,7 +1733,7 @@ BMError LoadRecordFromFile(const char[] path, const char[] sCategory, FileHeader
 	if(iBinaryFormatVersion > BINARY_FORMAT_VERSION)
 	{
 		delete hFile;
-		return BM_NewerBinaryVersion;
+		return view_as<int>(BM_NewerBinaryVersion);
 	}
 	
 	int iRecordTime, iNameLength;
@@ -1801,7 +1801,7 @@ BMError LoadRecordFromFile(const char[] path, const char[] sCategory, FileHeader
 	if(onlyHeader)
 	{
 		delete hFile;
-		return BM_NoError;
+		return view_as<int>(BM_NoError);
 	}
 	
 	// Read in all the saved frames
@@ -1837,7 +1837,7 @@ BMError LoadRecordFromFile(const char[] path, const char[] sCategory, FileHeader
 		delete hAdditionalTeleport;
 	
 	delete hFile;
-	return BM_NoError;
+	return view_as<int>(BM_NoError);
 }
 
 void SortRecordList()
@@ -1865,7 +1865,7 @@ BMError PlayRecord(int client, const char[] path)
 	// He's currently recording. Don't start to play some record on him at the same time.
 	if(g_hRecording[client] != null)
 	{
-		return BM_BadClient;
+		return view_as<int>(BM_BadClient);
 	}
 	
 	FileHeader iFileHeader;
@@ -1879,7 +1879,7 @@ BMError PlayRecord(int client, const char[] path)
 			strcopy(sCategory, sizeof(sCategory), DEFAULT_CATEGORY);
 		BMError error = LoadRecordFromFile(path, sCategory, iFileHeader, false, true);
 		if(error != BM_NoError)
-			return error;
+			return view_as<int>(error);
 	}
 	
 	g_hBotMimicsRecord[client] = iFileHeader.FH_frames;
@@ -1928,7 +1928,7 @@ BMError PlayRecord(int client, const char[] path)
 		g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
 	}
 	
-	return BM_NoError;
+	return view_as<int>(BM_NoError);
 }
 
 // Find the next frame in which a bookmark was saved, so the OnPlayerMimicBookmark forward can be called.
@@ -2020,58 +2020,60 @@ public int FastForwardPlayback(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	int ticks = GetNativeCell(2);
+	int interval = GetNativeCell(3);
 	if(client < 1 || client > MaxClients || !IsClientInGame(client))
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
-		return BM_BadClient;
+		return view_as<int>(BM_BadClient);
 	}
 	
 	if(!BotMimicFix_IsPlayerMimicing(client))
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
-		return BM_BadClient;
+		return view_as<int>(BM_BadClient);
 	}
 	
 	// think about bound of the playback
 	if (g_iBotMimicTick[client] + ticks >= g_iBotMimicRecordTickCount[client])
 	{
-		return BM_BadTick;
+		return view_as<int>(BM_BadTick);
 	}
 	g_iBotMimicTick[client] += ticks;
-	g_iCurrentAdditionalTeleportIndex[client] += ticks / 128;
+	g_iCurrentAdditionalTeleportIndex[client] += ticks / interval;
 	// need test
 	// g_bValidTeleportCall[client] = false;
 	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
 	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
 	UpdateNextBookmarkTick(client);
-	return BM_NoError;
+	return view_as<int>(BM_NoError);
 }
 
 public int RewindPlayback(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	int ticks = GetNativeCell(2);
+	int interval = GetNativeCell(3);
 	if(client < 1 || client > MaxClients || !IsClientInGame(client))
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
-		return BM_BadClient;
+		return view_as<int>(BM_BadClient);
 	}
 	
 	if(!BotMimicFix_IsPlayerMimicing(client))
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
-		return BM_BadClient;
+		return view_as<int>(BM_BadClient);
 	}
 	
 	if (g_iBotMimicTick[client] - ticks < 0)
 	{
-		return BM_BadTick;
+		return view_as<int>(BM_BadTick);
 	}
 	g_iBotMimicTick[client] -= ticks;
-	g_iCurrentAdditionalTeleportIndex[client] -= ticks / 128;
+	g_iCurrentAdditionalTeleportIndex[client] -= ticks / interval;
 	// g_bValidTeleportCall[client] = false;
 	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
 	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
 	UpdateNextBookmarkTick(client);
-	return BM_NoError;
+	return view_as<int>(BM_NoError);
 }
