@@ -176,6 +176,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("BotMimicFix_GetLoadedRecordList", GetLoadedRecordList);
 	CreateNative("BotMimicFix_GetFileCategory", GetFileCategory);
 	CreateNative("BotMimicFix_GetRecordBookmarks", GetRecordBookmarks);
+	CreateNative("BotMimicFix_FastForwardPlayback", FastForwardPlayback);
+	CreateNative("BotMimicFix_RewindPlayback", RewindPlayback);
 	
 	g_hfwdOnStartRecording = CreateGlobalForward("BotMimicFix_OnStartRecording", ET_Hook, Param_Cell, Param_String, Param_String, Param_String, Param_String);
 	g_hfwdOnRecordingPauseStateChanged = CreateGlobalForward("BotMimicFix_OnRecordingPauseStateChanged", ET_Ignore, Param_Cell, Param_Cell);
@@ -2012,4 +2014,64 @@ bool HasWeapon(int client, const char[] entity, bool caseSensitive = true)
 	}
 	
 	return false;
+}
+
+public int FastForwardPlayback(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	int ticks = GetNativeCell(2);
+	if(client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
+		return BM_BadClient;
+	}
+	
+	if(!BotMimicFix_IsPlayerMimicing(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
+		return BM_BadClient;
+	}
+	
+	// think about bound of the playback
+	if (g_iBotMimicTick[client] + ticks >= g_iBotMimicRecordTickCount[client])
+	{
+		return BM_BadTick;
+	}
+	g_iBotMimicTick[client] += ticks;
+	g_iCurrentAdditionalTeleportIndex[client] += ticks / 128;
+	// need test
+	// g_bValidTeleportCall[client] = false;
+	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
+	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
+	UpdateNextBookmarkTick(client);
+	return BM_NoError;
+}
+
+public int RewindPlayback(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	int ticks = GetNativeCell(2);
+	if(client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Bad player index %d", client);
+		return BM_BadClient;
+	}
+	
+	if(!BotMimicFix_IsPlayerMimicing(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Player is not mimicing.");
+		return BM_BadClient;
+	}
+	
+	if (g_iBotMimicTick[client] - ticks < 0)
+	{
+		return BM_BadTick;
+	}
+	g_iBotMimicTick[client] -= ticks;
+	g_iCurrentAdditionalTeleportIndex[client] -= ticks / 128;
+	// g_bValidTeleportCall[client] = false;
+	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
+	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
+	UpdateNextBookmarkTick(client);
+	return BM_NoError;
 }

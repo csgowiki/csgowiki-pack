@@ -12,7 +12,8 @@ enum BMError {
 	BM_BadClient, // Provided client index is invalid
 	BM_FileNotFound, // The file does not exists or can't be opened
 	BM_BadFile, // Not a Bot Mimic record.
-	BM_NewerBinaryVersion // The record was recorded with a newer version of Bot Mimic and can't be played.
+	BM_NewerBinaryVersion, // The record was recorded with a newer version of Bot Mimic and can't be played.
+	BM_BadTick, // The tick is out of range.
 };
 
 enum struct BMFileHeader {
@@ -316,6 +317,24 @@ forward void BotMimicFix_OnPlayerMimicLoops(int client);
 forward void BotMimicFix_OnPlayerMimicBookmark(int client, const char[] bookmark);
 
 /**
+ * Get the header information of a record. This includes the record name.
+ *
+ * @param path	The path to the .rec record file
+ * @param iFileHeader	An array to store the file header in.
+ * @return			BM_NoError if all went smooth, see BMError definition.
+ */
+native BMError BotMimicFix_FastForwardPlayback(int client, int ticks);
+
+/**
+ * Get the header information of a record. This includes the record name.
+ *
+ * @param path	The path to the .rec record file
+ * @param iFileHeader	An array to store the file header in.
+ * @return			BM_NoError if all went smooth, see BMError definition.
+ */
+native BMError BotMimicFix_RewindPlayback(int client, int ticks);
+
+/**
  * Translate an error id to a human readable string
  * 
  * @param error		The error id
@@ -384,5 +403,7 @@ public void __pl_botmimic_SetNTVOptional()
 	MarkNativeAsOptional("BotMimicFix_GetFileCategory");
 	MarkNativeAsOptional("BotMimicFix_ChangeRecordName");
 	MarkNativeAsOptional("BotMimicFix_GetRecordBookmarks");
+	MarkNativeAsOptional("BotMimicFix_FastForwardPlayback");
+	MarkNativeAsOptional("BotMimicFix_RewindPlayback");
 }
 #endif
