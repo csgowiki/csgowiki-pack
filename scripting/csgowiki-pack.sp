@@ -10,8 +10,8 @@
 #include <csgowiki>
 
 #include "csgowiki/utils.sp"
-#include "csgowiki/minidemo.sp"
 #include "csgowiki/panel.sp"
+#include "csgowiki/minidemo.sp"
 
 #include "csgowiki/steam_bind.sp"
 #include "csgowiki/utility_submit.sp"

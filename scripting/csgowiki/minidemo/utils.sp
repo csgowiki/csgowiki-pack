@@ -1,6 +1,7 @@
 // minidemo utils
 public void ResetMinidemoBots() {
     g_bMinidemoPlaying = false;
+    g_bMinidemoPaused = false;
     for (int idx = 0; idx < MAX_REPLAY_CLIENTS; ++idx) {
         g_iMinidemoBots[idx] = -1;
         g_bMinidemoBotsOn[idx] = false;

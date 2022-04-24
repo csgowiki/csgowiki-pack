@@ -168,8 +168,7 @@ void SetOneFileDownloadCompleted(int client, int index) {
         // start playing minidemo
 
         g_iMinidemoStatus = e_mPlaying;
-
-        // ResetMinidemoState();
+        CreateDemoControlMenu(client);
         PlayerBothSide(client);
     }
 }

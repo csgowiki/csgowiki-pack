@@ -135,6 +135,7 @@ char g_sMinidemoName[MAX_REPLAY_CLIENTS][LENGTH_PATH];
 int g_iMinidemoBots[MAX_REPLAY_CLIENTS];
 int g_iMinidemoCount = 0;
 bool g_bMinidemoPlaying = false;
+bool g_bMinidemoPaused = false;
 int g_iMinidemoSide = -1; // (1 << 0) T, (1 << 1) CT, (1 << 0 | 1 << 1) Both
 bool g_bMinidemoBotsOn[MAX_REPLAY_CLIENTS];
 

@@ -39,7 +39,7 @@ public Action Command_Panel(int client, any args) {
 public int PanelHandler(Handle menu, MenuAction action, int client, int Position) {
     if (!IsPlayer(client)) return;
     if (action == MenuAction_Select) {
-        switch(Position) {
+        switch (Position) {
             case 1: ClientCommand(client, "sm_wiki");
             case 2: ClientCommand(client, "sm_wikipro");
             case 3: ClientCommand(client, "sm_demo");

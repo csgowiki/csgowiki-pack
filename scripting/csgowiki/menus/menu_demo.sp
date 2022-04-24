@@ -127,6 +127,41 @@ public int DemoMatchRoundMenuCallback(Handle menuhandle, MenuAction action, int 
     }
 }
 
+void CreateDemoControlMenu(int client) {
+    // check state
+    if (!IsPlayer(client)) return;
+    //
+    Panel panel = new Panel();
+    panel.SetTitle("Demo操作面板");
+
+    panel.DrawText("快捷按键：关闭");
+    panel.DrawItem("回退5秒(<-)");
+    panel.DrawItem("快进5秒(->)");
+    if (g_bMinidemoPaused) {
+        panel.DrawItem("取消暂停");
+    }
+    else {
+        panel.DrawItem("暂停");
+    }
+    panel.DrawItem("上一回合");
+    panel.DrawItem("下一回合");
+
+    panel.Send(client, DemoControlPanelHandler, MENU_TIME_FOREVER);
+    delete panel;
+}
+
+public int DemoControlPanelHandler(Handle menu, MenuAction action, int client, int Position) {
+    if (g_iMinidemoStatus != e_mPlaying || !IsPlayer(client)) {
+        CloseHandle(menu);
+        return;
+    }
+    if (action == MenuAction_Select) {
+        switch (Position) {
+            case 9: CloseHandle(menu);
+        }
+    }
+}
+
 public void OnPlayerRunCmdForMinidemo(int client, int& buttons, float angles[DATA_DIM]) {
     if (g_iMinidemoStatus == e_mDefault) return;
     char name[LENGTH_NAME];
