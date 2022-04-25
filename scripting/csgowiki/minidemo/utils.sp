@@ -69,7 +69,22 @@ public void ResetMinidemoState() {
     g_iDemoDownloadBits = 0;
     g_iDemoDownloadNum = 0;
     g_iMinidemoStatus = e_mDefault;
+    g_bMinidemoPlaying = false;
+    g_bMinidemoPaused = false;
+    g_iMinidemoCount = 0;
     ClearMinidemoFiles();
+}
+
+public void TerminateMinidemo() {
+    if (!g_bMinidemoPlaying) return;
+    for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+        if (g_iMinidemoBots[idx] != -1 && g_bMinidemoBotsOn[idx]) {
+            BotMimicFix_StopPlayerMimic(g_iMinidemoBots[idx]);
+        }
+    }
+    ResetMinidemoState();
+    ResetMinidemoBots();
+    ServerCommand("bot_kick");
 }
 
 public void DeleteFilesInDir(char []Path) {

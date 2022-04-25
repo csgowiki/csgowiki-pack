@@ -204,6 +204,7 @@ public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] ca
             sumbit |= g_bMinidemoBotsOn[idx];
         }
         if (!sumbit) {
+            ClientCommand(g_iDemoLeader, "sm_m");
             g_bMinidemoPlaying = sumbit;
             ServerCommand("bot_kick");
             ResetMinidemoState();

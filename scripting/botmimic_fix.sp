@@ -109,6 +109,8 @@ char g_sRecordPath[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 char g_sRecordCategory[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 char g_sRecordSubDir[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
+bool g_bForceMove[MAXPLAYERS+1]; // ignore pause once
+
 #define WEAPONS_SLOTS_MAX 5
 int g_iWeaponCache[MAXPLAYERS+1][WEAPONS_SLOTS_MAX];
 
@@ -481,7 +483,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		return Plugin_Continue;
 	}
 
-	if (g_bMimicingPaused[client]) {
+	if (g_bMimicingPaused[client] && !g_bForceMove[client]) {
 		buttons = 0;
 		angles[0] = 0.0;
 		angles[1] = 0.0;
@@ -489,10 +491,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		return Plugin_Continue;
 	}
 
-	// PrintToChatAll("[BotMimic] current: %d;  total: %d", g_iBotMimicTick[client], g_iBotMimicRecordTickCount[client]);
-
-	float percent = 100 * float(g_iBotMimicTick[client]) / g_iBotMimicRecordTickCount[client];
-	PrintCenterText(client, "回放进度：<font color='#0CED26'>%.1f<font color='#ffffff'>\%", percent);
+	// float percent = 100 * float(g_iBotMimicTick[client]) / g_iBotMimicRecordTickCount[client];
+	// PrintCenterText(client, "回放进度：<font color='#0CED26'>%.1f<font color='#ffffff'>\%", percent);
 	
 	FrameInfo iFrame;
 	g_hBotMimicsRecord[client].GetArray(g_iBotMimicTick[client], iFrame, sizeof(FrameInfo));
@@ -513,6 +513,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	// We're supposed to teleport stuff?
 	if(iFrame.additionalFields & (ADDITIONAL_FIELD_TELEPORTED_ORIGIN|ADDITIONAL_FIELD_TELEPORTED_ANGLES|ADDITIONAL_FIELD_TELEPORTED_VELOCITY))
 	{
+		g_bForceMove[client] = false;
 		AdditionalTeleport iAT;
 		ArrayList hAdditionalTeleport;
 		char sPath[PLATFORM_MAX_PATH];
@@ -1333,24 +1334,10 @@ public int StopPlayerMimic(Handle plugin, int numParams)
 	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
 	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
 	g_bMimicingPaused[client] = false;
-	
+	g_bForceMove[client] = false;
+
 	FileHeader iFileHeader;
 	g_hLoadedRecords.GetArray(sPath, iFileHeader, sizeof(FileHeader));
-	
-	// SDKUnhook(client, SDKHook_WeaponCanSwitchTo, Hook_WeaponCanSwitchTo);
-	// if (!HasWeapon(client, "weapon_knife")) {
-	// 	FakeClientCommand(client, "give weapon_knife");
-	// }
-
-	// if(IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) >= CS_TEAM_T) {
-	// 	for (int slot = 0; slot < WEAPONS_SLOTS_MAX; ++slot) {
-	// 		if (g_iWeaponCache[client][slot] > 0)  {
-	// 			// char weaponName[64];
-	// 			// GetEdictClassname(g_iWeaponCache[client][slot], weaponName, sizeof(weaponName));
-	// 			// PrintToChatAll("slot: %d; weapon: %s", slot, weaponName);
-	// 		}
-	// 	}
-	// }
 
 	char sCategory[64];
 	g_hLoadedRecordsCategory.GetString(sPath, sCategory, sizeof(sCategory));
@@ -2055,9 +2042,11 @@ public int FastForwardPlayback(Handle plugin, int numParams)
 	g_iCurrentAdditionalTeleportIndex[client] += ticks / interval;
 	// need test
 	// g_bValidTeleportCall[client] = false;
-	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
-	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
-	UpdateNextBookmarkTick(client);
+	// g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
+	// g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
+	// UpdateNextBookmarkTick(client);
+
+	g_bForceMove[client] = true;
 	return view_as<int>(BM_NoError);
 }
 
@@ -2085,9 +2074,11 @@ public int RewindPlayback(Handle plugin, int numParams)
 	g_iBotMimicTick[client] -= ticks;
 	g_iCurrentAdditionalTeleportIndex[client] -= ticks / interval;
 	// g_bValidTeleportCall[client] = false;
-	g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
-	g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
-	UpdateNextBookmarkTick(client);
+	// g_iBotMimicNextBookmarkTick[client].BWM_frame = -1;
+	// g_iBotMimicNextBookmarkTick[client].BWM_index = -1;
+	// UpdateNextBookmarkTick(client);
+
+	g_bForceMove[client] = true;
 	return view_as<int>(BM_NoError);
 }
 

@@ -149,6 +149,7 @@ void CreateDemoControlMenu(int client) {
     }
     panel.DrawItem("上一回合");
     panel.DrawItem("下一回合");
+    panel.DrawItem("结束回放");
 
     panel.Send(client, DemoControlPanelHandler, MENU_TIME_FOREVER);
     delete panel;
@@ -164,6 +165,7 @@ public int DemoControlPanelHandler(Handle menu, MenuAction action, int client, i
             case 1: DemoForwardOrRewind(client, -5.0), CreateDemoControlMenu(client);
             case 2: DemoForwardOrRewind(client, 5.0), CreateDemoControlMenu(client);
             case 3: DemoPauseOrResume(client), CreateDemoControlMenu(client);
+            case 6: TerminateMinidemo(), ClientCommand(client, "sm_m");
             case 9: CloseHandle(menu);
         }
     }
@@ -178,6 +180,7 @@ public void OnPlayerRunCmdForMinidemo(int client, int& buttons, float angles[DAT
     else {
         strcopy(name, sizeof(name), "未知");
     }
+
     PrintCenterText(client, "<font color='#87CEFA'>demo回放开启</font><br/>所属玩家：<font color='#FF0000'>%s</font><br/>比赛：<font color='#87CEFA'>%s</font><br/>回合：<font color='#87CEFA'>%d</font>",
         name,
         strlen(g_sDemoPickedMatchName) > 0 ? g_sDemoPickedMatchName : "未选择",
