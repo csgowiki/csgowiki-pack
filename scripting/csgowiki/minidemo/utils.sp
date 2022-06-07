@@ -60,6 +60,7 @@ public int GetPreparedBot(int idx, int teamFlag) {
 
     SetClientName(bot, g_sMinidemoName[idx]);
     CS_SwitchTeam(bot, teamFlag);
+    ClientCommand(bot, "god");
     KillBot(bot);
     return bot;
 }

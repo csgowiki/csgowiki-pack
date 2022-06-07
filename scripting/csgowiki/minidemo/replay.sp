@@ -6,7 +6,10 @@ public Action Command_Minidemo(int client, int args) {
         return Plugin_Handled;
     }
     ResetMinidemoBots();
+    ServerCommand("bot_quota 10");
     ServerCommand("bot_quota_mode normal");
+    ServerCommand("mp_autoteambalance 0");
+    ServerCommand("mp_teams_unbalance_limit 0");
 
     char buffer[32]; // round2/ct
     GetCmdArgString(buffer, sizeof(buffer));
@@ -114,7 +117,7 @@ public Action BotPrepareTimer(Handle timer, int vals) {
         }
     }
 
-    CreateTimer(10.0, BotReplayStartTimer, vals);
+    CreateTimer(8.0, BotReplayStartTimer, vals);
 
     return Plugin_Handled;
 }
