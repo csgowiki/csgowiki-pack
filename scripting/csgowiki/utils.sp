@@ -1,5 +1,5 @@
 // check handle function on/off
-bool check_function_on(Handle: ghandle, char[] errorMsg, client = -1) {
+bool check_function_on(Handle ghandle, char[] errorMsg, int client = -1) {
     bool benable = GetConVarBool(ghandle) && GetConVarBool(g_hCSGOWikiEnable);
     if (!benable && client != -1) {
         PrintToChat(client, "%s %s", PREFIX, errorMsg);
@@ -46,7 +46,7 @@ void HookOpConVarChange() {
     HookConVarChange(g_hOnUtilityWiki, ConVar_OnUtilityWikiChange);
 }
 
-public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public void ConVar_CSGOWikiEnableChange(Handle convar, const char[] oldValue, const char[] newValue) {
     if (GetConVarBool(g_hCSGOWikiEnable)) {
         PrintToChatAll("%s \x09CSGOWiki插件总功能\x01 => \x04已开启", PREFIX);
     }
@@ -55,7 +55,7 @@ public ConVar_CSGOWikiEnableChange(Handle:convar, const String:oldValue[], const
     }
 }
 
-public ConVar_OnUtilitySubmitChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public void ConVar_OnUtilitySubmitChange(Handle convar, const char[] oldValue, const char[] newValue) {
     if (GetConVarBool(g_hOnUtilitySubmit)) {
         PrintToChatAll("%s \x09道具上传功能\x01 => \x04已开启", PREFIX);
     }
@@ -64,7 +64,7 @@ public ConVar_OnUtilitySubmitChange(Handle:convar, const String:oldValue[], cons
     }
 }
 
-public ConVar_OnUtilityWikiChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public void ConVar_OnUtilityWikiChange(Handle convar, const char[] oldValue, const char[] newValue) {
     if (GetConVarBool(g_hOnUtilityWiki)) {
         PrintToChatAll("%s \x09道具学习功能\x01 => \x04已开启", PREFIX);
     }
@@ -89,8 +89,8 @@ void GrenadeType_2_Tinyname(GrenadeType utCode, char[] utTinyName) {
     }
 }
 
-void Action_Int2Array(client, bool[] wikiAction) {
-    for (new idx = 0; idx < CSGO_ACTION_NUM; idx++) {
+void Action_Int2Array(int client, bool[] wikiAction) {
+    for (int idx = 0; idx < CSGO_ACTION_NUM; idx++) {
         if (g_aActionRecord[client] & (1 << idx)) {
             switch(g_aCsgoActionMap[idx]) {
             case IN_JUMP:   wikiAction[e_wJump] = true;
@@ -122,13 +122,13 @@ void Action_Int2Array(client, bool[] wikiAction) {
     }
 }
 
-void Action_Int2Str(client, char[] strAction) {
+void Action_Int2Str(int client, char[] strAction) {
     bool wikiAction[CSGOWIKI_ACTION_NUM] = {};
     Action_Int2Array(client, wikiAction);
     char StrTemp[CSGOWIKI_ACTION_NUM][6] = {
         "跳 ", "蹲 ", "跑 ", "走 ", "站 ", "左键 ", "右键 "
     };
-    for (new idx = 0; idx < CSGOWIKI_ACTION_NUM; idx ++) {
+    for (int idx = 0; idx < CSGOWIKI_ACTION_NUM; idx ++) {
         if (!wikiAction[idx]) continue;
         StrCat(strAction, LENGTH_MESSAGE, StrTemp[idx]);
     }
@@ -174,7 +174,7 @@ void Utility_FullName2Zh(char[] utFullName, char[] format, char[] zh) {
     }
 }
 
-void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
+void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, int client) {
     if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_smokegrenade");
     }
@@ -185,7 +185,7 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
         strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_flashbang");
     }
     else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
-        new teamFlag = GetClientTeam(client);
+        int teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             strcopy(weaponName, LENGTH_UTILITY_ZH, "weapon_molotov");
         }
@@ -195,7 +195,7 @@ void Utility_TinyName2Weapon(char[] utTinyName, char[] weaponName, client) {
     }
 }
 
-GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
+GrenadeType TinyName_2_GrenadeType(char[] utTinyName, int client) {
     if (StrEqual(utTinyName, "smoke") || StrEqual(utTinyName, "smokegrenade")) {
         return GrenadeType_Smoke;
     }
@@ -206,7 +206,7 @@ GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
         return GrenadeType_Flash;
     }
     else if (StrEqual(utTinyName, "molotov") || StrEqual(utTinyName, "incgrenade")) {
-        new teamFlag = GetClientTeam(client);
+        int teamFlag = GetClientTeam(client);
         if (CS_TEAM_T == teamFlag) {
             return GrenadeType_Molotov;
         }
@@ -218,58 +218,19 @@ GrenadeType TinyName_2_GrenadeType(char[] utTinyName, client) {
 }
 
 
-void ResetReqLock(pclient = -1) {
+void ResetReqLock(int pclient = -1) {
     if (pclient != -1) {
         g_aReqLock[pclient] = false;
         return;
     }
-    for (new client = 0; client <= MAXPLAYERS; client++) {
+    for (int client = 0; client <= MAXPLAYERS; client++) {
         g_aReqLock[client] = false;
     }
 }
 
 
-// ----------------- server monitor json generator -------
-// JSONArray encode_json_server_monitor(int exclient, bool inctoken=true, bool authType=true, bool incmap=false, bool incid=false) {
-//     JSONArray monitor_json = new JSONArray();
-//     if (inctoken) {
-//         char token[LENGTH_TOKEN];
-//         GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
-//         monitor_json.PushString(token);
-//     }
-//     if (exclient == -1) {
-//         monitor_json.Push(new JSONArray());
-//         return monitor_json;
-//     }
-//     if (incmap) {
-//         monitor_json.PushString(g_sCurrentMap);
-//     }
-//     for (int client_id = 0; client_id <= MaxClients; client_id++) {
-//         if(!IsPlayer(client_id) || client_id == exclient) continue;
-//         char client_name[LENGTH_NAME], steamid[LENGTH_STEAMID64], str_ping[4];
-//         GetClientName(client_id, client_name, LENGTH_NAME);
-//         if (authType) {
-//             GetClientAuthId(client_id, AuthId_SteamID64, steamid, LENGTH_STEAMID64)
-//         } else {
-//             GetClientAuthId(client_id, AuthId_Steam2, steamid, LENGTH_STEAMID64)
-//         }
-//         float latency = GetClientAvgLatency(client_id, NetFlow_Both);
-//         IntToString(RoundToNearest(latency * 500), str_ping, sizeof(str_ping));
-//         // json encode
-//         JSONArray client_arr = new JSONArray();
-//         if (incid) {
-//             client_arr.PushInt(client_id);
-//         }
-//         client_arr.PushString(client_name);
-//         client_arr.PushString(steamid);
-//         client_arr.PushString(str_ping);
-//         monitor_json.Push(client_arr);
-//     }
-//     return monitor_json;
-// }
-
 // ----------------- check version ----------------------
-void PluginVersionHint(client) {
+void PluginVersionHint(int client) {
     if (StrEqual(g_sLatestVersion, "")) {
         PrintToChat(client, "%s 获取版本信息失败：[\x02%s\x01]", PREFIX, g_sLatestInfo);
     }
@@ -283,10 +244,10 @@ void PluginVersionHint(client) {
     }
 }
 
-void PluginVersionCheck(client = -1) {
+void PluginVersionCheck(int client = -1) {
     GetPluginInfo(INVALID_HANDLE, PlInfo_Version, g_sCurrentVersion, LENGTH_VERSION);
     HTTPRequest PluginVersionCheckRequest = new HTTPRequest(
-        "https://api.github.com/repos/hx-w/CSGOWiki-Plugins/releases/latest"
+        "https://api.github.com/repos/csgowiki/csgowiki-pack/releases/latest"
     );
     PluginVersionCheckRequest.SetHeader("User-Agent", "request");
     PluginVersionCheckRequest.Get(PluginVersionCheckCallback, client);
@@ -319,7 +280,7 @@ public bool EnforceDirExists(const char[] smPath) {
     return true;
 }
 
-void ClearPlayerProMatchInfo(client) {
+void ClearPlayerProMatchInfo(int client) {
     if (IsPlayer(client)) {
         g_aProMatchIndex[client] = -1;
     }

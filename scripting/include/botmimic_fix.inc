@@ -12,7 +12,8 @@ enum BMError {
 	BM_BadClient, // Provided client index is invalid
 	BM_FileNotFound, // The file does not exists or can't be opened
 	BM_BadFile, // Not a Bot Mimic record.
-	BM_NewerBinaryVersion // The record was recorded with a newer version of Bot Mimic and can't be played.
+	BM_NewerBinaryVersion, // The record was recorded with a newer version of Bot Mimic and can't be played.
+	BM_BadTick, // The tick is out of range.
 };
 
 enum struct BMFileHeader {
@@ -316,6 +317,51 @@ forward void BotMimicFix_OnPlayerMimicLoops(int client);
 forward void BotMimicFix_OnPlayerMimicBookmark(int client, const char[] bookmark);
 
 /**
+ * Fast forward player's playback `ticks`.
+ *
+ * @param client	The mimicing client
+ * @param ticks 	The number of ticks to fast forward.
+ * @param invertal 	The interval of fullsnap.
+ * @return			BM_NoError if all went smooth, BM_BadTicks if the ticks are invalid.
+ */
+native BMError BotMimicFix_FastForwardPlayback(int client, int ticks, int interval);
+
+/**
+ * Rewind player's playback `ticks`.
+ *
+ * @param client	The mimicing client
+ * @param ticks 	The number of ticks to rewind.
+ * @param invertal 	The interval of fullsnap.
+ * @return			BM_NoError if all went smooth, BM_BadTicks if the ticks are invalid.
+ */
+native BMError BotMimicFix_RewindPlayback(int client, int ticks, int interval);
+
+/**
+ * Get playerback process percentage.
+ *
+ * @param client	The mimicing client
+ * @return  		The percentage of the playback process in [0.0, 1.0]. -1 if error occurs
+ */
+native float BotMimicFix_GetPlaybackPercentage(int client);
+
+/**
+ * Pause current mimicing(playback)
+ * 
+ * @param client	The mimicing client, which should pause mimicing.
+ * @error			Invalid client index
+ */
+native void BotMimicFix_PauseMimicing(int client);
+
+/**
+ * Resume current mimicing(playback)
+ * 
+ * @param client		The mimicing client, which should resume mimicing.
+ * @error				Invalid client index
+ */
+native void BotMimicFix_ResumeMimicing(int client);
+
+
+/**
  * Translate an error id to a human readable string
  * 
  * @param error		The error id
@@ -384,5 +430,10 @@ public void __pl_botmimic_SetNTVOptional()
 	MarkNativeAsOptional("BotMimicFix_GetFileCategory");
 	MarkNativeAsOptional("BotMimicFix_ChangeRecordName");
 	MarkNativeAsOptional("BotMimicFix_GetRecordBookmarks");
+	MarkNativeAsOptional("BotMimicFix_FastForwardPlayback");
+	MarkNativeAsOptional("BotMimicFix_RewindPlayback");
+	MarkNativeAsOptional("BotMimicFix_GetPlaybackPercentage");
+	MarkNativeAsOptional("BotMimicFix_PauseMimicing");
+	MarkNativeAsOptional("BotMimicFix_ResumeMimicing");
 }
 #endif

@@ -1,5 +1,6 @@
 // implement utility submit
-public Action:Command_Submit(client, args) {
+public Action Command_Submit(int client, any args) {
+    if (client < 0) return;
     if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
         return;
     }
@@ -23,8 +24,8 @@ public Action:Command_Submit(client, args) {
     g_aPlayerUtilityPath[client].Clear();
 }
 
-public Action:Command_SubmitAbort(client, args) {
-    if (e_cDefault != g_aPlayerStatus[client]) {
+public Action Command_SubmitAbort(int client, any args) {
+    if (!IsPlayer(client) || e_cDefault != g_aPlayerStatus[client]) {
         g_aPlayerStatus[client] = e_cDefault;
         ResetSingleClientSubmitState(client);
         PrintToChat(client, "%s 已终止上传流程", PREFIX);
@@ -39,10 +40,10 @@ public Action:Command_SubmitAbort(client, args) {
 //     return float(RoundFloat(v * 10.0)) / 10.0;
 // }
 
-void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
+void OnPlayerRunCmdForUtilitySubmit(int client, int &buttons) {
     // record action => encoded
     if (e_cThrowReady == g_aPlayerStatus[client] || e_cM_ThrowReady == g_aPlayerStatus[client]) {
-        for (new idx = 0; idx < CSGO_ACTION_NUM; idx++) {
+        for (int idx = 0; idx < CSGO_ACTION_NUM; idx++) {
             if ((g_aCsgoActionMap[idx] & buttons) && 
                 !(g_aActionRecord[client] & (1 << idx))) {
                 g_aActionRecord[client] |= 1 << idx;
@@ -63,7 +64,8 @@ void OnPlayerRunCmdForUtilitySubmit(client, &buttons) {
 
 public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         const float origin[3], const float velocity[3]) {
-        if (BotMimicFix_IsPlayerMimicing(client)) {
+        if (client < 0) return;
+        if (!IsMinidemoBot(client) && BotMimicFix_IsPlayerMimicing(client)) {
             AcceptEntityInput(entity, "Kill");
 
             if (g_aUtilityVelocity[client][0] + g_aUtilityVelocity[client][1] + g_aUtilityVelocity[client][2] == 0.0) {
@@ -94,24 +96,24 @@ public void CSU_OnThrowGrenade(int client, int entity, GrenadeType grenadeType,
         PrintToChat(client, "%s \x03已经记录你的动作，等待道具生效...", PREFIX);
 }
 
-void Event_HegrenadeDetonateForUtilitySubmit(Handle:event) {
+void Event_HegrenadeDetonateForUtilitySubmit(Handle event) {
     UtilityDetonateStat(event, GrenadeType_HE);
 }
 
-void Event_FlashbangDetonateForUtilitySubmit(Handle:event) {
+void Event_FlashbangDetonateForUtilitySubmit(Handle event) {
     UtilityDetonateStat(event, GrenadeType_Flash);
 }
 
-void Event_SmokegrenadeDetonateForUtilitySubmit(Handle:event) {
+void Event_SmokegrenadeDetonateForUtilitySubmit(Handle event) {
     UtilityDetonateStat(event, GrenadeType_Smoke);
 }
 
-void Event_MolotovDetonateForUtilitySubmit(Handle:event) {
+void Event_MolotovDetonateForUtilitySubmit(Handle event) {
     UtilityDetonateStat(event, GrenadeType_Molotov);
 }
 
 // implement utility submit function
-void ResetSingleClientSubmitState(client) {
+void ResetSingleClientSubmitState(int client) {
     g_aPlayerStatus[client] = e_cDefault;
     g_aActionRecord[client] = 0;
     g_iPlayerUtilityPathFrameCount[client] = 0;
@@ -123,13 +125,13 @@ void ResetSingleClientSubmitState(client) {
 }
 
 void ResetUtilitySubmitState() {
-    for (new client = 0; client <= MAXPLAYERS; client++) {
+    for (int client = 0; client <= MAXPLAYERS; client++) {
         ResetSingleClientSubmitState(client);
     }
 }
 
-void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
-    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+void UtilityDetonateStat(Handle event, GrenadeType utCode) {
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
     if ((e_cAlreadyThrown == g_aPlayerStatus[client]
         || e_cM_AlreadyThrown == g_aPlayerStatus[client])
         && utCode == g_aUtilityType[client]) {
@@ -156,9 +158,8 @@ void UtilityDetonateStat(Handle:event, GrenadeType utCode) {
     }
 }
 
-void TriggerWikiPost(client) {
+void TriggerWikiPost(int client) {
     // post api
-
     // param define
     char token[LENGTH_TOKEN] = "";
     char steamid[LENGTH_STEAMID64] = "";
@@ -174,8 +175,8 @@ void TriggerWikiPost(client) {
 
     // request
     char url[LENGTH_MESSAGE];
-    char apiHost[LENGTH_TOKEN];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     Format(url, sizeof(url), "%s/v2/utility/submit/?token=%s", apiHost, token);
     HTTPRequest httpRequest = new HTTPRequest(url);
     httpRequest.SetHeader("Content-Type", "application/json");
@@ -241,7 +242,7 @@ void WikiPostResponseCallback(HTTPResponse response, int client) {
     ResetSingleClientSubmitState(client);
 }
 
-void ShowResult(client, char[] utId) { 
+void ShowResult(int client, char[] utId) { 
     char strAction[LENGTH_MESSAGE] = "";
     Action_Int2Str(client, strAction);
     PrintToChat(client, "\x09 ------------------------------------- ");
@@ -291,13 +292,13 @@ void UploadUtilityPath(int client, char utid[LENGTH_UTILITY_ID]) {
         return;
     }
 
-    char apiHost[LENGTH_TOKEN];
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
     char token[LENGTH_TOKEN];
     char url[LENGTH_URL];
-    GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
+    // GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     PrintToChat(client, "%s \x04开始上传路径文件：%s", PREFIX, utid);
-    Format(url, sizeof(url), "%s/v2/utility/upload-path-put/%s/?token=%s", apiHost, utid, token);
+    Format(url, sizeof(url), "%s/v2/utility/upload-path/%s/?token=%s", apiHost, utid, token);
     HTTPRequest request = new HTTPRequest(url);
 
     DataPack pack = new DataPack();

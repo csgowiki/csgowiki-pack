@@ -1,16 +1,16 @@
 // csgowiki operator tools
 
-public Action:Command_Wikiop(client, args) {
+public Action Command_Wikiop(int client, any args) {
     Panel panel = new Panel();
 
-    panel.SetTitle("CSGOWiki管理员工具")
+    panel.SetTitle("CSGOWiki管理员工具");
 
     if (GetConVarBool(g_hCSGOWikiEnable))
         panel.DrawItem("CSGOWiki总开关：开");
     else
         panel.DrawItem("CSGOWiki总开关：关");
 
-    new Flag = ITEMDRAW_DEFAULT;
+    int Flag = ITEMDRAW_DEFAULT;
     if (!GetConVarBool(g_hCSGOWikiEnable))
         Flag = ITEMDRAW_DISABLED;
 
@@ -40,7 +40,7 @@ public Action:Command_Wikiop(client, args) {
 }
 
 
-public WikiopPanelHandler(Handle:menu, MenuAction:action, client, Position) {
+public int WikiopPanelHandler(Handle menu, MenuAction action, int client, int Position) {
     if (action == MenuAction_Select) {
         switch(Position) {
             case 1: SetConVarBool(g_hCSGOWikiEnable, !GetConVarBool(g_hCSGOWikiEnable), true, true), ClientCommand(client, "sm_wikiop");

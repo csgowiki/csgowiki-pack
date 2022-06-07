@@ -1,6 +1,5 @@
-// #include <system2>
-
-public Action Command_Record(client, args) {
+public Action Command_Record(int client, any args) {
+    if (client < 0) return;
     if (e_cDefault != g_aPlayerStatus[client]) {
         PrintToChat(client, "%s \x02已在道具上传状态，操作无效", PREFIX);
         return;
@@ -21,7 +20,7 @@ public Action Command_Record(client, args) {
     BotMimicFix_StartRecording(client, g_aLastUtilityId[client], "csgowiki");
 }
 
-public Action Command_StopRecord(client, args) {
+public Action Command_StopRecord(int client, any args) {
     if (!IsPlayer(client)) {
         return;
     }
@@ -49,14 +48,14 @@ void UploadPlayBack(int client, char utid[LENGTH_UTILITY_ID]) {
         return;
     }
 
-    char apiHost[LENGTH_TOKEN];
+    char apiHost[LENGTH_TOKEN] = "https://api.mycsgolab.com";
     char token[LENGTH_TOKEN];
     char url[LENGTH_URL];
     GetConVarString(g_hApiHost, apiHost, sizeof(apiHost));
     GetConVarString(g_hCSGOWikiToken, token, LENGTH_TOKEN);
     PrintToChat(client, "%s \x04开始上传录像：%s", PREFIX, utid);
 
-    Format(url, sizeof(url), "%s/v2/utility/upload-playback-put/%s/?token=%s", apiHost, utid, token);
+    Format(url, sizeof(url), "%s/v2/utility/upload-playback/%s/?token=%s", apiHost, utid, token);
     HTTPRequest request = new HTTPRequest(url);
     DataPack pack = new DataPack();
     pack.WriteCell(client);
@@ -80,15 +79,6 @@ void BotMimicUploadCallback(HTTPStatus status, DataPack pack) {
     DeleteReplayFileFromUtid(utid, false);
 } 
 
-// public void ExecuteCallback(bool success, const char[] command, System2ExecuteOutput output, any data) {
-//     if (!success || output.ExitStatus != 0) {
-//         PrintToChatAll("Couldn't execute commands successfully");
-//     } else {
-//         char outputString[128];
-//         output.GetOutput(outputString, sizeof(outputString));
-//         PrintToChatAll("Output of the command: %s", outputString);
-//     }
-// } 
 
 bool StartRequestReplayFile(int client, char utility_id[LENGTH_UTILITY_ID], char utid[LENGTH_UTILITY_ID]) {
     if (!IsPlayer(client)) return false;
@@ -191,7 +181,33 @@ public void BotMimicStartReplay(DataPack pack) {
 }
 
 public void BotMimicFix_OnPlayerStopsMimicing(int client, char[] name, char[] category, char[] path) {
-    if (IsPlayer(client)) {
+    if (IsPlayer(client) && !IsMinidemoBot(client)) {
         TeleportEntity(client, g_aStartPositions[client], g_aStartAngles[client], NULL_VECTOR);
+    }
+    if (IsMinidemoBot(client)) {
+        PrintToChatAll("%s bot %d 停止播放", PREFIX, client);
+        int idx_client = -1;
+        for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+            if (g_iMinidemoBots[idx] == client) {
+                idx_client = idx;
+                break;
+            }
+        }
+
+        g_bMinidemoBotsOn[idx_client] = false;
+        KillBot(client);
+        bool sumbit = false;
+        for (int idx = 0; idx < g_iMinidemoCount; ++idx) {
+            if (g_iMinidemoBots[idx] < 0) {
+                continue;
+            }
+            sumbit |= g_bMinidemoBotsOn[idx];
+        }
+        if (!sumbit) {
+            ClientCommand(g_iDemoLeader, "sm_m");
+            g_bMinidemoPlaying = sumbit;
+            ServerCommand("bot_kick");
+            ResetMinidemoState();
+        }
     }
 }

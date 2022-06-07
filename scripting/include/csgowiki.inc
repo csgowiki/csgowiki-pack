@@ -24,6 +24,8 @@
 #define LENGTH_MESSAGE 128
 #define DATA_DIM 3
 #define LENGTH_URL 256
+#define LENGTH_PATH 128
+#define MAX_REPLAY_CLIENTS 12
 
 #define CSGO_ACTION_NUM 9
 #define CSGOWIKI_ACTION_NUM 7
@@ -86,7 +88,7 @@ enum WikiAction {
 }
 
 
-new g_aCsgoActionMap[CSGO_ACTION_NUM] = {
+int g_aCsgoActionMap[CSGO_ACTION_NUM] = {
     IN_JUMP, IN_DUCK, IN_ATTACK, IN_ATTACK2, 
     IN_MOVELEFT, IN_MOVERIGHT, IN_FORWARD, IN_BACK, IN_SPEED
 };
@@ -126,3 +128,30 @@ char g_aPlayerToken[MAXPLAYERS + 1][LENGTH_TOKEN];
 bool g_bAutoThrow[MAXPLAYERS + 1];
 
 bool g_bBotMimicLoaded = false;
+
+// ------------- minidemo define --------------------
+char g_sMinidemoDirBase[LENGTH_PATH] = "data/csgowiki/minidemo";
+char g_sMinidemoName[MAX_REPLAY_CLIENTS][LENGTH_PATH];
+int g_iMinidemoBots[MAX_REPLAY_CLIENTS];
+int g_iMinidemoCount = 0;
+bool g_bMinidemoPlaying = false;
+bool g_bMinidemoPaused = false;
+int g_iMinidemoSide = -1; // (1 << 0) T, (1 << 1) CT, (1 << 0 | 1 << 1) Both
+bool g_bMinidemoBotsOn[MAX_REPLAY_CLIENTS];
+
+enum MinidemoStatus {
+    e_mDefault = 0,
+    e_mPicking = 1,
+    e_mDownloading = 2,
+    e_mChecking = 3,
+    e_mPlaying = 4
+};
+
+MinidemoStatus g_iMinidemoStatus = e_mDefault;
+JSONObject g_MinidemoCollection; // minidemo index info
+int g_iDemoLeader = -1; // leader(client) of minidemo
+char g_sDemoPickedMatch[LENGTH_NAME];
+char g_sDemoPickedMatchName[LENGTH_NAME * 4];
+char g_iDemoPickedRound = -1; // start at 0
+int g_iDemoDownloadNum = 0; // download need
+int g_iDemoDownloadBits = 0; // download bits

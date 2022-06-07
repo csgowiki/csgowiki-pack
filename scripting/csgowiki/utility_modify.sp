@@ -1,5 +1,5 @@
 // implement utility modify
-public Action:Command_Modify(client, args) {
+public Action Command_Modify(int client, any args) {
     if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
         return;
     }
@@ -28,7 +28,7 @@ public Action:Command_Modify(client, args) {
     g_aPlayerUtilityPath[client].Clear();
 }
 
-public Action:Command_Velocity(client, args) {
+public Action Command_Velocity(int client, any args) {
     PrintToChat(client, "%s \x02该接口已关闭", PREFIX);
     if (!check_function_on(g_hOnUtilitySubmit, "\x02道具上传功能关闭，请联系服务器管理员", client)) {
         return;
@@ -47,11 +47,11 @@ public Action:Command_Velocity(client, args) {
     g_aPlayerStatus[client] = e_cV_ThrowReady;
 }
 
-void ClearPlayerToken(client) {
+void ClearPlayerToken(int client) {
     strcopy(g_aPlayerToken[client], LENGTH_TOKEN, "");
 }
 
-void TriggerWikiModify(client) {
+void TriggerWikiModify(int client) {
     // param define
     char token[LENGTH_TOKEN] = "";
     char utTinyName[LENGTH_UTILITY_TINY] = "";
@@ -128,7 +128,7 @@ void WikiModifyResponseCallback(HTTPResponse response, int client) {
     ResetSingleClientSubmitState(client);
 }
 
-void ShowModifyResult(client) { 
+void ShowModifyResult(int client) { 
     char strAction[LENGTH_MESSAGE] = "";
     Action_Int2Str(client, strAction);
     PrintToChat(client, "\x09 ------------------------------------- ");

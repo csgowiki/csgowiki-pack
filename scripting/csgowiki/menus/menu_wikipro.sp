@@ -1,8 +1,7 @@
-public Action:Command_WikiPro(client, args) {
+public Action Command_WikiPro(int client, any args) {
     if (!check_function_on(g_hOnUtilityWiki, "\x02道具学习插件关闭，请联系服务器管理员", client)) {
         return;
     }
-
     if (BotMimicFix_IsPlayerMimicing(client)) {
         PrintToChat(client, "%s \x02正在播放录像", PREFIX);
         return;
@@ -15,7 +14,7 @@ public Action:Command_WikiPro(client, args) {
     CreateProRoundMenu(client);
 }
 
-void CreateProRoundMenu(client) {
+void CreateProRoundMenu(int client) {
     JSONObject picked_info = view_as<JSONObject>(g_aProMatchInfo.Get(g_aProMatchIndex[client]));
     char team1[LENGTH_NAME], team2[LENGTH_NAME];
     JSONObject teamInfo_1 = view_as<JSONObject>(picked_info.Get("team1"));
@@ -27,11 +26,11 @@ void CreateProRoundMenu(client) {
     char title[LENGTH_NAME * 4];
     Format(title, sizeof(title), "[%s] %d : %d [%s] 回合选择", team1, score1, score2, team2);
     
-    new Handle:menuhandle = CreateMenu(ProMatchRoundMenuCallback);
+    Handle menuhandle = CreateMenu(ProMatchRoundMenuCallback);
     SetMenuTitle(menuhandle, title);
 
     int maxround_int = picked_info.GetInt("maxround");
-    for (new round_count = 1; round_count <= maxround_int; round_count++) {
+    for (int round_count = 1; round_count <= maxround_int; round_count++) {
         char round_str[4];
         IntToString(round_count, round_str, sizeof(round_str));
         char item[LENGTH_MESSAGE];
@@ -44,9 +43,9 @@ void CreateProRoundMenu(client) {
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
-public ProMatchRoundMenuCallback(Handle:menuhandle, MenuAction:action, client, Position) {
+public int ProMatchRoundMenuCallback(Handle menuhandle, MenuAction action, int client, int Position) {
     if (MenuAction_Select == action) {
-        decl String:round_str[4];
+        char round_str[4];
         GetMenuItem(menuhandle, Position, round_str, sizeof(round_str));
 
         ShowProListInRound(client, round_str);
@@ -56,7 +55,7 @@ public ProMatchRoundMenuCallback(Handle:menuhandle, MenuAction:action, client, P
     }
 }
 
-void ShowProListInRound(client, char round_str[4]) {
+void ShowProListInRound(int client, char round_str[4]) {
     if (g_aProMatchIndex[client] == -1) {
         return;
     }
@@ -97,7 +96,7 @@ void ProRoundResponseCallback(HTTPResponse response, DataPack pack) {
     }
 }
 
-void CreateProDetailMenu(client, char round_str[4]) {
+void CreateProDetailMenu(int client, char round_str[4]) {
     if (g_aProMatchDetail[client].Length == 0) {
         PrintToChat(client, "%s \x0F请求的数据出错，请重新选择比赛数据", PREFIX);
         GetAllProMatchStat(client);
@@ -107,7 +106,7 @@ void CreateProDetailMenu(client, char round_str[4]) {
     char title[LENGTH_NAME];
     Format(title, sizeof(title), "第%s回合道具记录", round_str);
     
-    new Handle:menuhandle = CreateMenu(ProMatchDetailMenuCallback);
+    Handle menuhandle = CreateMenu(ProMatchDetailMenuCallback);
     SetMenuTitle(menuhandle, title);
 
     char playerName[LENGTH_NAME];
@@ -115,7 +114,7 @@ void CreateProDetailMenu(client, char round_str[4]) {
     char utZhName[LENGTH_UTILITY_ZH];
     char item[LENGTH_NAME * 4];
     char utId[LENGTH_UTILITY_ID];
-    for (new idx = 0; idx < g_aProMatchDetail[client].Length; idx++) {
+    for (int idx = 0; idx < g_aProMatchDetail[client].Length; idx++) {
         JSONArray curr = view_as<JSONArray>(g_aProMatchDetail[client].Get(idx));
         curr.GetString(11, playerName, sizeof(playerName));
         curr.GetString(17, utFullName, sizeof(utFullName));
@@ -133,9 +132,9 @@ void CreateProDetailMenu(client, char round_str[4]) {
     DisplayMenu(menuhandle, client, MENU_TIME_FOREVER);
 }
 
-public ProMatchDetailMenuCallback(Handle:menuhandle, MenuAction:action, client, Position) {
+public int ProMatchDetailMenuCallback(Handle menuhandle, MenuAction action, int client, int Position) {
     if (MenuAction_Select == action) {
-        decl String:utId[LENGTH_UTILITY_ID];
+        char utId[LENGTH_UTILITY_ID];
         GetMenuItem(menuhandle, Position, utId, sizeof(utId));
         int utId_int = StringToInt(utId);
         ShowProUtilityDetail(client, utId_int);
@@ -146,7 +145,7 @@ public ProMatchDetailMenuCallback(Handle:menuhandle, MenuAction:action, client, 
     }
 }
 
-void ShowProUtilityDetail(client, int utId) {
+void ShowProUtilityDetail(int client, int utId) {
     char utType[LENGTH_UTILITY_FULL], playerName[LENGTH_NAME], teamName[LENGTH_NAME];
     char eventName[LENGTH_MESSAGE];
     float throwPos[DATA_DIM], startAngle[DATA_DIM], velocity[DATA_DIM];

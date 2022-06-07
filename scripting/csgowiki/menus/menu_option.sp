@@ -1,9 +1,9 @@
 
-void GetAllProMatchStat(client) {
-    new Handle:menuhandle = CreateMenu(ProMatchInfoMenuCallback);
+void GetAllProMatchStat(int client) {
+    Handle menuhandle = CreateMenu(ProMatchInfoMenuCallback);
     SetMenuTitle(menuhandle, "职业比赛合集");
 
-    for (new idx = g_aProMatchInfo.Length - 1; idx >= 0; idx--) {
+    for (int idx = g_aProMatchInfo.Length - 1; idx >= 0; idx--) {
         char team1[LENGTH_NAME], team2[LENGTH_NAME], time[LENGTH_NAME];
         char matchId[LENGTH_NAME];
         JSONObject arrval = view_as<JSONObject>(g_aProMatchInfo.Get(idx));
@@ -26,13 +26,13 @@ void GetAllProMatchStat(client) {
 }
 
 
-public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Position) {
+public int ProMatchInfoMenuCallback(Handle menuhandle, MenuAction action, int client, int Position) {
     if (MenuAction_Select == action) {
-        decl String:matchId[LENGTH_NAME];
+        char matchId[LENGTH_NAME];
         GetMenuItem(menuhandle, Position, matchId, sizeof(matchId));
 
         // set index
-        for (new idx = 0; idx < g_aProMatchInfo.Length; idx++) {
+        for (int idx = 0; idx < g_aProMatchInfo.Length; idx++) {
             char _matchId[LENGTH_NAME];
             JSONObject arrval = view_as<JSONObject>(g_aProMatchInfo.Get(idx));
             arrval.GetString("matchId", _matchId, sizeof(_matchId));
@@ -48,10 +48,10 @@ public ProMatchInfoMenuCallback(Handle:menuhandle, MenuAction:action, client, Po
     }
 }
 
-public Action:Command_Option(client, args) {
+public Action Command_Option(int client, any args) {
     Panel panel = new Panel();
 
-    panel.SetTitle("个人设置")
+    panel.SetTitle("个人设置");
 
     if (g_bAutoThrow[client]) {
         panel.DrawItem("道具开启自动投掷：开");
@@ -74,7 +74,7 @@ public Action:Command_Option(client, args) {
     return Plugin_Handled;
 }
 
-public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
+public int OptionPanelHandler(Handle menu, MenuAction action, int client, int Position) {
     if (action == MenuAction_Select) {
         switch(Position) {
             case 1: g_bAutoThrow[client] = !g_bAutoThrow[client], PrintToChat(client, "%s \x04设置已更改", PREFIX), ClientCommand(client, "sm_option");
@@ -86,6 +86,6 @@ public OptionPanelHandler(Handle:menu, MenuAction:action, client, Position) {
     }
 }
 
-void ResetDefaultOption(client) {
+void ResetDefaultOption(int client) {
     g_bAutoThrow[client] = true;
 }
